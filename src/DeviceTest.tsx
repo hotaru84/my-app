@@ -21,39 +21,22 @@ import {
   SimpleGrid,
   Button,
   Center,
+  Wrap,
+  useBreakpointValue,
+  useBreakpoint,
 } from "@chakra-ui/react";
 import { TbArrowsMove, TbTable, TbZoomIn, TbZoomOut, TbZoomReset } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
+import { useMemo, useState } from "react";
 
-interface Props {
-
-}
 export const DeviceTest = () => {
-  const { isOpen, onToggle } = useDisclosure();
+  const [selected,onSelect] = useState(-1);
+  const maxSingleW = 60;
+  const baseW = useBreakpointValue({ base: 50, md: 24 }, { ssr: false })??0;
   const { isOpen:isTable, onToggle:onToggleTable } = useDisclosure();
-  
-  const aspect = isOpen ? 4200 / 2000 : 2000 / 4200;
-  const topLayout = isOpen
-    ? {
-        templateAreas: {
-          md: `"image stat" "image stat" "table table"`,
-          base: `"image" "stat" "table"`,
-        },
-        gridTemplateRows: {
-          md: "1fr 1fr 30vh",
-          base: "1fr auto 50vh",
-        },
-        gridTemplateColumns: {
-          md: "60vw 1fr",
-          base: "70vw",
-        },
-      }
-    : {
-        templateAreas: `"image stat" "image table"`,
-        gridTemplateRows: "40vh 50vh",
-        gridTemplateColumns: `calc(90vh * ${aspect}) calc(90vw - 90vh * ${aspect})`,
-      };
+  const lists = useMemo(()=>[...Array(6)].map((i)=>Math.floor(Math.random()*10)%2===0),[]);
+  const ratio = 2;
 
   return (
     <Card
@@ -61,20 +44,28 @@ export const DeviceTest = () => {
       borderRadius={16}
       as={motion.div}
       layout
-      w={"70vw"}
-      maxH={{base:"full",md:"90vh"}}
+      maxW={"80vw"}
+      p={2}
     >
-      <ButtonGroup variant={"ghost"} colorScheme="primary" position={"absolute"} top={2} flexDirection={{base:"row",md:"column"}}>
-        <Button onClick={onToggle}>ddd</Button>
+      <ButtonGroup variant={"ghost"} colorScheme="primary" position={"absolute"} top={2} left={2}>
         <IconButton icon={<TbTable />} aria-label={""} onClick={onToggleTable}/>
       </ButtonGroup>
-      
-      <SimpleGrid columns={isTable?{base:1,md:2}:1} p={4} spacing={2}>
-        <Center as={motion.div} layout>
-          <AspectRatio ratio={isOpen?2:0.5} w={isOpen?"100%":"50%"} maxH="80vh">
-            <Box bgColor={"teal.200"}/>
-          </AspectRatio>
-        </Center>
+      <Wrap shouldWrapChildren align={"center"} justify={"center"} flexGrow={1}>
+        {lists.map((b,i)=>(
+          <Center as={motion.div} layout key={i}
+              display={selected === -1 ? "block":(selected === i?"block":"none")}>
+            <Box 
+              bgColor={selected === i?"blue.200":"teal.200"} 
+              w={`${(selected === i?maxSingleW:baseW)/(b?ratio:1)}vw`}
+              h={`${(selected === i?maxSingleW:baseW)/(b?1:ratio)}vw`} 
+              borderRadius={8}
+              onClick={()=>onSelect(selected===i?-1:i)}
+            >
+              {80/lists.length/(b?ratio:1)}
+            </Box>
+          </Center>
+        ))}
+      </Wrap>
         {isTable &&(
         <VStack>
           <Stat>
@@ -90,7 +81,6 @@ export const DeviceTest = () => {
           </Stat>
           <TestTable />
         </VStack>)}
-      </SimpleGrid>
     </Card>
   );
 };

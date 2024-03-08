@@ -8,8 +8,6 @@ import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
 
 export const App = () => {
-  const lists = [...Array(6)].map((i)=>Math.floor(Math.random()*10));
-
   return (
   <ChakraProvider theme={theme}>
     <Flex w="full" justify={"center"} p={4}>
