@@ -15,13 +15,14 @@
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.4",
     "framer-motion": "^6.2.9",
-    "konva": "^9.3.5",
+    "konva": "^9.3.6",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-icons": "^5.0.1",
     "react-konva": "^18.2.10",
     "react-scripts": "5.0.1",
     "typescript": "^4.6.3",
+    "use-image": "^1.1.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

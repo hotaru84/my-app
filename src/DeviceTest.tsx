@@ -1,34 +1,26 @@
 
 import {
-  Image,
   Text,
   IconButton,
   ButtonGroup,
-  AspectRatio,
   Card,
   StatLabel,
   Stat,
   StatArrow,
   StatHelpText,
   StatNumber,
-  Flex,
-  GridItem,
-  Grid,
   useDisclosure,
   VStack,
-  HStack,
   Box,
-  SimpleGrid,
-  Button,
   Center,
   Wrap,
   useBreakpointValue,
-  useBreakpoint,
 } from "@chakra-ui/react";
-import { TbArrowsMove, TbTable, TbZoomIn, TbZoomOut, TbZoomReset } from "react-icons/tb";
+import { TbTable } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useMemo, useState } from "react";
+import { Device } from "./Device";
 
 export const DeviceTest = () => {
   const [selected,onSelect] = useState(-1);
@@ -36,7 +28,7 @@ export const DeviceTest = () => {
   const baseW = useBreakpointValue({ base: 50, md: 24 }, { ssr: false })??0;
   const { isOpen:isTable, onToggle:onToggleTable } = useDisclosure();
   const lists = useMemo(()=>[...Array(6)].map((i)=>Math.floor(Math.random()*10)%2===0),[]);
-  const ratio = 2;
+  
 
   return (
     <Card
@@ -50,20 +42,15 @@ export const DeviceTest = () => {
       <ButtonGroup variant={"ghost"} colorScheme="primary" position={"absolute"} top={2} left={2}>
         <IconButton icon={<TbTable />} aria-label={""} onClick={onToggleTable}/>
       </ButtonGroup>
-      <Wrap shouldWrapChildren align={"center"} justify={"center"} flexGrow={1}>
+      <Wrap shouldWrapChildren align={"center"} justify={"center"}>
         {lists.map((b,i)=>(
-          <Center as={motion.div} layout key={i}
-              display={selected === -1 ? "block":(selected === i?"block":"none")}>
-            <Box 
-              bgColor={selected === i?"blue.200":"teal.200"} 
-              w={`${(selected === i?maxSingleW:baseW)/(b?ratio:1)}vw`}
-              h={`${(selected === i?maxSingleW:baseW)/(b?1:ratio)}vw`} 
-              borderRadius={8}
-              onClick={()=>onSelect(selected===i?-1:i)}
-            >
-              {80/lists.length/(b?ratio:1)}
-            </Box>
-          </Center>
+          <Device 
+            key={i}
+            visible={selected === i || selected === -1} 
+            selected={selected === i} 
+            width={selected === i? maxSingleW:baseW}
+            landscape={b}
+            onSelect={()=>onSelect(selected === i ? -1:i)} />
         ))}
       </Wrap>
         {isTable &&(
