@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useMemo, useState } from "react";
 import { Device } from "./Device";
+import { DeviceSvg } from "./DeviceSvg";
 
 export const DeviceTest = () => {
   const [selected,onSelect] = useState(-1);
@@ -42,8 +43,11 @@ export const DeviceTest = () => {
       <ButtonGroup variant={"ghost"} colorScheme="primary" position={"absolute"} top={2} left={2}>
         <IconButton icon={<TbTable />} aria-label={""} onClick={onToggleTable}/>
       </ButtonGroup>
+      <DeviceSvg/>
       <Wrap shouldWrapChildren align={"center"} justify={"center"}>
-        {lists.map((b,i)=>(
+        
+        
+        {/*lists.map((b,i)=>(
           <Device 
             key={i}
             visible={selected === i || selected === -1} 
@@ -51,7 +55,7 @@ export const DeviceTest = () => {
             width={selected === i? maxSingleW:baseW}
             landscape={b}
             onSelect={()=>onSelect(selected === i ? -1:i)} />
-        ))}
+        ))*/}
       </Wrap>
         {isTable &&(
         <VStack>
