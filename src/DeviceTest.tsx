@@ -13,27 +13,13 @@ import {
   Wrap,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { TbDiabolo, TbTable } from "react-icons/tb";
+import { TbDragDrop2, TbTable } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useState } from "react";
 import { Device } from "./Device";
 import AddNewDialog from "./AddNewDialog";
-import {
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
+import { DragSortableContext, SortableItem } from "./dragSortableContext";
 
 const INITIAL_ITEMS = [
   { id: "0" },
@@ -55,30 +41,6 @@ export const DeviceTest = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [items, setItems] = useState(INITIAL_ITEMS);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-    useSensor(TouchSensor)
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    const overId = over?.id;
-
-    console.log("s" + active.id, overId);
-
-    if (active === undefined || !overId) return;
-    if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((i) => active?.id === i.id);
-        const newIndex = items.findIndex((i) => over?.id === i.id);
-        console.log(oldIndex, newIndex);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }
   return (
     <Card m={2} borderRadius={16} as={motion.div} layout maxW={"80vw"} p={2}>
       <ButtonGroup colorScheme="blue">
@@ -87,30 +49,23 @@ export const DeviceTest = () => {
           aria-label={""}
           onClick={onToggleTable}
         />
-        <IconButton icon={<TbDiabolo />} aria-label={""} onClick={onOpen} />
+        <IconButton icon={<TbDragDrop2 />} aria-label={""} onClick={onOpen} />
       </ButtonGroup>
-
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
-        <SortableContext items={items}>
-          <Wrap shouldWrapChildren align={"center"} justify={"center"} gap={4}>
-            {items.map((b) => (
-              <Device
-                key={b.id}
-                id={b.id}
-                visible={selected === b.id || selected === ""}
-                selected={selected === b.id}
-                width={selected === b.id ? maxSingleW : baseW}
-                landscape={Number(b) % 10 === 0}
-                onSelect={() => onSelect(selected === b.id ? "" : b.id)}
-              />
-            ))}
-          </Wrap>
-        </SortableContext>
-      </DndContext>
+      <DragSortableContext items={items} setItems={setItems}>
+        <Wrap shouldWrapChildren align={"center"} justify={"center"} gap={4}>
+          {items.map((b) => (
+            <Device
+              key={b.id}
+              id={b.id}
+              visible={selected === b.id || selected === ""}
+              selected={selected === b.id}
+              width={selected === b.id ? maxSingleW : baseW}
+              landscape={Number(b) % 10 === 0}
+              onSelect={() => onSelect(selected === b.id ? "" : b.id)}
+            />
+          ))}
+        </Wrap>
+      </DragSortableContext>
       {isTable && (
         <VStack>
           <Stat>

@@ -3,8 +3,7 @@ import { FC, useCallback, useMemo, useRef } from "react";
 import { useSize } from "@chakra-ui/react-use-size";
 import { Layer, Stage, Image } from "react-konva";
 import useImage from "use-image";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useDraggableItem } from "./useDraggableItem";
 
 interface Props {
   id: string;
@@ -48,39 +47,7 @@ export const Device: FC<Props> = ({
       y: boxSize.height,
     };
   }, [boxSize, landscape]);
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-    setDraggableNodeRef,
-  } = useSortable({ id });
-
-  const draggableItemStyle = useMemo(
-    () => ({
-      id: id.toString(),
-      ref: setNodeRef,
-      boxShadow: isDragging ? "lg" : "sm",
-      style: {
-        transform: CSS.Transform.toString(transform),
-        transition,
-      },
-    }),
-    [id, isDragging, setNodeRef, transform, transition]
-  );
-
-  const draggableItemHandleProps = useMemo(
-    () => ({
-      ref: setDraggableNodeRef,
-      ...attributes,
-      ...listeners,
-      cursor: isDragging ? "grabbing" : "grab",
-    }),
-    [attributes, isDragging, listeners, setDraggableNodeRef]
-  );
+  const { itemProps, handleProps } = useDraggableItem(id);
 
   return (
     <Box
@@ -90,9 +57,9 @@ export const Device: FC<Props> = ({
       h={`${width / (landscape ? ratio : 1)}vw`}
       borderRadius={8}
       onClick={onSelect}
-      {...draggableItemStyle}
+      {...itemProps}
     >
-      <Tag {...draggableItemHandleProps}>{id}</Tag>
+      <Tag {...handleProps}>{id}</Tag>
       <Stage {...getStageSize()} draggable>
         <Layer>
           <Image
