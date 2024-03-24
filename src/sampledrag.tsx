@@ -10,7 +10,13 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { FC, useState } from "react";
-
+import {
+  createSnapModifier,
+  restrictToHorizontalAxis,
+  restrictToParentElement,
+  restrictToVerticalAxis,
+  restrictToWindowEdges,
+} from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
@@ -32,24 +38,10 @@ const Draggable: FC<Props> = ({ children, x, y }) => {
       }}
       {...listeners}
       {...attributes}
-      top={y}
-      left={x}
-      position={"absolute"}
+      bottom={y}
+      right={x}
+      position={"fixed"}
     >
-      {children}
-    </Box>
-  );
-};
-const Droppable: FC<Props> = ({ children }) => {
-  const { isOver, setNodeRef } = useDroppable({
-    id: "droppable",
-  });
-  const style = {
-    color: isOver ? "green" : undefined,
-  };
-
-  return (
-    <Box ref={setNodeRef} style={style}>
       {children}
     </Box>
   );
@@ -71,14 +63,15 @@ export const SampleDraggable = () => {
         onDragEnd={({ delta }) => {
           setCoordinates(({ x, y }) => {
             return {
-              x: x + delta.x,
-              y: y + delta.y,
+              x: x - delta.x,
+              y: y - delta.y,
             };
           });
         }}
+        modifiers={[restrictToHorizontalAxis]}
       >
         <Draggable x={x} y={y}>
-          <Box boxSize={30} boxShadow={"lg"}></Box>
+          <Box boxSize={30} boxShadow={"lg"} bgColor={"white"}></Box>
         </Draggable>
       </DndContext>
     </Container>
