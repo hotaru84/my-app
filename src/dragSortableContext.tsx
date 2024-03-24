@@ -15,20 +15,12 @@ import {
 } from "@dnd-kit/sortable";
 import { FC } from "react";
 
-export interface SortableItem {
-  id: string;
-}
-
 interface Props {
   children: React.ReactNode;
-  items: SortableItem[];
-  setItems: (items: SortableItem[]) => void;
+  ids: string[];
+  setIds: (ids: string[]) => void;
 }
-export const DragSortableContext: FC<Props> = ({
-  children,
-  items,
-  setItems,
-}) => {
+export const DragSortableContext: FC<Props> = ({ children, ids, setIds }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -39,11 +31,13 @@ export const DragSortableContext: FC<Props> = ({
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+
+    console.log(active, over);
     if (active === undefined || over === null) return;
     if (active.id !== over.id) {
-      const oldIndex = items.findIndex((i) => active?.id === i.id);
-      const newIndex = items.findIndex((i) => over?.id === i.id);
-      setItems(arrayMove(items, oldIndex, newIndex));
+      const oldIndex = ids.findIndex((i) => active?.id === i);
+      const newIndex = ids.findIndex((i) => over?.id === i);
+      setIds(arrayMove(ids, oldIndex, newIndex));
     }
   }
 
@@ -53,7 +47,7 @@ export const DragSortableContext: FC<Props> = ({
       onDragEnd={handleDragEnd}
       sensors={sensors}
     >
-      <SortableContext items={items}>{children}</SortableContext>
+      <SortableContext items={ids}>{children}</SortableContext>
     </DndContext>
   );
 };

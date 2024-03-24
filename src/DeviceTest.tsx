@@ -19,19 +19,19 @@ import { TestTable } from "./testTable";
 import { useState } from "react";
 import { Device } from "./Device";
 import AddNewDialog from "./AddNewDialog";
-import { DragSortableContext, SortableItem } from "./dragSortableContext";
+import { DragSortableContext } from "./dragSortableContext";
 
-const INITIAL_ITEMS = [
-  { id: "0" },
-  { id: "1" },
-  { id: "2" },
-  { id: "3" },
-  { id: "4" },
-  { id: "5" },
-  { id: "6" },
-  { id: "7" },
-  { id: "8" },
-  { id: "9" },
+const Items = [
+  { id: "0", title: "first" },
+  { id: "1", title: "second" },
+  { id: "2", title: "second" },
+  { id: "3", title: "second" },
+  { id: "4", title: "second" },
+  { id: "5", title: "second" },
+  { id: "6", title: "second" },
+  { id: "7", title: "second" },
+  { id: "8", title: "second" },
+  { id: "9", title: "second" },
 ];
 export const DeviceTest = () => {
   const [selected, onSelect] = useState("");
@@ -39,7 +39,7 @@ export const DeviceTest = () => {
   const baseW = useBreakpointValue({ base: 50, md: 24 }, { ssr: false }) ?? 0;
   const { isOpen: isTable, onToggle: onToggleTable } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [items, setItems] = useState(INITIAL_ITEMS);
+  const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
 
   return (
     <Card m={2} borderRadius={16} as={motion.div} layout maxW={"80vw"} p={2}>
@@ -51,19 +51,24 @@ export const DeviceTest = () => {
         />
         <IconButton icon={<TbDragDrop2 />} aria-label={""} onClick={onOpen} />
       </ButtonGroup>
-      <DragSortableContext items={items} setItems={setItems}>
+      <DragSortableContext ids={ids} setIds={setIds}>
         <Wrap shouldWrapChildren align={"center"} justify={"center"} gap={4}>
-          {items.map((b) => (
-            <Device
-              key={b.id}
-              id={b.id}
-              visible={selected === b.id || selected === ""}
-              selected={selected === b.id}
-              width={selected === b.id ? maxSingleW : baseW}
-              landscape={Number(b) % 10 === 0}
-              onSelect={() => onSelect(selected === b.id ? "" : b.id)}
-            />
-          ))}
+          {ids.map((id) => {
+            const item = Items.find((i) => i.id === id);
+            const isSelected = selected === item?.id;
+            if (item === undefined) return <></>;
+            return (
+              <Device
+                key={item.id}
+                id={item.id}
+                visible={isSelected || selected === ""}
+                selected={isSelected}
+                width={isSelected ? maxSingleW : baseW}
+                landscape={true}
+                onSelect={() => onSelect(isSelected ? "" : item.id)}
+              />
+            );
+          })}
         </Wrap>
       </DragSortableContext>
       {isTable && (
