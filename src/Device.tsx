@@ -1,9 +1,10 @@
-import { Box, Tag } from "@chakra-ui/react";
+import { Box, Icon, Tag } from "@chakra-ui/react";
 import { FC, useCallback, useMemo, useRef } from "react";
 import { useSize } from "@chakra-ui/react-use-size";
 import { Layer, Stage, Image } from "react-konva";
 import useImage from "use-image";
 import { useDraggableItem } from "./useDraggableItem";
+import { MdDragIndicator } from "react-icons/md";
 
 interface Props {
   id: string;
@@ -59,7 +60,9 @@ export const Device: FC<Props> = ({
       onClick={onSelect}
       {...itemProps}
     >
-      <Tag {...handleProps}>{id}</Tag>
+      <Box {...handleProps} m={2}>
+        <MdDragIndicator color="white" />
+      </Box>
       <Stage {...getStageSize()} draggable>
         <Layer>
           <Image
