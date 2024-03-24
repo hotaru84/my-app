@@ -7,7 +7,7 @@ interface ItemProps {
   itemProps: BoxProps;
   handleProps: BoxProps;
 }
-export function useDraggableItem(id: string): ItemProps {
+export function useDragSortableItem(id: string): ItemProps {
   const {
     attributes,
     listeners,

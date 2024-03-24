@@ -3,7 +3,7 @@ import { FC, useCallback, useMemo, useRef } from "react";
 import { useSize } from "@chakra-ui/react-use-size";
 import { Layer, Stage, Image } from "react-konva";
 import useImage from "use-image";
-import { useDraggableItem } from "./useDraggableItem";
+import { useDragSortableItem } from "./useDragSortableItem";
 import { MdDragIndicator } from "react-icons/md";
 
 interface Props {
@@ -48,7 +48,7 @@ export const Device: FC<Props> = ({
       y: boxSize.height,
     };
   }, [boxSize, landscape]);
-  const { itemProps, handleProps } = useDraggableItem(id);
+  const { itemProps, handleProps } = useDragSortableItem(id);
 
   return (
     <Box

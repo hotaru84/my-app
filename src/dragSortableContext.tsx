@@ -31,8 +31,6 @@ export const DragSortableContext: FC<Props> = ({ children, ids, setIds }) => {
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-
-    console.log(active, over);
     if (active === undefined || over === null) return;
     if (active.id !== over.id) {
       const oldIndex = ids.findIndex((i) => active?.id === i);

@@ -12,6 +12,8 @@ import {
   VStack,
   Wrap,
   useBreakpointValue,
+  Button,
+  Box,
 } from "@chakra-ui/react";
 import { TbDragDrop2, TbTable } from "react-icons/tb";
 import { motion } from "framer-motion";
@@ -20,6 +22,20 @@ import { useState } from "react";
 import { Device } from "./Device";
 import AddNewDialog from "./AddNewDialog";
 import { DragSortableContext } from "./dragSortableContext";
+import { CSS } from "@dnd-kit/utilities";
+
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useDraggable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { Coordinates } from "@dnd-kit/core/dist/types";
+import { SampleDraggable } from "./sampledrag";
 
 const Items = [
   { id: "0", title: "first" },
@@ -87,6 +103,7 @@ export const DeviceTest = () => {
           <TestTable />
         </VStack>
       )}
+      <SampleDraggable />
       <AddNewDialog isOpen={isOpen} onClose={onClose} />
     </Card>
   );
