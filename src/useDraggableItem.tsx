@@ -26,6 +26,7 @@ export function useDraggableItem(id: string): ItemProps {
       style: {
         transform: CSS.Transform.toString(transform),
         transition,
+        touchAction: "none",
       },
     }),
     [id, isDragging, setNodeRef, transform, transition]
