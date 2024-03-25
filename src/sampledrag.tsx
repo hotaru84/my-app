@@ -1,4 +1,11 @@
-import { Box, Container } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Container,
+  Icon,
+  keyframes,
+  useDisclosure,
+} from "@chakra-ui/react";
 import {
   DndContext,
   KeyboardSensor,
@@ -18,6 +25,7 @@ import {
   restrictToWindowEdges,
 } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
+import { TbRotateDot } from "react-icons/tb";
 
 interface Props {
   children?: React.ReactNode;
@@ -48,13 +56,22 @@ const Draggable: FC<Props> = ({ children, x, y }) => {
 };
 
 export const SampleDraggable = () => {
+  const { isOpen, onToggle } = useDisclosure();
   const [{ x, y }, setCoordinates] = useState({ x: 0, y: 0 });
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
     useSensor(KeyboardSensor, {}),
     useSensor(TouchSensor)
   );
+  const pulse = keyframes({
+    "0%": {
+      transform: "rotate(0deg) scale(1)",
+    },
+    "100%": {
+      transform: "rotate(-360deg) scale(1.0)",
+    },
+  });
 
   return (
     <Container size="xl">
@@ -68,10 +85,22 @@ export const SampleDraggable = () => {
             };
           });
         }}
-        modifiers={[restrictToHorizontalAxis]}
+        modifiers={[restrictToWindowEdges]}
       >
         <Draggable x={x} y={y}>
-          <Box boxSize={30} boxShadow={"lg"} bgColor={"white"}></Box>
+          <Center
+            boxSize={30}
+            boxShadow={"lg"}
+            onClick={onToggle}
+            bgColor={isOpen ? "teal.300" : "cyan.200"}
+          >
+            <Icon
+              animation={`${pulse} 2s infinite linear`}
+              as={TbRotateDot}
+              alignSelf={"center"}
+              justifySelf={"center"}
+            />
+          </Center>
         </Draggable>
       </DndContext>
     </Container>
