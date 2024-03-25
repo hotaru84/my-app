@@ -14,8 +14,17 @@ import {
   useBreakpointValue,
   Button,
   Box,
+  keyframes,
+  Icon,
 } from "@chakra-ui/react";
-import { TbDragDrop2, TbTable } from "react-icons/tb";
+import {
+  TbBrandSpeedtest,
+  TbDragDrop2,
+  TbRotate,
+  TbRotate2,
+  TbRotateDot,
+  TbTable,
+} from "react-icons/tb";
 import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useState } from "react";
@@ -56,6 +65,14 @@ export const DeviceTest = () => {
   const { isOpen: isTable, onToggle: onToggleTable } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
+  const pulse = keyframes({
+    "0%": {
+      transform: "rotate(0deg) scale(1)",
+    },
+    "100%": {
+      transform: "rotate(-360deg) scale(1.0)",
+    },
+  });
 
   return (
     <Card m={2} borderRadius={16} as={motion.div} layout maxW={"80vw"} p={2}>
@@ -66,6 +83,12 @@ export const DeviceTest = () => {
           onClick={onToggleTable}
         />
         <IconButton icon={<TbDragDrop2 />} aria-label={""} onClick={onOpen} />
+        <Icon
+          animation={`${pulse} 2s infinite linear`}
+          as={TbRotateDot}
+          alignSelf={"center"}
+          justifySelf={"center"}
+        />
       </ButtonGroup>
       <DragSortableContext ids={ids} setIds={setIds}>
         <Wrap shouldWrapChildren align={"center"} justify={"center"} gap={4}>
