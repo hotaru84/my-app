@@ -16,8 +16,9 @@ import {
   Button,
   TableCaption,
   Tfoot,
+  Checkbox,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { FC, useCallback, useMemo } from "react";
 import {
   TbArrowDown,
   TbArrowUp,
@@ -187,7 +188,11 @@ export const TestTable: FC = () => {
     initialState: {
       sorting: [{ id: "lasttime", desc: true }],
     },
+    enableMultiRowSelection: true,
   });
+  const isCheckboxActive = useCallback(() => {
+    return table.getIsSomeRowsSelected() || table.getIsAllRowsSelected();
+  }, [table]);
 
   return (
     <Table size="sm">
@@ -201,6 +206,15 @@ export const TestTable: FC = () => {
       >
         {table.getHeaderGroups().map((headerGroup) => (
           <Tr key={headerGroup.id}>
+            {isCheckboxActive() && (
+              <Th width="10px">
+                <Checkbox
+                  isChecked={table.getIsAllRowsSelected()}
+                  isIndeterminate={table.getIsSomeRowsSelected()}
+                  onChange={table.getToggleAllPageRowsSelectedHandler()}
+                ></Checkbox>
+              </Th>
+            )}
             {headerGroup.headers.map((header) => {
               const meta: any = header.column.columnDef.meta;
               return (
@@ -232,7 +246,15 @@ export const TestTable: FC = () => {
       </Thead>
       <Tbody>
         {table.getRowModel().rows.map((row) => (
-          <Tr key={row.id}>
+          <Tr key={row.id} onClick={row.getToggleSelectedHandler()}>
+            {isCheckboxActive() && (
+              <Td width="10px">
+                <Checkbox
+                  isChecked={row.getIsSelected()}
+                  onClick={row.getToggleSelectedHandler()}
+                ></Checkbox>
+              </Td>
+            )}
             {row.getVisibleCells().map((cell) => {
               const meta: any = cell.column.columnDef.meta;
               return (

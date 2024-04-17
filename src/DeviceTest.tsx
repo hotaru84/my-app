@@ -38,9 +38,8 @@ const Items = [
 ];
 export const DeviceTest = () => {
   const [selected, onSelect] = useState("");
-  const maxSingleW = 55;
-  const baseW = useBreakpointValue({ base: 50, md: 24 }, { ssr: false }) ?? 0;
-  const { isOpen: isTable, onToggle: onToggleTable } = useDisclosure();
+  const maxSingleW = 40;
+  const baseW = useBreakpointValue({ base: 50, md: 20 }, { ssr: false }) ?? 0;
   const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
 
   return (
@@ -48,17 +47,13 @@ export const DeviceTest = () => {
       borderRadius={16}
       as={motion.div}
       layout
-      w="75vw"
+      w="50vw"
       maxH="94vh"
       p={2}
       gap={2}
     >
       <Flex>
-        <IconButton
-          icon={<TbTable />}
-          aria-label={""}
-          onClick={onToggleTable}
-        />
+        <IconButton icon={<TbTable />} aria-label={""} />
         <Spacer />
         <Heading as="em" fontSize={"2rem"}>
           <StatUpArrow fontSize={"1rem"} alignSelf={"end"} />
@@ -72,12 +67,11 @@ export const DeviceTest = () => {
         <Flex
           align={"center"}
           justify={"center"}
-          flexGrow={1}
-          flexShrink={1}
           gap={2}
-          p={2}
           overflowY={"auto"}
           flexWrap={"wrap"}
+          flexGrow={4}
+          flexShrink={1}
         >
           {ids.map((id) => {
             const item = Items.find((i) => i.id === id);
@@ -102,14 +96,18 @@ export const DeviceTest = () => {
         w="full"
         maxH={"30vh"}
         minH={"100px"}
-        flexShrink={100}
+        flexShrink={5}
         flexGrow={1}
       >
         <TestTable />
       </TableContainer>
-      <ButtonGroup>
-        <Button boxShadow={"lg"}>TEST</Button>
-      </ButtonGroup>
+      <Flex justify={"end"}>
+        <ButtonGroup justifySelf={"end"}>
+          <Button size={{ base: "sm", md: "lg" }} boxShadow={"xl"}>
+            TEST
+          </Button>
+        </ButtonGroup>
+      </Flex>
     </Card>
   );
 };
