@@ -24,7 +24,13 @@ import {
   TbDotsVertical,
   TbTrash,
 } from "react-icons/tb";
-import { createColumnHelper, useReactTable, getCoreRowModel, getSortedRowModel, flexRender } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 
 type DataResult = {
   lasttime: number;
@@ -184,82 +190,60 @@ export const TestTable: FC = () => {
   });
 
   return (
-    <>
-      <TableContainer mb={2} h="full" overflowY={"auto"} maxH={64}>
-        <Table size="sm">
-          <Thead
-            boxShadow={"sm"}
-            bgColor={"bg"}
-            borderRadius={8}
-            position="sticky"
-            top={0}
-            zIndex="docked"
-          >
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const meta: any = header.column.columnDef.meta;
-                  return (
-                    <Th
-                      key={header.id}
-                      onClick={header.column.getToggleSortingHandler()}
-                      isNumeric={meta?.isNumeric}
-                    >
-                      <HStack>
-                        <Text>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </Text>
-                        {header.column.getIsSorted() ? (
-                          header.column.getIsSorted() === "desc" ? (
-                            <TbArrowDown aria-label="sorted descending" />
-                          ) : (
-                            <TbArrowUp aria-label="sorted ascending" />
-                          )
-                        ) : null}
-                      </HStack>
-                    </Th>
-                  );
-                })}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table.getRowModel().rows.map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => {
-                  const meta: any = cell.column.columnDef.meta;
-                  return (
-                    <Td key={cell.id} isNumeric={meta?.isNumeric}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Td>
-                  );
-                })}
-              </Tr>
-            ))}
-          </Tbody>
-          <Tfoot position={"sticky"} bottom={0} zIndex="docked">
-            <Tr>
-              <Td colSpan={columns.length}>
-                <Button
-                  leftIcon={<TbTrash />}
-                  variant="solid"
-                  boxShadow={"md"}
-                  colorScheme="gray"
-                  size={"sm"}
+    <Table size="sm">
+      <Thead
+        boxShadow="sm"
+        bgColor={"white"}
+        borderTopRadius={8}
+        position="sticky"
+        top={0}
+        zIndex="docked"
+      >
+        {table.getHeaderGroups().map((headerGroup) => (
+          <Tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              const meta: any = header.column.columnDef.meta;
+              return (
+                <Th
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                  isNumeric={meta?.isNumeric}
                 >
-                  Clear all
-                </Button>
-              </Td>
-            </Tr>
-          </Tfoot>
-        </Table>
-      </TableContainer>
-    </>
+                  <HStack>
+                    <Text>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </Text>
+                    {header.column.getIsSorted() ? (
+                      header.column.getIsSorted() === "desc" ? (
+                        <TbArrowDown aria-label="sorted descending" />
+                      ) : (
+                        <TbArrowUp aria-label="sorted ascending" />
+                      )
+                    ) : null}
+                  </HStack>
+                </Th>
+              );
+            })}
+          </Tr>
+        ))}
+      </Thead>
+      <Tbody>
+        {table.getRowModel().rows.map((row) => (
+          <Tr key={row.id}>
+            {row.getVisibleCells().map((cell) => {
+              const meta: any = cell.column.columnDef.meta;
+              return (
+                <Td key={cell.id} isNumeric={meta?.isNumeric}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Td>
+              );
+            })}
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
   );
 };

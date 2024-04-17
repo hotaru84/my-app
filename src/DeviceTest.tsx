@@ -12,72 +12,71 @@ import {
   VStack,
   Wrap,
   useBreakpointValue,
+  Flex,
+  Spacer,
+  CardBody,
   Button,
-  Box,
-  keyframes,
-  Icon,
+  Heading,
+  StatUpArrow,
+  TableContainer,
+  CardFooter,
 } from "@chakra-ui/react";
-import {
-  TbBrandSpeedtest,
-  TbDragDrop2,
-  TbRotate,
-  TbRotate2,
-  TbRotateDot,
-  TbTable,
-} from "react-icons/tb";
+import { TbDragDrop2, TbTable } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useState } from "react";
 import { Device } from "./Device";
 import AddNewDialog from "./AddNewDialog";
 import { DragSortableContext } from "./dragSortableContext";
-import { CSS } from "@dnd-kit/utilities";
 
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useDraggable,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Coordinates } from "@dnd-kit/core/dist/types";
 import { SampleDraggable } from "./sampledrag";
 
 const Items = [
   { id: "0", title: "first" },
   { id: "1", title: "second" },
   { id: "2", title: "second" },
-  { id: "3", title: "second" },
-  { id: "4", title: "second" },
-  { id: "5", title: "second" },
-  { id: "6", title: "second" },
-  { id: "7", title: "second" },
-  { id: "8", title: "second" },
-  { id: "9", title: "second" },
 ];
 export const DeviceTest = () => {
   const [selected, onSelect] = useState("");
-  const maxSingleW = 60;
+  const maxSingleW = 55;
   const baseW = useBreakpointValue({ base: 50, md: 24 }, { ssr: false }) ?? 0;
   const { isOpen: isTable, onToggle: onToggleTable } = useDisclosure();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
 
   return (
-    <Card m={2} borderRadius={16} as={motion.div} layout maxW={"80vw"} p={2}>
-      <ButtonGroup colorScheme="blue">
+    <Card
+      borderRadius={16}
+      as={motion.div}
+      layout
+      w="75vw"
+      maxH="94vh"
+      gap={2}
+      p={2}
+    >
+      <Flex m={2}>
         <IconButton
           icon={<TbTable />}
           aria-label={""}
           onClick={onToggleTable}
         />
-        <IconButton icon={<TbDragDrop2 />} aria-label={""} onClick={onOpen} />
-      </ButtonGroup>
+        <Spacer />
+        <Heading as="em" fontSize={"2rem"} mr={2}>
+          <StatUpArrow fontSize={"1rem"} alignSelf={"end"} />
+          123
+        </Heading>
+        <Text fontSize={"1rem"} fontWeight={"light"} alignSelf={"end"}>
+          num/sec
+        </Text>
+      </Flex>
       <DragSortableContext ids={ids} setIds={setIds}>
-        <Wrap shouldWrapChildren align={"center"} justify={"center"} gap={4}>
+        <Flex
+          align={"center"}
+          justify={"center"}
+          flexGrow={12}
+          gap={2}
+          overflowY={"auto"}
+          flexWrap={"wrap"}
+        >
           {ids.map((id) => {
             const item = Items.find((i) => i.id === id);
             const isSelected = selected === item?.id;
@@ -94,26 +93,14 @@ export const DeviceTest = () => {
               />
             );
           })}
-        </Wrap>
+        </Flex>
       </DragSortableContext>
-      {isTable && (
-        <VStack>
-          <Stat>
-            <StatLabel fontSize={"1rem"}>Throughput</StatLabel>
-            <StatNumber fontSize={"3rem"}>
-              <StatArrow type="increase" />
-              30
-              <Text as="span" fontSize={"1rem"} fontWeight={"light"}>
-                num/sec
-              </Text>
-            </StatNumber>
-            <StatHelpText>1 data</StatHelpText>
-          </Stat>
-          <TestTable />
-        </VStack>
-      )}
-      <SampleDraggable />
-      <AddNewDialog isOpen={isOpen} onClose={onClose} />
+      <TableContainer overflowY={"auto"} w="full" flexShrink={"8"} maxH="22vh">
+        <TestTable />
+      </TableContainer>
+      <ButtonGroup mt={0} mx={2}>
+        <Button boxShadow={"lg"}>TEST</Button>
+      </ButtonGroup>
     </Card>
   );
 };
