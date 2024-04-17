@@ -50,21 +50,21 @@ export const DeviceTest = () => {
       layout
       w="75vw"
       maxH="94vh"
-      gap={2}
       p={2}
+      gap={2}
     >
-      <Flex m={2}>
+      <Flex>
         <IconButton
           icon={<TbTable />}
           aria-label={""}
           onClick={onToggleTable}
         />
         <Spacer />
-        <Heading as="em" fontSize={"2rem"} mr={2}>
+        <Heading as="em" fontSize={"2rem"}>
           <StatUpArrow fontSize={"1rem"} alignSelf={"end"} />
           123
         </Heading>
-        <Text fontSize={"1rem"} fontWeight={"light"} alignSelf={"end"}>
+        <Text fontSize={"1rem"} fontWeight={"light"} alignSelf={"end"} mx={2}>
           num/sec
         </Text>
       </Flex>
@@ -72,8 +72,10 @@ export const DeviceTest = () => {
         <Flex
           align={"center"}
           justify={"center"}
-          flexGrow={12}
+          flexGrow={1}
+          flexShrink={1}
           gap={2}
+          p={2}
           overflowY={"auto"}
           flexWrap={"wrap"}
         >
@@ -95,10 +97,17 @@ export const DeviceTest = () => {
           })}
         </Flex>
       </DragSortableContext>
-      <TableContainer overflowY={"auto"} w="full" flexShrink={"8"} maxH="22vh">
+      <TableContainer
+        overflowY={"auto"}
+        w="full"
+        maxH={"30vh"}
+        minH={"100px"}
+        flexShrink={100}
+        flexGrow={1}
+      >
         <TestTable />
       </TableContainer>
-      <ButtonGroup mt={0} mx={2}>
+      <ButtonGroup>
         <Button boxShadow={"lg"}>TEST</Button>
       </ButtonGroup>
     </Card>
