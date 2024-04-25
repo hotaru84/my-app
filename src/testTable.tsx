@@ -18,7 +18,7 @@ import {
   Tfoot,
   Checkbox,
 } from "@chakra-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import {
   TbArrowDown,
   TbArrowUp,
@@ -178,7 +178,12 @@ const columns = [
   }),
 ];
 
-export const TestTable: FC = () => {
+interface Props {
+  onSelect: (times: number[]) => void;
+}
+
+export const TestTable: FC<Props> = ({ onSelect }) => {
+  const [rowSelection, setRowSelection] = useState({});
   const table = useReactTable<DataResult>({
     data: results,
     columns,
@@ -188,11 +193,18 @@ export const TestTable: FC = () => {
     initialState: {
       sorting: [{ id: "lasttime", desc: true }],
     },
-    enableMultiRowSelection: true,
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
   });
   const isCheckboxActive = useCallback(() => {
     return table.getIsSomeRowsSelected() || table.getIsAllRowsSelected();
   }, [table]);
+
+  useEffect(() => {
+    onSelect(table.getSelectedRowModel().rows.map((r) => r.original.lasttime));
+  }, [onSelect, rowSelection, table]);
 
   return (
     <Table size="sm">
