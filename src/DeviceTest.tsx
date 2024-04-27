@@ -12,6 +12,7 @@ import {
   Box,
   VStack,
   Tooltip,
+  HStack,
 } from "@chakra-ui/react";
 import { TbTable } from "react-icons/tb";
 import { motion } from "framer-motion";
@@ -39,7 +40,9 @@ const Items = [
 export const DeviceTest = () => {
   const [selectTime, onSelectTime] = useState<number[]>([]);
   const [selected, onSelect] = useState("");
-  const [fps, { push, removeAt }] = useList([12, 123, 63, 256, 75, 43]);
+  const [fps, { push, removeAt }] = useList([
+    12, 123, 63, 256, 75, 431, 4, 6, 23,
+  ]);
   const maxSingleW = 40;
   const baseW = 20;
   const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
@@ -62,21 +65,27 @@ export const DeviceTest = () => {
       <Flex>
         <IconButton icon={<TbTable />} aria-label={""} />
         <Spacer />
-
-        <Tooltip label={fps.map((d) => d + ",")}>
-          <VStack w="80px" h="30px" mx={2} alignItems={"end"}>
-            <Sparklines data={fps} style={{ opacity: 0.5 }}>
-              <SparklinesBars style={{ color: "" }} />
-            </Sparklines>
-          </VStack>
-        </Tooltip>
-        <Heading as="em" fontSize={"2rem"} alignContent={"end"}>
-          <StatUpArrow fontSize={"1rem"} alignSelf={"end"} />
-          123
-        </Heading>
-        <Text fontSize={"1rem"} fontWeight={"light"} alignSelf={"end"} mx={2}>
-          num/sec
-        </Text>
+        <VStack gap={0} justifyItems={"end"}>
+          <HStack>
+            <Heading as="em" fontSize={"2rem"}>
+              123
+            </Heading>
+            <Text fontSize={"0.7rem"} fontWeight={"light"} alignSelf={"end"}>
+              num/sec
+            </Text>
+          </HStack>
+          <Sparklines
+            data={fps}
+            limit={10}
+            min={0}
+            max={255}
+            height={20}
+            style={{ justifySelf: "end" }}
+          >
+            <SparklinesLine style={{ fill: "#0BC5EA", stroke: "#0BC5EA" }} />
+            <SparklinesSpots size={4} />
+          </Sparklines>
+        </VStack>
       </Flex>
       <DragSortableContext ids={ids} setIds={setIds}>
         <Flex
