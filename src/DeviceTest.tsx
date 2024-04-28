@@ -7,11 +7,8 @@ import {
   Spacer,
   Button,
   Heading,
-  StatUpArrow,
   TableContainer,
-  Box,
   VStack,
-  Tooltip,
   HStack,
 } from "@chakra-ui/react";
 import { TbTable } from "react-icons/tb";
@@ -20,23 +17,10 @@ import { TestTable } from "./testTable";
 import { useState } from "react";
 import { Device } from "./Device";
 import { DragSortableContext } from "./dragSortableContext";
-import {
-  Sparklines,
-  SparklinesBars,
-  SparklinesLine,
-  SparklinesNormalBand,
-  SparklinesReferenceLine,
-  SparklinesSpots,
-  SparklinesText,
-} from "react-sparklines";
+import { Sparklines, SparklinesLine, SparklinesSpots } from "react-sparklines";
 import { useInterval, useList } from "react-use";
-import { randomInt } from "crypto";
 
-const Items = [
-  { id: "0", title: "first" },
-  { id: "1", title: "second" },
-  { id: "2", title: "second" },
-];
+const Items = [{ id: "0", title: "first" }];
 export const DeviceTest = () => {
   const [selectTime, onSelectTime] = useState<number[]>([]);
   const [selected, onSelect] = useState("");
@@ -74,14 +58,7 @@ export const DeviceTest = () => {
               num/sec
             </Text>
           </HStack>
-          <Sparklines
-            data={fps}
-            limit={10}
-            min={0}
-            max={255}
-            height={20}
-            style={{ justifySelf: "end" }}
-          >
+          <Sparklines data={fps} limit={10} min={0} max={255} height={20}>
             <SparklinesLine style={{ fill: "#0BC5EA", stroke: "#0BC5EA" }} />
             <SparklinesSpots size={4} />
           </Sparklines>
