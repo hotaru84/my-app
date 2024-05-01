@@ -16,33 +16,27 @@ import { motion } from "framer-motion";
 import { TestTable } from "./testTable";
 import { useState } from "react";
 import { Device } from "./Device";
-import { DragSortableContext } from "./dragSortableContext";
-import { Sparklines, SparklinesLine, SparklinesSpots } from "react-sparklines";
-import { useInterval, useList } from "react-use";
+import { Panel, PanelGroup } from "react-resizable-panels";
+import { PanelResizeHandler } from "./PanelResizeHandler";
+import { SpeedMeter } from "./SpeedMeter";
+const Items = [
+  { id: "0", title: "first" },
+  { id: "1", title: "first" },
+  { id: "2", title: "first" },
+  { id: "3", title: "first" },
+];
 
-const Items = [{ id: "0", title: "first" }];
 export const DeviceTest = () => {
   const [selectTime, onSelectTime] = useState<number[]>([]);
-  const [selected, onSelect] = useState("");
-  const [fps, { push, removeAt }] = useList([
-    12, 123, 63, 256, 75, 431, 4, 6, 23,
-  ]);
-  const maxSingleW = 40;
-  const baseW = 20;
-  const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
-
-  useInterval(() => {
-    push(Math.floor(Math.random() * 255));
-    removeAt(0);
-  }, 500);
+  console.log("a");
 
   return (
     <Card
       borderRadius={16}
       as={motion.div}
       layout
-      w="50vw"
-      maxH="94vh"
+      w="full"
+      h="full"
       p={2}
       gap={2}
     >
@@ -58,46 +52,34 @@ export const DeviceTest = () => {
               num/sec
             </Text>
           </HStack>
-          <Sparklines data={fps} limit={10} min={0} max={255} height={20}>
-            <SparklinesLine style={{ fill: "#0BC5EA", stroke: "#0BC5EA" }} />
-            <SparklinesSpots size={4} />
-          </Sparklines>
+          <SpeedMeter />
         </VStack>
       </Flex>
-      <DragSortableContext ids={ids} setIds={setIds}>
-        <Flex
-          align={"center"}
-          justify={"center"}
-          gap={2}
-          overflowY={"auto"}
-          flexWrap={"wrap"}
-          flexGrow={4}
-          flexShrink={1}
-        >
-          {ids.map((id) => {
-            const item = Items.find((i) => i.id === id);
-            const isSelected = selected === item?.id;
-            if (item === undefined) return <></>;
-            return (
-              <Device
-                key={item.id}
-                width={isSelected ? maxSingleW : baseW}
-                onSelect={() => onSelect(isSelected ? "" : item.id)}
-              />
-            );
-          })}
-        </Flex>
-      </DragSortableContext>
-      <TableContainer
-        overflowY={"auto"}
-        w="full"
-        maxH={"30vh"}
-        minH={"100px"}
-        flexShrink={5}
-        flexGrow={1}
-      >
-        <TestTable onSelect={onSelectTime} />
-      </TableContainer>
+      <PanelGroup direction="vertical">
+        <Panel defaultSize={80} minSize={20}>
+          <Flex
+            align={"center"}
+            justify={"center"}
+            gap={2}
+            overflowY={"auto"}
+            flexWrap={"wrap"}
+            h="full"
+            direction={"row"}
+          >
+            {Items.map((id) => {
+              return (
+                <Device key={id.id} width={100 / Math.min(3, Items.length)} />
+              );
+            })}
+          </Flex>
+        </Panel>
+        <PanelResizeHandler h={2} w="full" />
+        <Panel defaultSize={20}>
+          <TableContainer overflowY={"auto"} w="full" h={"full"}>
+            <TestTable onSelect={onSelectTime} />
+          </TableContainer>
+        </Panel>
+      </PanelGroup>
       <Flex justify={"end"}>
         <ButtonGroup justifySelf={"end"}>
           <Button size={{ base: "sm", md: "lg" }} boxShadow={"xl"}>

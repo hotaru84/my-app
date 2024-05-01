@@ -1,27 +1,12 @@
-import { Box, Tooltip } from "@chakra-ui/react";
-import { FC, useRef, useState } from "react";
+import { AspectRatio } from "@chakra-ui/react";
+import { FC, useRef } from "react";
 import { Layer, Stage, Rect } from "react-konva";
-import { useDragSortableItem } from "./useDragSortableItem";
-import { useMeasure } from "@react-hookz/web";
 import { useSize } from "@chakra-ui/react-use-size";
-import {
-  useBoolean,
-  useFullscreen,
-  useHover,
-  useInterval,
-  useKey,
-  useList,
-  useRaf,
-  useRafLoop,
-  useToggle,
-  useTween,
-} from "react-use";
-import Konva from "konva";
-import { useSpring } from "framer-motion";
+import { useList, useRafLoop } from "react-use";
 
 interface Props {
   width: number;
-  onSelect: () => void;
+  onSelect?: () => void;
 }
 type RectProp = {
   w: number;
@@ -51,7 +36,7 @@ export const Device: FC<Props> = ({ width, onSelect }) => {
     if (candidate.length < 100 && minX > 20)
       candidate.push({ w: 10, h: 10, x: 0, y: 0, lastUpdateTick: t });
     setRects(candidate);
-  });
+  }, false);
 
   const onToggle = () => {
     if (isStart()) stop();
@@ -59,12 +44,14 @@ export const Device: FC<Props> = ({ width, onSelect }) => {
   };
 
   return (
-    <Box
+    <AspectRatio
       ref={parentRef}
-      w={`${width}vw`}
-      h={`${width / 2}vw`}
+      w={`calc(${width}% - 32px)`}
+      minW="20vw"
+      ratio={16 / 7}
       borderRadius={8}
       onClick={onToggle}
+      bgColor={"blue.50"}
     >
       <Stage width={parentSize?.width} height={parentSize?.height}>
         <Layer>
@@ -73,6 +60,6 @@ export const Device: FC<Props> = ({ width, onSelect }) => {
           ))}
         </Layer>
       </Stage>
-    </Box>
+    </AspectRatio>
   );
 };
