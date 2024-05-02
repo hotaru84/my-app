@@ -55,7 +55,7 @@ export const DeviceTest = () => {
           <SpeedMeter />
         </VStack>
       </Flex>
-      <PanelGroup direction="vertical">
+      <PanelGroup direction="vertical" autoSaveId={"devicetest-layout"}>
         <Panel defaultSize={80} minSize={20}>
           <Flex
             align={"center"}

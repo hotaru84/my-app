@@ -7,7 +7,7 @@ import { PanelResizeHandler } from "./PanelResizeHandler";
 export const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <PanelGroup direction="horizontal">
+      <PanelGroup direction="horizontal" autoSaveId={"app-layout"}>
         <Panel defaultSize={30}>
           <ColorModeSwitcher />
         </Panel>
