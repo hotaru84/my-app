@@ -3,6 +3,7 @@ import { DeviceTest } from "./DeviceTest";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
+import Barchart from "./Barchart";
 
 export const App = () => {
   return (
@@ -18,7 +19,11 @@ export const App = () => {
           </Box>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
-        <Panel defaultSize={30}>right</Panel>
+        <Panel defaultSize={30}>
+          <Box p={2} w="full" h="100vh">
+            <Barchart />
+          </Box>
+        </Panel>
       </PanelGroup>
     </ChakraProvider>
   );

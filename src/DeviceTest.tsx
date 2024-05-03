@@ -19,6 +19,7 @@ import { Device } from "./Device";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import { SpeedMeter } from "./SpeedMeter";
+import Barchart from "./Barchart";
 const Items = [
   { id: "0", title: "first" },
   { id: "1", title: "first" },
@@ -28,7 +29,6 @@ const Items = [
 
 export const DeviceTest = () => {
   const [selectTime, onSelectTime] = useState<number[]>([]);
-  console.log("a");
 
   return (
     <Card
@@ -52,7 +52,6 @@ export const DeviceTest = () => {
               num/sec
             </Text>
           </HStack>
-          <SpeedMeter />
         </VStack>
       </Flex>
       <PanelGroup direction="vertical" autoSaveId={"devicetest-layout"}>
