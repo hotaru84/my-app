@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,15 +10,9 @@ import {
   LineElement,
   PointElement,
   ChartOptions,
-  PluginOptionsByType,
-  ScaleOptionsByType,
-  TimeScaleOptions,
-  ScaleOptions,
-  ScaleChartOptions,
-  ChartData,
-  ChartDatasetPropertiesCustomTypesPerDataset,
-  ChartDatasetProperties,
+  ScriptableContext,
 } from "chart.js";
+import "chartjs-adapter-date-fns";
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import { Chart } from "react-chartjs-2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
@@ -141,27 +135,27 @@ function generateData(): MatrixDataType[] {
   return data;
 }
 
-const data: ChartData<"matrix", MatrixDataType[]> = {
+const data = {
   datasets: [
     {
       data: generateData(),
-      backgroundColor(context) {
-        const value = context.raw as MatrixDataType;
+      backgroundColor({ raw }: ScriptableContext<"matrix">) {
+        const value = raw as MatrixDataType;
         const alpha = (10 + value.v) / 60;
 
         return color("teal").alpha(alpha).rgbString();
       },
-      borderColor(context) {
-        const value = context.raw as MatrixDataType;
+      borderColor({ raw }: ScriptableContext<"matrix">) {
+        const value = raw as MatrixDataType;
         const alpha = (10 + value.v) / 60;
         return color("teal").alpha(alpha).darken(0.3).rgbString();
       },
       borderWidth: 1,
       hoverBackgroundColor: "yellow",
       hoverBorderColor: "yellowgreen",
-      width: ({ chart }) =>
+      width: ({ chart }: ScriptableContext<"matrix">) =>
         (chart.chartArea || {}).width / chart.scales.x.ticks.length - 3,
-      height: ({ chart }) =>
+      height: ({ chart }: ScriptableContext<"matrix">) =>
         (chart.chartArea || {}).height / chart.scales.y.ticks.length - 3,
     },
   ],
@@ -169,7 +163,15 @@ const data: ChartData<"matrix", MatrixDataType[]> = {
 const CalendarChart: FC = () => {
   const chartRef = useRef<ChartJS<"matrix", MatrixDataType[]>>(null);
 
-  return <Chart type="matrix" ref={chartRef} options={options} data={data} />;
+  return (
+    <Chart
+      id="calendar"
+      type="matrix"
+      ref={chartRef}
+      options={options}
+      data={data}
+    />
+  );
 };
 
 export default CalendarChart;

@@ -5,6 +5,7 @@ import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import BarLineTimeChart from "./BarLineTimeChart";
 import CalendarChart from "./CalendarChart";
+import TreemapChart from "./TreemapChart";
 
 export const App = () => {
   return (
@@ -22,7 +23,8 @@ export const App = () => {
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
           <Box p={2} w="full" h="100vh">
-            <BarLineTimeChart />
+            {/**<BarLineTimeChart />*/}
+            <TreemapChart />
           </Box>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
