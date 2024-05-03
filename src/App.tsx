@@ -22,10 +22,17 @@ export const App = () => {
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
-          <Box p={2} w="full" h="100vh">
-            {/**<BarLineTimeChart />*/}
-            <TreemapChart />
-          </Box>
+          <PanelGroup direction="vertical">
+            <Panel defaultSize={50}>
+              <Box p={2} w="full" h="full">
+                <TreemapChart />
+              </Box>
+            </Panel>
+            <PanelResizeHandler h={2} w="full" />
+            <Panel defaultSize={50}>
+              <BarLineTimeChart />
+            </Panel>
+          </PanelGroup>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
