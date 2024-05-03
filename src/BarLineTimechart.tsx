@@ -11,11 +11,13 @@ import {
   Point,
   LineElement,
   PointElement,
+  TimeSeriesScale,
 } from "chart.js";
-import "chartjs-adapter-moment";
+import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
-import moment from "moment";
+import { getMilliseconds, getSeconds } from "date-fns";
+import { background } from "@chakra-ui/react";
 
 ChartJS.register(
   CategoryScale,
@@ -26,7 +28,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
+  TimeSeriesScale
 );
 
 export const options = {
@@ -38,7 +41,7 @@ export const options = {
     },
     title: {
       display: true,
-      text: "Chart.js Bar Chart",
+      text: "",
     },
   },
   scales: {
@@ -67,6 +70,8 @@ export const data = {
       type: "bar" as const,
       label: "Dataset 1",
       data: [],
+      backgroundColor: "rgb(75, 192, 192)",
+      borderWidth: 2,
       yAxisID: "y",
     },
     {
@@ -78,22 +83,19 @@ export const data = {
   ],
 };
 
-const BarLineTimechart: FC = () => {
+const BarLineTimeChart: FC = () => {
   const chartRef = useRef<ChartJS>(null);
 
   useInterval(() => {
     chartRef.current?.data.datasets.forEach((dataset) => {
-      const now = moment.now();
+      const now = new Date();
       const max = dataset.type === "line" ? 100 : 255;
       const firstdata = dataset.data[0] as Point;
-      if (
-        firstdata !== undefined &&
-        moment(now).diff(moment(firstdata.x)) > 10000
-      ) {
+      if (firstdata !== undefined && now.getTime() - firstdata.x > 10000) {
         dataset.data.shift();
       }
       dataset.data.push({
-        x: now,
+        x: now.getTime(),
         y: Math.floor(Math.random() * max),
       });
     });
@@ -103,4 +105,4 @@ const BarLineTimechart: FC = () => {
   return <Chart type="bar" ref={chartRef} options={options} data={data} />;
 };
 
-export default BarLineTimechart;
+export default BarLineTimeChart;
