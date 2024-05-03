@@ -30,14 +30,16 @@ export const App = () => {
             </Panel>
             <PanelResizeHandler h={2} w="full" />
             <Panel defaultSize={50}>
-              <BarLineTimeChart />
+              <Box p={2} w="full" h="full">
+                <CalendarChart />
+              </Box>
             </Panel>
           </PanelGroup>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
-          <Box p={2} w="full" h="100vh">
-            <CalendarChart />
+          <Box p={2} w="full" h="full" maxH="100vh">
+            <BarLineTimeChart />
           </Box>
         </Panel>
       </PanelGroup>
