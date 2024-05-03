@@ -1,4 +1,4 @@
-import React, { FC, useRef } from "react";
+import { FC, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -7,21 +7,22 @@ import {
   Title,
   Tooltip,
   Legend,
-  scales,
-  TimeSeriesScale,
   TimeScale,
   Point,
+  LineElement,
+  PointElement,
 } from "chart.js";
 import "chartjs-adapter-moment";
-import { Bar, Chart } from "react-chartjs-2";
-import { useCounter, useInterval, useList, useQueue } from "react-use";
-import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
+import { Chart } from "react-chartjs-2";
+import { useInterval } from "react-use";
 import moment from "moment";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend,
@@ -48,30 +49,42 @@ export const options = {
       },
     },
     y: {
+      type: "linear" as const,
       max: 256,
+      position: "left" as const,
     },
-  },
-  animation: {
-    onComplete: () => {},
+    y1: {
+      type: "linear" as const,
+      max: 100,
+      position: "right" as const,
+    },
   },
 };
 
 export const data = {
   datasets: [
     {
+      type: "bar" as const,
+      label: "Dataset 1",
+      data: [],
+      yAxisID: "y",
+    },
+    {
+      type: "line" as const,
       label: "Dataset 2",
       data: [],
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
+      yAxisID: "y1",
     },
   ],
 };
 
-const Barchart: FC = () => {
+const BarLineTimechart: FC = () => {
   const chartRef = useRef<ChartJS>(null);
 
   useInterval(() => {
     chartRef.current?.data.datasets.forEach((dataset) => {
       const now = moment.now();
+      const max = dataset.type === "line" ? 100 : 255;
       const firstdata = dataset.data[0] as Point;
       if (
         firstdata !== undefined &&
@@ -81,7 +94,7 @@ const Barchart: FC = () => {
       }
       dataset.data.push({
         x: now,
-        y: Math.floor(Math.random() * 255),
+        y: Math.floor(Math.random() * max),
       });
     });
     chartRef.current?.update();
@@ -90,4 +103,4 @@ const Barchart: FC = () => {
   return <Chart type="bar" ref={chartRef} options={options} data={data} />;
 };
 
-export default Barchart;
+export default BarLineTimechart;

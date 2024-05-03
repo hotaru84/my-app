@@ -3,7 +3,7 @@ import { DeviceTest } from "./DeviceTest";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
-import Barchart from "./Barchart";
+import BarLineTimechart from "./BarLineTimechart";
 
 export const App = () => {
   return (
@@ -21,7 +21,7 @@ export const App = () => {
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
           <Box p={2} w="full" h="100vh">
-            <Barchart />
+            <BarLineTimechart />
           </Box>
         </Panel>
       </PanelGroup>

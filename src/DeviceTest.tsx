@@ -19,7 +19,7 @@ import { Device } from "./Device";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import { SpeedMeter } from "./SpeedMeter";
-import Barchart from "./Barchart";
+import BarLineTimechart from "./BarLineTimechart";
 const Items = [
   { id: "0", title: "first" },
   { id: "1", title: "first" },
