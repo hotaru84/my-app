@@ -1,48 +1,57 @@
-import { Box, ChakraProvider, theme } from "@chakra-ui/react";
-import { DeviceTest } from "./DeviceTest";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { Panel, PanelGroup } from "react-resizable-panels";
-import { PanelResizeHandler } from "./PanelResizeHandler";
-import BarLineTimeChart from "./BarLineTimeChart";
-import CalendarChart from "./CalendarChart";
-import TreemapChart from "./TreemapChart";
+import { ChakraProvider, Flex, Grid, GridItem, theme } from "@chakra-ui/react";
+import Dashboad from "./Dashboard";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
+import { Navigation } from "./Navigation";
+import Packages from "./Packages";
+import System from "./System";
+import { FC } from "react";
+
+const BaseLayout: FC = () => {
+  return (
+    <Grid
+      templateAreas={{
+        base: `"page page" "nav nav"`,
+        md: `"nav page" "nav page"`,
+      }}
+      gridTemplateRows={"auto 100px"}
+      gridTemplateColumns={"100px auto"}
+      h="100vh"
+    >
+      <GridItem area="nav">
+        <Navigation />
+      </GridItem>
+      <GridItem area="page">
+        <Flex
+          w={{ base: "100vw", md: "calc(100vw - 100px)" }}
+          h={{ base: "calc(100vh - 100px)", md: "100vh" }}
+          overflow={"auto"}
+        >
+          <Outlet />
+        </Flex>
+      </GridItem>
+    </Grid>
+  );
+};
 
 export const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <PanelGroup direction="horizontal" autoSaveId={"app-layout"}>
-        <Panel defaultSize={5}>
-          <ColorModeSwitcher />
-        </Panel>
-        <PanelResizeHandler w={2} h="100vh" />
-        <Panel defaultSize={30}>
-          <Box p={2} h="full" w="full">
-            <DeviceTest />
-          </Box>
-        </Panel>
-        <PanelResizeHandler w={2} h="100vh" />
-        <Panel defaultSize={30}>
-          <PanelGroup direction="vertical">
-            <Panel defaultSize={50}>
-              <Box p={2} w="full" h="full">
-                <TreemapChart />
-              </Box>
-            </Panel>
-            <PanelResizeHandler h={2} w="full" />
-            <Panel defaultSize={50}>
-              <Box p={2} w="full" h="full">
-                <CalendarChart />
-              </Box>
-            </Panel>
-          </PanelGroup>
-        </Panel>
-        <PanelResizeHandler w={2} h="100vh" />
-        <Panel defaultSize={30}>
-          <Box p={2} w="full" h="full" maxH="100vh">
-            <BarLineTimeChart />
-          </Box>
-        </Panel>
-      </PanelGroup>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<BaseLayout />}>
+            <Route path="dashboard" element={<Dashboad />}></Route>
+            <Route path="packages" element={<Packages />}></Route>
+            <Route path="system" element={<System />}></Route>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </ChakraProvider>
   );
 };
