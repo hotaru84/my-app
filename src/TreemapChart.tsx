@@ -31,13 +31,20 @@ ChartJS.register(
 export const options: ChartOptions<"treemap"> = {
   maintainAspectRatio: false,
   responsive: true,
-  plugins: {},
+  plugins: {
+    legend: {
+      display: false,
+    },
+    datalabels: {
+      display: false,
+    },
+  },
 };
 
-const data = {
+const data: ChartData<any> = {
   datasets: [
     {
-      label: "My treemap dataset",
+      label: "",
       data: [],
       tree: [15, 6, 6, 5, 4, 3, 2, 2],
       borderWidth: 0,
@@ -45,8 +52,23 @@ const data = {
       spacing: 2,
       backgroundColor: (ctx: TreemapScriptableContext) => {
         const value = ctx.raw as TreemapDataPoint;
-        const alpha = (10 + value?.v) / 16;
-        return color("blue").alpha(alpha).darken(0.3).rgbString();
+        const alpha = (1 + Math.log(value?.v)) / 5;
+        return color("teal").alpha(alpha).darken(0.3).rgbString();
+      },
+      hoverBorderColor: "rgb(0,161,255)",
+      hoverBorderWidth: 2,
+      labels: {
+        align: "left",
+        display: true,
+        formatter(ctx: TreemapScriptableContext) {
+          if (ctx.type !== "data") {
+            return;
+          }
+          return [ctx.dataIndex, "Value is " + ctx.raw.v];
+        },
+        color: ["white", "whiteSmoke"],
+        font: [{ size: 14, weight: "bold" }, { size: 10 }],
+        position: "top",
       },
     },
   ],

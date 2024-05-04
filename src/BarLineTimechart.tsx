@@ -12,12 +12,12 @@ import {
   LineElement,
   PointElement,
   TimeSeriesScale,
+  ChartOptions,
+  ChartData,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
-import { getMilliseconds, getSeconds } from "date-fns";
-import { background } from "@chakra-ui/react";
 
 ChartJS.register(
   CategoryScale,
@@ -32,12 +32,12 @@ ChartJS.register(
   TimeSeriesScale
 );
 
-export const options = {
+export const options: ChartOptions<"bar"> = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
     legend: {
-      position: "top" as const,
+      position: "top",
     },
     title: {
       display: true,
@@ -46,45 +46,68 @@ export const options = {
   },
   scales: {
     x: {
-      type: "time" as const,
+      type: "time",
       time: {
-        unit: "second" as const,
+        unit: "second",
+      },
+
+      grid: {
+        display: false,
       },
     },
     y: {
-      type: "linear" as const,
+      type: "linear",
       max: 256,
-      position: "left" as const,
+      position: "right",
+      display: false,
+      grid: {
+        display: false,
+      },
     },
     y1: {
-      type: "linear" as const,
+      type: "linear",
       max: 100,
-      position: "right" as const,
+      position: "left",
     },
   },
 };
 
-export const data = {
+export const data: ChartData<any> = {
   datasets: [
     {
-      type: "bar" as const,
-      label: "Dataset 1",
+      type: "bar",
+      label: "Throuput",
       data: [],
-      backgroundColor: "rgb(75, 192, 192)",
-      borderWidth: 2,
+      backgroundColor: "rgba(75, 192, 192,0.8)",
+      borderWidth: 0,
+      borderRadius: 4,
       yAxisID: "y",
+      datalabels: {
+        align: "start",
+        anchor: "end",
+        formatter: (value: Point) => {
+          return Math.round(value.y);
+        },
+        color: "whitesmoke",
+        font: { size: 12, weight: "bold" },
+      },
     },
     {
-      type: "line" as const,
-      label: "Dataset 2",
+      type: "line",
+      label: "Rate",
+      borderColor: "gray",
+      backgroundColor: "gray",
       data: [],
       yAxisID: "y1",
+      datalabels: {
+        display: false,
+      },
     },
   ],
 };
 
 const BarLineTimeChart: FC = () => {
-  const chartRef = useRef<ChartJS>(null);
+  const chartRef = useRef<ChartJS<any>>(null);
 
   useInterval(() => {
     chartRef.current?.data.datasets.forEach((dataset) => {
@@ -102,7 +125,7 @@ const BarLineTimeChart: FC = () => {
     chartRef.current?.update();
   }, 1000);
 
-  return <Chart type="bar" ref={chartRef} options={options} data={data} />;
+  return <Chart type={"bar"} ref={chartRef} options={options} data={data} />;
 };
 
 export default BarLineTimeChart;

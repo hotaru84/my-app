@@ -11,12 +11,15 @@ import {
   PointElement,
   ChartOptions,
   ScriptableContext,
+  TooltipItem,
+  ChartData,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import { Chart } from "react-chartjs-2";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import { color } from "chart.js/helpers";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(
   CategoryScale,
@@ -28,22 +31,26 @@ ChartJS.register(
   MatrixElement,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
+  ChartDataLabels
 );
 
-export const options: ChartOptions<"matrix"> = {
+const options: ChartOptions<"matrix"> = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
+    legend: {
+      display: false,
+    },
     tooltip: {
       displayColors: false,
       callbacks: {
         title() {
           return "";
         },
-        label(context) {
-          const v = context.raw as MatrixDataType;
-          return ["d: " + v.d, "v: " + v.v.toFixed(2)];
+        label(item: TooltipItem<"matrix">) {
+          const value = item.raw as MatrixDataType;
+          return ["d: " + value.d, "v: " + value.v.toFixed(1)];
         },
       },
     },
@@ -135,7 +142,7 @@ function generateData(): MatrixDataType[] {
   return data;
 }
 
-const data = {
+const data: ChartData<any> = {
   datasets: [
     {
       data: generateData(),
@@ -145,33 +152,30 @@ const data = {
 
         return color("teal").alpha(alpha).rgbString();
       },
-      borderColor({ raw }: ScriptableContext<"matrix">) {
-        const value = raw as MatrixDataType;
-        const alpha = (10 + value.v) / 60;
-        return color("teal").alpha(alpha).darken(0.3).rgbString();
-      },
-      borderWidth: 1,
-      hoverBackgroundColor: "yellow",
-      hoverBorderColor: "yellowgreen",
+      borderWidth: 0,
+      borderRadius: 4,
+      hoverBorderWidth: 2,
+      hoverBorderColor: "rgb(0,161,255)",
       width: ({ chart }: ScriptableContext<"matrix">) =>
         (chart.chartArea || {}).width / chart.scales.x.ticks.length - 3,
       height: ({ chart }: ScriptableContext<"matrix">) =>
         (chart.chartArea || {}).height / chart.scales.y.ticks.length - 3,
+      datalabels: {
+        display: false,
+        anchor: "center",
+        formatter(value: MatrixDataType) {
+          return value.v.toFixed(1);
+        },
+        color: "whitesmoke",
+        font: { size: 10 },
+      },
     },
   ],
 };
 const CalendarChart: FC = () => {
   const chartRef = useRef<ChartJS<"matrix", MatrixDataType[]>>(null);
 
-  return (
-    <Chart
-      id="calendar"
-      type="matrix"
-      ref={chartRef}
-      options={options}
-      data={data}
-    />
-  );
+  return <Chart type="matrix" ref={chartRef} options={options} data={data} />;
 };
 
 export default CalendarChart;
