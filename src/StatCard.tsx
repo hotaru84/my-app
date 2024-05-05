@@ -37,7 +37,13 @@ const StatCard: FC<StatData> = ({
   emphasize,
 }) => {
   return (
-    <Card rounded={16} role="group" p={4} boxShadow={"lg"}>
+    <Card
+      rounded={16}
+      role="group"
+      p={4}
+      boxShadow="lg"
+      w={{ base: "sm", md: "fit-content" }}
+    >
       <HStack align="center" spacing={4}>
         <Avatar
           rounded={16}

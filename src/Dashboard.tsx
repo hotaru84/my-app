@@ -1,9 +1,10 @@
 import { FC } from "react";
-import { Wrap } from "@chakra-ui/react";
+import { Card, Wrap } from "@chakra-ui/react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
+import BarLineTimeChart from "./BarLineTimeChart";
 
 const stats: StatData[] = [
   {
@@ -12,7 +13,6 @@ const stats: StatData[] = [
     icon: TbPackage,
     color: "blue.300",
     unit: "num",
-    emphasize: true,
   },
   {
     label: "Success",
@@ -42,9 +42,12 @@ const Dashboad: FC = () => {
           justify={"center"}
           overflow={"auto"}
         >
-          {stats.map((s) => (
-            <StatCard {...s} />
+          {stats.map((s, i) => (
+            <StatCard key={i} {...s} />
           ))}
+          <Card w="60vw" h="50vh" rounded={16} p={4} boxShadow="lg">
+            <BarLineTimeChart />
+          </Card>
         </Wrap>
       </Panel>
       <PanelResizeHandler w="full" h={2} />

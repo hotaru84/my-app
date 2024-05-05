@@ -18,6 +18,7 @@ import {
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(
   CategoryScale,
@@ -29,7 +30,8 @@ ChartJS.register(
   Tooltip,
   Legend,
   TimeScale,
-  TimeSeriesScale
+  TimeSeriesScale,
+  ChartDataLabels
 );
 
 export const options: ChartOptions<"bar"> = {
@@ -75,10 +77,21 @@ export const options: ChartOptions<"bar"> = {
 export const data: ChartData<any> = {
   datasets: [
     {
+      type: "line",
+      label: "Rate",
+      borderColor: "#68D391",
+      backgroundColor: "#68D391",
+      data: [],
+      yAxisID: "y1",
+      datalabels: {
+        display: false,
+      },
+    },
+    {
       type: "bar",
       label: "Throuput",
       data: [],
-      backgroundColor: "rgba(75, 192, 192,0.8)",
+      backgroundColor: "#63B3ED",
       borderWidth: 0,
       borderRadius: 4,
       yAxisID: "y",
@@ -90,17 +103,6 @@ export const data: ChartData<any> = {
         },
         color: "whitesmoke",
         font: { size: 12, weight: "bold" },
-      },
-    },
-    {
-      type: "line",
-      label: "Rate",
-      borderColor: "gray",
-      backgroundColor: "gray",
-      data: [],
-      yAxisID: "y1",
-      datalabels: {
-        display: false,
       },
     },
   ],
