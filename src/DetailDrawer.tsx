@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { TbEyeEdit, TbInfoCircle, TbMailPin, TbUser } from "react-icons/tb";
 import { Link, NavLink } from "react-router-dom";
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
 const Menu = [
   { name: "Accounts", icon: <TbUser />, to: "/" },
@@ -40,19 +41,9 @@ export function DetailDrawer(isOpen: boolean, onClose: () => void) {
               {item.name}
             </Button>
           ))}
+
+          <ColorModeSwitcher />
         </DrawerBody>
-        <DrawerFooter>
-          <Button
-            as={NavLink}
-            to={"/login"}
-            style={{ textDecoration: "none" }}
-            role="group"
-            w="full"
-            colorScheme="primary"
-          >
-            Log out
-          </Button>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

@@ -26,8 +26,8 @@ export const Navigation = () => {
       <Flex
         w={{ base: "full", md: "100px" }}
         h={{ base: "80px", md: "full" }}
-        direction={{ base: "row", md: "column" }}
-        align={{ base: "center", md: "center" }}
+        direction={{ base: "row", sm: "column" }}
+        align={{ base: "center", sm: "center" }}
         gap={{ base: 8, md: 0 }}
         bgColor={"bg"}
       >

@@ -17,7 +17,7 @@ const BaseLayout: FC = () => {
     <Grid
       templateAreas={{
         base: `"page page" "nav nav"`,
-        md: `"nav page" "nav page"`,
+        sm: `"nav page" "nav page"`,
       }}
       gridTemplateRows={"auto 100px"}
       gridTemplateColumns={"100px auto"}
@@ -28,8 +28,8 @@ const BaseLayout: FC = () => {
       </GridItem>
       <GridItem area="page">
         <Flex
-          w={{ base: "100vw", md: "calc(100vw - 100px)" }}
-          h={{ base: "calc(100vh - 100px)", md: "100vh" }}
+          w={{ base: "100vw", sm: "calc(100vw - 100px)" }}
+          h={{ base: "calc(100vh - 100px)", sm: "100vh" }}
           overflow={"auto"}
         >
           <Outlet />
