@@ -42,7 +42,8 @@ const StatCard: FC<StatData> = ({
       role="group"
       p={4}
       boxShadow="lg"
-      w={{ base: "sm", md: "fit-content" }}
+      w={"30%"}
+      h="fit-content"
     >
       <HStack align="center" spacing={4}>
         <Avatar
@@ -79,11 +80,16 @@ const StatCard: FC<StatData> = ({
         opacity={0}
         h={0}
         alignItems="center"
-        _groupHover={{ visibility: "visible", opacity: 1, h: "40px", mt: 2 }}
+        _groupHover={{ visibility: "visible", opacity: 1, h: "20px", mt: 2 }}
         transition="opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, height 0.3s ease-in-out"
       >
         <Spacer />
-        <IconButton aria-label={"edit"} icon={<TbEdit />} variant={"ghost"} />
+        <IconButton
+          aria-label={"edit"}
+          icon={<TbEdit />}
+          variant={"ghost"}
+          size={"sm"}
+        />
       </Flex>
     </Card>
   );

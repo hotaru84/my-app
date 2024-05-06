@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Card, Wrap } from "@chakra-ui/react";
+import { Card, Flex, Wrap } from "@chakra-ui/react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
@@ -32,25 +32,26 @@ const stats: StatData[] = [
 
 const Dashboad: FC = () => {
   return (
-    <PanelGroup direction="vertical">
+    <PanelGroup direction="horizontal">
       <Panel>
-        <Wrap
-          shouldWrapChildren
+        <Flex
           gap={4}
           p={4}
           h="full"
           justify={"center"}
           overflow={"auto"}
+          flexWrap={"wrap"}
+          alignItems={"center"}
         >
           {stats.map((s, i) => (
             <StatCard key={i} {...s} />
           ))}
-          <Card w="60vw" h="50vh" rounded={16} p={4} boxShadow="lg">
+          <Card rounded={16} p={4} boxShadow="lg" w={"94%"} h="70vh">
             <BarLineTimeChart />
           </Card>
-        </Wrap>
+        </Flex>
       </Panel>
-      <PanelResizeHandler w="full" h={2} />
+      <PanelResizeHandler w={2} h={"full"} />
       <Panel></Panel>
     </PanelGroup>
   );
