@@ -90,7 +90,7 @@ export const data: ChartData<any> = {
       data: [],
 
       hoverBorderWidth: 2,
-      hoverBorderColor: "rgb(0,161,255)",
+      hoverBackgroundColor: "yellow",
       backgroundColor: ({ raw }: ScriptableContext<"bar">) => {
         const value = raw as Point;
         const alpha = 0.1 + (value?.y - 10) / 255;
@@ -112,7 +112,7 @@ const TrendlineChart: FC = () => {
       const now = new Date();
       const max = dataset.type === "line" ? 100 : 255;
       const firstdata = dataset.data[0] as Point;
-      if (firstdata !== undefined && now.getTime() - firstdata.x > 10000) {
+      if (firstdata !== undefined && now.getTime() - firstdata.x > 60000) {
         dataset.data.shift();
       }
       dataset.data.push({

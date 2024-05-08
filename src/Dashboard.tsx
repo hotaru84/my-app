@@ -5,11 +5,12 @@ import {
   ButtonGroup,
   Card,
   Flex,
+  HStack,
+  Heading,
   Spacer,
-  Tab,
-  TabList,
-  Tabs,
-  Wrap,
+  StatArrow,
+  StatUpArrow,
+  Text,
 } from "@chakra-ui/react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
@@ -51,9 +52,25 @@ const Dashboad: FC = () => {
             <Button>Day</Button>
           </ButtonGroup>
           <Spacer />
-          <Box h="40px" mx={4}>
-            <TrendlineChart />
-          </Box>
+          <HStack
+            mx={4}
+            gap={0}
+            fontSize={"xs"}
+            borderWidth={1}
+            p={2}
+            borderRadius={8}
+          >
+            <Box w="md" h="48px">
+              <TrendlineChart />
+            </Box>
+            <StatUpArrow alignSelf={"center"} />
+            <Text fontSize={"1.5rem"} as="i">
+              123
+            </Text>
+            <Text fontWeight={"light"} alignSelf={"end"}>
+              num/min
+            </Text>
+          </HStack>
           <Spacer />
         </Flex>
         <Flex
