@@ -12,6 +12,7 @@ import {
   chakra,
   Spacer,
   IconButton,
+  keyframes,
 } from "@chakra-ui/react";
 import { FC } from "react";
 import { IconType } from "react-icons";
@@ -42,7 +43,8 @@ const StatCard: FC<StatData> = ({
       role="group"
       p={4}
       boxShadow="lg"
-      w={"30%"}
+      minW="fit-content"
+      flex="1"
       h="fit-content"
     >
       <HStack align="center" spacing={4}>

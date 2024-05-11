@@ -21,6 +21,7 @@ import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { color } from "chart.js/helpers";
+import { theme } from "@chakra-ui/react";
 
 ChartJS.register(
   CategoryScale,
@@ -88,14 +89,13 @@ export const data: ChartData<any> = {
       type: "bar",
       label: "Throuput",
       data: [],
-
-      hoverBorderWidth: 2,
-      hoverBackgroundColor: "yellow",
+      hoverBorderWidth: 0,
+      hoverBackgroundColor: theme.colors.orange[500],
       backgroundColor: ({ raw }: ScriptableContext<"bar">) => {
         const value = raw as Point;
         const alpha = 0.1 + (value?.y - 10) / 255;
 
-        return color("#63B3ED").alpha(alpha).rgbString();
+        return color(theme.colors.green[300]).alpha(alpha).rgbString();
       },
       borderWidth: 0,
       borderRadius: 4,

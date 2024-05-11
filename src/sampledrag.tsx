@@ -83,13 +83,15 @@ export const SampleDraggable = () => {
   });
   const rotate = keyframes({
     "0%": {
+      transformOrigin: "100% 50%",
       transform: "rotate(0deg) scale(1)",
     },
     "100%": {
+      transformOrigin: "100% 50%",
       transform: "rotate(-360deg) scale(1.0)",
     },
   });
-  
+
   return (
     <Container size="xl">
       <DndContext

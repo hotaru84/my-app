@@ -1,19 +1,18 @@
 import { FC } from "react";
 import {
   Box,
-  Button,
-  ButtonGroup,
   Card,
   Flex,
   HStack,
-  Heading,
+  Select,
   Spacer,
-  StatArrow,
-  StatUpArrow,
-  Text,
+  Stat,
+  StatHelpText,
+  StatNumber,
+  Tag,
+  TagLeftIcon,
+  VStack,
 } from "@chakra-ui/react";
-import { Panel, PanelGroup } from "react-resizable-panels";
-import { PanelResizeHandler } from "./PanelResizeHandler";
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import TrendlineChart from "./TrendlineChart";
@@ -44,53 +43,57 @@ const stats: StatData[] = [
 
 const Dashboad: FC = () => {
   return (
-    <PanelGroup direction="horizontal">
-      <Panel>
-        <Flex w="full" justify={"center"} align={"center"} p={2}>
-          <ButtonGroup isAttached variant={"outline"} size="sm">
-            <Button isActive>Month</Button>
-            <Button>Day</Button>
-          </ButtonGroup>
-          <Spacer />
-          <HStack
-            mx={4}
-            gap={0}
-            fontSize={"xs"}
-            borderWidth={1}
-            p={2}
-            borderRadius={8}
-          >
-            <Box w="md" h="48px">
-              <TrendlineChart />
-            </Box>
-            <StatUpArrow alignSelf={"center"} />
-            <Text fontSize={"1.5rem"} as="i">
-              123
-            </Text>
-            <Text fontWeight={"light"} alignSelf={"end"}>
-              num/min
-            </Text>
-          </HStack>
-          <Spacer />
-        </Flex>
-        <Flex
+    <VStack w="full">
+      <Flex w="full" p={4} gap={4} align={"center"}>
+        <Tag colorScheme={"green"}>
+          <TagLeftIcon as={TbCheck} />
+          Ready
+        </Tag>
+        <Spacer />
+        <HStack
           gap={4}
-          p={4}
-          h="full"
-          justify={"center"}
-          overflow={"auto"}
-          flexWrap={"wrap"}
-          alignItems={"center"}
+          borderWidth={1}
+          px={4}
+          borderRadius={8}
+          mx="auto"
+          overflowX={"auto"}
         >
-          {stats.map((s, i) => (
-            <StatCard key={i} {...s} />
-          ))}
-          <Card rounded={16} p={4} boxShadow="lg" w={"94%"} h="70vh"></Card>
-        </Flex>
-      </Panel>
-      <PanelResizeHandler w={2} h={"full"} />
-      <Panel></Panel>
-    </PanelGroup>
+          <Box w="480px" h="40px">
+            <TrendlineChart />
+          </Box>
+          <Stat textAlign={"end"}>
+            <StatNumber>123</StatNumber>
+            <StatHelpText>num/min</StatHelpText>
+          </Stat>
+        </HStack>
+        <Spacer />
+        <Select variant={"outline"} w="fit-content">
+          <option>Month</option>
+        </Select>
+      </Flex>
+      <Flex
+        gap={4}
+        p={4}
+        w="full"
+        justify={"center"}
+        overflow={"auto"}
+        flexWrap={"wrap"}
+        alignItems={"center"}
+        wrap={"wrap"}
+      >
+        {stats.map((s, i) => (
+          <StatCard key={i} {...s} />
+        ))}
+        <Card
+          rounded={16}
+          p={4}
+          boxShadow={"lg"}
+          w="full"
+          h="55vh"
+          minH="300px"
+        ></Card>
+      </Flex>
+    </VStack>
   );
 };
 
