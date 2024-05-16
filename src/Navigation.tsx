@@ -24,12 +24,13 @@ export const Navigation = () => {
   return (
     <>
       <Flex
-        w={{ base: "full", md: "100px" }}
-        h={{ base: "80px", md: "full" }}
-        direction={{ base: "row", sm: "column" }}
-        align={{ base: "center", sm: "center" }}
-        gap={{ base: 8, md: 0 }}
+        w={"100px"}
+        h={"full"}
+        direction={"column"}
+        align={"center"}
+        gap={0}
         bgColor={"bg"}
+        overflowY={"auto"}
       >
         <IconButton
           fontSize={24}

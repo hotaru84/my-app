@@ -16,6 +16,7 @@ import {
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import TrendlineChart from "./TrendlineChart";
+import { Device } from "./Device";
 
 const stats: StatData[] = [
   {
@@ -45,11 +46,6 @@ const Dashboad: FC = () => {
   return (
     <VStack w="full">
       <Flex w="full" p={4} gap={4} align={"center"}>
-        <Tag colorScheme={"green"}>
-          <TagLeftIcon as={TbCheck} />
-          Ready
-        </Tag>
-        <Spacer />
         <HStack
           gap={4}
           borderWidth={1}
@@ -58,6 +54,10 @@ const Dashboad: FC = () => {
           mx="auto"
           overflowX={"auto"}
         >
+          <Tag colorScheme={"green"} w="full">
+            <TagLeftIcon as={TbCheck} />
+            Ready
+          </Tag>
           <Box w="480px" h="40px">
             <TrendlineChart />
           </Box>

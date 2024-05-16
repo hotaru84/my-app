@@ -1,4 +1,11 @@
-import { ChakraProvider, Flex, Grid, GridItem, theme } from "@chakra-ui/react";
+import {
+  ChakraProvider,
+  Flex,
+  Grid,
+  GridItem,
+  HStack,
+  theme,
+} from "@chakra-ui/react";
 import Dashboad from "./Dashboard";
 import {
   BrowserRouter,
@@ -14,28 +21,12 @@ import { FC } from "react";
 
 const BaseLayout: FC = () => {
   return (
-    <Grid
-      templateAreas={{
-        base: `"page page" "nav nav"`,
-        sm: `"nav page" "nav page"`,
-      }}
-      gridTemplateRows={"auto 100px"}
-      gridTemplateColumns={"100px auto"}
-      h="100vh"
-    >
-      <GridItem area="nav">
-        <Navigation />
-      </GridItem>
-      <GridItem area="page">
-        <Flex
-          w={{ base: "100vw", sm: "calc(100vw - 100px)" }}
-          h={{ base: "calc(100vh - 100px)", sm: "100vh" }}
-          overflow={"auto"}
-        >
-          <Outlet />
-        </Flex>
-      </GridItem>
-    </Grid>
+    <HStack w="full" h="100vh">
+      <Navigation />
+      <Flex w="full" h="100vh" overflow={"auto"}>
+        <Outlet />
+      </Flex>
+    </HStack>
   );
 };
 
