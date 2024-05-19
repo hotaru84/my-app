@@ -1,89 +1,93 @@
-import { FC, ReactElement } from "react";
+import { FC, useMemo } from "react";
 import {
   Box,
   Button,
   ButtonGroup,
   Flex,
   Spacer,
-  VStack,
+  Stack,
+  Wrap,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { Panel, PanelGroup } from "react-resizable-panels";
-import { PanelResizeHandler } from "./PanelResizeHandler";
 import { TbEdit } from "react-icons/tb";
+import ListDetailTemplate from "./listDetailTemplate";
+import CardTemplate from "./cardTemplate";
+import { useMeasure } from "react-use";
 
-interface LayoutProps {
-  children: [ReactElement, ReactElement, ReactElement];
-}
+const cards = [
+  {
+    h: "aaaaaaaa",
+    t: "aaaaaaaa",
+    f: "aaaaaaaa",
+    i: "green.300",
+  },
+  {
+    h: "bbbbbbbb",
+    t: "bbbbbbbb",
+    f: "bbbbbbbb",
+    i: "green.300",
+  },
+  {
+    h: "cccccccc",
+    t: "cccccccc",
+    f: "cccccccc",
+    i: "green.300",
+  },
+  {
+    h: "dddddddd",
+    t: "dddddddd",
+    f: "dddddddd",
+    i: "green.300",
+  },
+  {
+    h: "eeeeeeee",
+    t: "eeeeeeee",
+    f: "eeeeeeee",
+    i: "green.300",
+  },
+];
 
-const ListDetailView: FC<LayoutProps> = (props) => {
-  return (
-    <VStack
-      w="full"
-      h="full"
-      bgColor="white"
-      justify={"center"}
-      overflow={"hidden"}
-    >
-      <Flex w="full" h={12} p={2}>
-        {props.children[0]}
-      </Flex>
-      <PanelGroup direction={"horizontal"}>
-        <Panel
-          minSize={30}
-          collapsible
-          style={{
-            overflow: "auto",
-          }}
-        >
-          {props.children[1]}
-        </Panel>
-        <PanelResizeHandler
-          h="full"
-          w={2}
-          transitionDelay=".2s"
-          _hover={{
-            bgColor: "gray",
-            transition: "linear .2s",
-          }}
-        />
-        <Panel
-          defaultSize={70}
-          style={{
-            overflow: "auto",
-          }}
-        >
-          {props.children[2]}
-        </Panel>
-      </PanelGroup>
-    </VStack>
-  );
-};
-
+const actions = [
+  {
+    icon: <TbEdit />,
+    label: "edit",
+  },
+];
 const Packages: FC = () => {
+  const { isOpen: isTileStyle, onToggle } = useDisclosure();
+
   return (
-    <ListDetailView>
-      <ButtonGroup w="full">
-        <Spacer />
-        <Button leftIcon={<TbEdit />}>Edit</Button>
-      </ButtonGroup>
-      <Box
-        bgColor={"gray.50"}
-        minW={"300px"}
-        w="full"
-        h="full"
-        overflow={"auto"}
-      >
-        List
-      </Box>
-      <Box
-        bgColor={"gray.50"}
-        w="full"
-        minW="600px"
-        minH="600px"
-        overflow={"auto"}
-        h="full"
-      ></Box>
-    </ListDetailView>
+    <ListDetailTemplate
+      header={
+        <ButtonGroup w="full">
+          <Spacer />
+          <Button leftIcon={<TbEdit />} onClick={onToggle}>
+            Edit
+          </Button>
+        </ButtonGroup>
+      }
+      list={
+        <Flex
+          wrap={"wrap"}
+          m={isTileStyle ? 4 : 2}
+          gap={isTileStyle ? 4 : 1}
+          justify={isTileStyle ? "center" : "start"}
+        >
+          {cards.map((c, i) => (
+            <CardTemplate
+              key={i}
+              header={c.h}
+              title={c.t}
+              footer={c.f}
+              indicator={c.i}
+              actions={actions}
+              isTile={isTileStyle}
+            />
+          ))}
+        </Flex>
+      }
+      detail={isTileStyle ? undefined : <Box bgColor={"gray.50"}>test</Box>}
+    />
   );
 };
 
