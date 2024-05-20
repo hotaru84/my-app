@@ -13,8 +13,16 @@ import { TbEdit } from "react-icons/tb";
 import ListDetailTemplate from "./listDetailTemplate";
 import CardTemplate from "./cardTemplate";
 import { useMeasure } from "react-use";
+import { Outlet, useSearchParams } from "react-router-dom";
 
-const cards = [
+type CardType = {
+  h: string;
+  t: string;
+  f: string;
+  i: string;
+};
+
+const cards: CardType[] = [
   {
     h: "aaaaaaaa",
     t: "aaaaaaaa",
@@ -47,14 +55,75 @@ const cards = [
   },
 ];
 
-const actions = [
-  {
-    icon: <TbEdit />,
-    label: "edit",
-  },
-];
+interface SampleCardProps {
+  id: string;
+  type: CardType;
+}
+
+function useIdSearchParams(id: string, multi: boolean = true) {
+  const [params, setParams] = useSearchParams();
+  const ids = params.getAll("id");
+  const isSelected = ids.includes(id);
+  const deselectAll = () => {
+    setParams(
+      (p) => {
+        p.delete("id");
+        return p;
+      },
+      { replace: true }
+    );
+  };
+  const select = () => {
+    if (!multi) deselectAll();
+    if (!isSelected) {
+      setParams(
+        (p) => {
+          p.append("id", id);
+          return params;
+        },
+        { replace: true }
+      );
+    }
+  };
+  const deselect = () => {
+    if (isSelected) {
+      params.delete("id");
+      if (multi)
+        ids.forEach((i) => {
+          if (i !== id) params.append("id", i);
+        });
+      setParams(params, { replace: true });
+    }
+  };
+  const toggle = () => {
+    isSelected ? deselect() : select();
+  };
+
+  return {
+    isSelected,
+    toggle,
+    deselectAll,
+  };
+}
+
+const SampleCard: FC<SampleCardProps> = ({ id, type }) => {
+  const { isSelected, toggle } = useIdSearchParams(id);
+
+  return (
+    <CardTemplate
+      header={type.h}
+      title={type.t}
+      footer={type.f}
+      indicator={type.i}
+      actionL={<Button onClick={toggle}>Select</Button>}
+      isSelected={isSelected}
+    />
+  );
+};
+
 const Packages: FC = () => {
   const { isOpen: isTileStyle, onToggle } = useDisclosure();
+  const [params] = useSearchParams();
 
   return (
     <ListDetailTemplate
@@ -74,19 +143,11 @@ const Packages: FC = () => {
           justify={isTileStyle ? "center" : "start"}
         >
           {cards.map((c, i) => (
-            <CardTemplate
-              key={i}
-              header={c.h}
-              title={c.t}
-              footer={c.f}
-              indicator={c.i}
-              actions={actions}
-              isTile={isTileStyle}
-            />
+            <SampleCard key={i} id={i.toString()} type={c} />
           ))}
         </Flex>
       }
-      detail={isTileStyle ? undefined : <Box bgColor={"gray.50"}>test</Box>}
+      detail={isTileStyle ? undefined : <Outlet />}
     />
   );
 };

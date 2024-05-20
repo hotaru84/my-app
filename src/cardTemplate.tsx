@@ -11,16 +11,12 @@ import {
   Stack,
   Collapse,
   useDisclosure,
+  Spacer,
 } from "@chakra-ui/react";
 import { FC, ReactElement, useMemo } from "react";
 import { TbDotsVertical } from "react-icons/tb";
 import { Indicator } from "./Indicator";
 import { motion } from "framer-motion";
-
-interface ActionProps {
-  icon: ReactElement;
-  label?: string;
-}
 
 interface CardTemplateProps {
   header?: string;
@@ -28,8 +24,10 @@ interface CardTemplateProps {
   footer?: string;
   indicator?: string;
   avatar?: string;
-  actions?: ActionProps[];
+  actionR?: ReactElement;
+  actionL?: ReactElement;
   isTile?: boolean;
+  isSelected?: boolean;
 }
 
 const CardTemplate: FC<CardTemplateProps> = ({
@@ -38,8 +36,10 @@ const CardTemplate: FC<CardTemplateProps> = ({
   footer,
   indicator,
   avatar,
-  actions,
-  isTile,
+  actionL,
+  actionR,
+  isTile = false,
+  isSelected = false,
 }) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -54,9 +54,9 @@ const CardTemplate: FC<CardTemplateProps> = ({
       variant={isTile ? "elevated" : "filled"}
       as={motion.div}
       layout
-      whileHover={{ scale: 1.1, margin: 4 }}
       onHoverStart={onOpen}
       onHoverEnd={onClose}
+      {...(isSelected && { borderWidth: 2 })}
     >
       {indicator && (
         <Indicator
@@ -83,17 +83,11 @@ const CardTemplate: FC<CardTemplateProps> = ({
         </VStack>
         {isTile && <Avatar size="lg" mx="auto"></Avatar>}
       </Stack>
-      <ButtonGroup
-        colorScheme="gray"
-        variant="ghost"
-        alignSelf={"end"}
-        as={Collapse}
-        in={isOpen}
-      >
-        {actions?.map((info, i) => (
-          <IconButton aria-label={i.toString()} icon={info.icon} key={i} />
-        ))}
-      </ButtonGroup>
+      <HStack>
+        {actionL}
+        <Spacer />
+        {actionR}
+      </HStack>
     </Card>
   );
 };

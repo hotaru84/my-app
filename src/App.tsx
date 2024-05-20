@@ -18,6 +18,7 @@ import { Navigation } from "./Navigation";
 import Packages from "./Packages";
 import System from "./System";
 import { FC } from "react";
+import LayoutTest from "./LayoutTest";
 
 const BaseLayout: FC = () => {
   return (
@@ -37,7 +38,9 @@ export const App = () => {
         <Routes>
           <Route path="/" element={<BaseLayout />}>
             <Route path="dashboard" element={<Dashboad />}></Route>
-            <Route path="packages" element={<Packages />}></Route>
+            <Route path="packages" element={<Packages />}>
+              <Route path="test" element={<LayoutTest />}></Route>
+            </Route>
             <Route path="system" element={<System />}></Route>
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Route>
