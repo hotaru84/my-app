@@ -28,6 +28,7 @@ interface CardTemplateProps {
   actionL?: ReactElement;
   isTile?: boolean;
   isSelected?: boolean;
+  isDisabled?: boolean;
 }
 
 const CardTemplate: FC<CardTemplateProps> = ({
@@ -40,6 +41,7 @@ const CardTemplate: FC<CardTemplateProps> = ({
   actionR,
   isTile = false,
   isSelected = false,
+  isDisabled = false,
 }) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -56,6 +58,7 @@ const CardTemplate: FC<CardTemplateProps> = ({
       layout
       onHoverStart={onOpen}
       onHoverEnd={onClose}
+      filter={isDisabled ? "blur(3px)" : undefined}
       {...(isSelected && { borderWidth: 2 })}
     >
       {indicator && (

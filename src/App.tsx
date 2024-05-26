@@ -4,6 +4,10 @@ import {
   Grid,
   GridItem,
   HStack,
+  Tab,
+  TabList,
+  Tabs,
+  VStack,
   theme,
 } from "@chakra-ui/react";
 import Dashboad from "./Dashboard";
@@ -13,6 +17,7 @@ import {
   Route,
   Outlet,
   Navigate,
+  NavLink,
 } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Packages from "./Packages";
@@ -22,12 +27,12 @@ import LayoutTest from "./LayoutTest";
 
 const BaseLayout: FC = () => {
   return (
-    <HStack w="full" h="100vh">
+    <VStack w="full" h="100vh">
       <Navigation />
       <Flex w="full" h="100vh" overflow={"auto"}>
         <Outlet />
       </Flex>
-    </HStack>
+    </VStack>
   );
 };
 
@@ -42,7 +47,7 @@ export const App = () => {
               <Route path="test" element={<LayoutTest />}></Route>
             </Route>
             <Route path="system" element={<System />}></Route>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/" element={<Navigate to="/packages" />} />
           </Route>
         </Routes>
       </BrowserRouter>

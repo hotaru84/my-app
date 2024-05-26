@@ -1,5 +1,6 @@
 import { FC } from "react";
 import {
+  AspectRatio,
   Box,
   Card,
   Flex,
@@ -9,14 +10,21 @@ import {
   Stat,
   StatHelpText,
   StatNumber,
+  Tab,
+  TabList,
+  Tabs,
   Tag,
   TagLeftIcon,
   VStack,
+  chakra,
 } from "@chakra-ui/react";
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import TrendlineChart from "./TrendlineChart";
 import { Device } from "./Device";
+import { Layer, Stage } from "react-konva";
+import { useMeasure } from "react-use";
+import { NavLink } from "react-router-dom";
 
 const stats: StatData[] = [
   {
@@ -43,28 +51,26 @@ const stats: StatData[] = [
 ];
 
 const Dashboad: FC = () => {
+  const [ref, { width, height }] = useMeasure<HTMLDivElement>();
+
   return (
-    <VStack w="full">
-      <Flex w="full" p={4} gap={4} align={"center"}>
-        <HStack
-          gap={4}
-          borderWidth={1}
-          px={4}
-          borderRadius={8}
-          mx="auto"
-          overflowX={"auto"}
-        >
-          <Tag colorScheme={"green"} w="full">
+    <VStack w="full" h="full">
+      <Flex w="full" align={"center"} justify={"center"} p={2}>
+        <Spacer />
+        <HStack gap={2} borderWidth={1} p={2} borderRadius={8} mx="auto">
+          <Tag colorScheme={"green"}>
             <TagLeftIcon as={TbCheck} />
             Ready
           </Tag>
-          <Box w="480px" h="40px">
+          <Box w="200px" h="20px">
             <TrendlineChart />
           </Box>
-          <Stat textAlign={"end"}>
-            <StatNumber>123</StatNumber>
-            <StatHelpText>num/min</StatHelpText>
-          </Stat>
+          <Tag colorScheme={"gray"}>
+            123
+            <chakra.span textColor={"gray"} fontSize={"0.5rem"} ml={1}>
+              pkg/min
+            </chakra.span>
+          </Tag>
         </HStack>
         <Spacer />
         <Select variant={"outline"} w="fit-content">
@@ -73,7 +79,9 @@ const Dashboad: FC = () => {
       </Flex>
       <Flex
         gap={4}
-        p={4}
+        px={4}
+        pb={4}
+        maxW="3xl"
         w="full"
         justify={"center"}
         overflow={"auto"}
@@ -89,9 +97,24 @@ const Dashboad: FC = () => {
           p={4}
           boxShadow={"lg"}
           w="full"
-          h="55vh"
-          minH="300px"
-        ></Card>
+          h="fit-content"
+          minH={`${height}px`}
+        >
+          <AspectRatio ref={ref} ratio={2.5} w="full">
+            <Stage
+              width={width}
+              height={height}
+              style={{
+                borderWidth: 1,
+                borderColor: "pink",
+                borderRadius: 16,
+              }}
+              draggable
+            >
+              <Layer></Layer>
+            </Stage>
+          </AspectRatio>
+        </Card>
       </Flex>
     </VStack>
   );

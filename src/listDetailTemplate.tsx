@@ -1,4 +1,4 @@
-import { VStack, Flex } from "@chakra-ui/react";
+import { VStack, Flex, Fade } from "@chakra-ui/react";
 import { FC, ReactElement, useMemo } from "react";
 import { PanelGroup, Panel } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
@@ -27,14 +27,7 @@ const ListDetailTemplate: FC<ListDetailTemplateProps> = ({
   };
 
   return (
-    <VStack
-      w="full"
-      h="full"
-      gap={0}
-      bgColor="white"
-      justify={"center"}
-      overflow={"hidden"}
-    >
+    <VStack w="full" h="full" gap={0} justify={"center"}>
       {header && (
         <Flex w="full" h={`${headerHPix}px`} p={2}>
           {header}

@@ -1,9 +1,11 @@
 import { FC, useState } from "react";
 import {
+  Box,
   Button,
   ButtonGroup,
   Card,
   Flex,
+  HStack,
   IconButton,
   Spacer,
 } from "@chakra-ui/react";
@@ -18,6 +20,7 @@ import {
 import { Stage, Layer, Text } from "react-konva";
 import { useCounter, useMeasure } from "react-use";
 import { Scale } from "chart.js";
+import { DeviceSvg } from "./DeviceSvg";
 
 const System: FC = () => {
   const [ref, { width, height }] = useMeasure<HTMLDivElement>();
@@ -45,24 +48,30 @@ const System: FC = () => {
         </ButtonGroup>
       }
       detail={
-        <Flex ref={ref} aspectRatio={2.5} p={2}>
-          <Stage
-            width={width}
-            height={height}
-            style={{
-              backgroundColor: "cyan",
-              borderWidth: 1,
-              borderColor: "pink",
-            }}
-            scale={{ x: counter / 100, y: counter / 100 }}
-            draggable
-          >
-            <Layer>
-              <Text text={"w:" + width + "px"} x={width / 2} y={height / 2} />
-              <Text text={"h:" + height + "px"} x={width / 2} y={height / 3} />
-            </Layer>
-          </Stage>
-        </Flex>
+        <Box>
+          <Flex ref={ref} aspectRatio={2.5} p={2}>
+            <Stage
+              width={width}
+              height={height}
+              style={{
+                backgroundColor: "cyan",
+                borderWidth: 1,
+                borderColor: "pink",
+              }}
+              scale={{ x: counter / 100, y: counter / 100 }}
+              draggable
+            >
+              <Layer>
+                <Text text={"w:" + width + "px"} x={width / 2} y={height / 2} />
+                <Text
+                  text={"h:" + height + "px"}
+                  x={width / 2}
+                  y={height / 3}
+                />
+              </Layer>
+            </Stage>
+          </Flex>
+        </Box>
       }
     />
   );

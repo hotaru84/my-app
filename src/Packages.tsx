@@ -4,8 +4,10 @@ import {
   Button,
   ButtonGroup,
   Flex,
+  Input,
   Spacer,
   Stack,
+  Tag,
   Wrap,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -14,6 +16,14 @@ import ListDetailTemplate from "./listDetailTemplate";
 import CardTemplate from "./cardTemplate";
 import { useMeasure } from "react-use";
 import { Outlet, useSearchParams } from "react-router-dom";
+import {
+  ChakraStylesConfig,
+  GroupBase,
+  OptionBase,
+  Select,
+  SelectComponent,
+  components,
+} from "chakra-react-select";
 
 type CardType = {
   h: string;
@@ -117,22 +127,58 @@ const SampleCard: FC<SampleCardProps> = ({ id, type }) => {
       indicator={type.i}
       actionL={<Button onClick={toggle}>Select</Button>}
       isSelected={isSelected}
+      isDisabled={false}
     />
   );
 };
 
+interface Op {
+  value: number;
+  label: string;
+}
 const Packages: FC = () => {
   const { isOpen: isTileStyle, onToggle } = useDisclosure();
-  const [params] = useSearchParams();
 
   return (
     <ListDetailTemplate
       header={
         <ButtonGroup w="full">
           <Spacer />
-          <Button leftIcon={<TbEdit />} onClick={onToggle}>
-            Edit
-          </Button>
+          <Select<Op, true, GroupBase<Op>>
+            isMulti
+            options={[
+              { value: 1, label: "value1" },
+              { value: 2, label: "value2" },
+              { value: 3, label: "value3" },
+              { value: 4, label: "value4" },
+              { value: 5, label: "value5" },
+              { value: 6, label: "value6" },
+              { value: 7, label: "value7" },
+              { value: 8, label: "value8" },
+              { value: 9, label: "value9" },
+              { value: 10, label: "value0" },
+            ]}
+            placeholder="Groups"
+            closeMenuOnSelect={false}
+            isClearable={true}
+            useBasicStyles
+            variant="filled"
+            hideSelectedOptions={false}
+            selectedOptionStyle="check"
+            components={{
+              ValueContainer: (props) => {
+                return (
+                  <components.ValueContainer {...props}>
+                    {props.getValue().length < 2 ? (
+                      props.children
+                    ) : (
+                      <Tag>{props.getValue().length} selected</Tag>
+                    )}
+                  </components.ValueContainer>
+                );
+              },
+            }}
+          />
         </ButtonGroup>
       }
       list={

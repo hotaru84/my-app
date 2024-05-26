@@ -14,9 +14,11 @@ import {
   IconButton,
   keyframes,
 } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { FC } from "react";
 import { IconType } from "react-icons";
 import { TbEdit } from "react-icons/tb";
+import { NavLink } from "react-router-dom";
 
 export interface StatData {
   label: string;
@@ -44,8 +46,13 @@ const StatCard: FC<StatData> = ({
       p={4}
       boxShadow="lg"
       minW="fit-content"
+      w="full"
       flex="1"
       h="fit-content"
+      borderColor="gray.100"
+      borderWidth={1}
+      as={motion.div}
+      whileHover={{ filter: "brightness(0.9)" }}
     >
       <HStack align="center" spacing={4}>
         <Avatar
@@ -91,6 +98,8 @@ const StatCard: FC<StatData> = ({
           icon={<TbEdit />}
           variant={"ghost"}
           size={"sm"}
+          as={NavLink}
+          to={"/"}
         />
       </Flex>
     </Card>
