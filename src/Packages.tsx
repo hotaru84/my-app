@@ -3,7 +3,10 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Card,
+  CardHeader,
   Flex,
+  IconButton,
   Input,
   Spacer,
   Stack,
@@ -11,11 +14,11 @@ import {
   Wrap,
   useDisclosure,
 } from "@chakra-ui/react";
-import { TbEdit } from "react-icons/tb";
+import { Tb123, TbAB, TbEdit, TbSettings } from "react-icons/tb";
 import ListDetailTemplate from "./listDetailTemplate";
 import CardTemplate from "./cardTemplate";
 import { useMeasure } from "react-use";
-import { Outlet, useSearchParams } from "react-router-dom";
+import { NavLink, Outlet, useSearchParams } from "react-router-dom";
 import {
   ChakraStylesConfig,
   GroupBase,
@@ -24,6 +27,7 @@ import {
   SelectComponent,
   components,
 } from "chakra-react-select";
+import { motion } from "framer-motion";
 
 type CardType = {
   h: string;
@@ -49,18 +53,6 @@ const cards: CardType[] = [
     h: "cccccccc",
     t: "cccccccc",
     f: "cccccccc",
-    i: "green.300",
-  },
-  {
-    h: "dddddddd",
-    t: "dddddddd",
-    f: "dddddddd",
-    i: "green.300",
-  },
-  {
-    h: "eeeeeeee",
-    t: "eeeeeeee",
-    f: "eeeeeeee",
     i: "green.300",
   },
 ];
@@ -125,9 +117,14 @@ const SampleCard: FC<SampleCardProps> = ({ id, type }) => {
       title={type.t}
       footer={type.f}
       indicator={type.i}
-      actionL={<Button onClick={toggle}>Select</Button>}
+      actionL={
+        <Button as={NavLink} to={"test"} onClick={(e) => e.stopPropagation()}>
+          Select
+        </Button>
+      }
       isSelected={isSelected}
       isDisabled={false}
+      onClick={toggle}
     />
   );
 };
@@ -144,6 +141,7 @@ const Packages: FC = () => {
       header={
         <ButtonGroup w="full">
           <Spacer />
+          <IconButton aria-label="toogle" icon={<Tb123 />} onClick={onToggle} />
           <Select<Op, true, GroupBase<Op>>
             isMulti
             options={[
@@ -182,16 +180,28 @@ const Packages: FC = () => {
         </ButtonGroup>
       }
       list={
-        <Flex
-          wrap={"wrap"}
-          m={isTileStyle ? 4 : 2}
-          gap={isTileStyle ? 4 : 1}
-          justify={isTileStyle ? "center" : "start"}
+        <Card
+          variant={"outline"}
+          mx={"auto"}
+          maxW="xl"
+          minW={"fit-content"}
+          justify={"center"}
+          as={motion.div}
+          layout
         >
-          {cards.map((c, i) => (
-            <SampleCard key={i} id={i.toString()} type={c} />
-          ))}
-        </Flex>
+          <Flex>
+            <Tag w="fit-content" mx={2} mt={2} colorScheme="teal">
+              Dev type
+            </Tag>
+            <Spacer />
+            <IconButton aria-label="" icon={<TbSettings />} variant={"ghost"} />
+          </Flex>
+          <Flex wrap={"wrap"} m={isTileStyle ? 4 : 2} gap={isTileStyle ? 4 : 1}>
+            {cards.map((c, i) => (
+              <SampleCard key={i} id={i.toString()} type={c} />
+            ))}
+          </Flex>
+        </Card>
       }
       detail={isTileStyle ? undefined : <Outlet />}
     />

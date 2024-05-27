@@ -22,6 +22,7 @@ import NavMenuItem from "./MenuButton";
 import { DetailDrawer } from "./DetailDrawer";
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const LinkItems = [
   { label: "Devices", icon: TbDeviceMobile, to: "/packages" },
@@ -53,10 +54,12 @@ export const Navigation = () => {
       <Tabs colorScheme="cyan" variant="soft-rounded">
         <TabList gap={1}>
           {LinkItems.map((link, i) => (
-            <Tab as={NavLink} to={link.to}>
-              <Icon as={link.icon} mr={1} />
-              {link.label}
-            </Tab>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Tab as={NavLink} to={link.to}>
+                <Icon as={link.icon} mr={1} />
+                {link.label}
+              </Tab>
+            </motion.div>
           ))}
         </TabList>
       </Tabs>
