@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import {
   AspectRatio,
   Box,
@@ -7,12 +7,6 @@ import {
   HStack,
   Select,
   Spacer,
-  Stat,
-  StatHelpText,
-  StatNumber,
-  Tab,
-  TabList,
-  Tabs,
   Tag,
   TagLeftIcon,
   VStack,
@@ -21,10 +15,10 @@ import {
 import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import TrendlineChart from "./TrendlineChart";
-import { Device } from "./Device";
-import { Layer, Stage } from "react-konva";
+import { Layer, Line, Rect, Stage, Image } from "react-konva";
 import { useMeasure } from "react-use";
-import { NavLink } from "react-router-dom";
+import useImage from "use-image";
+import { DatePicker } from "./DatePicker";
 
 const stats: StatData[] = [
   {
@@ -49,9 +43,44 @@ const stats: StatData[] = [
     unit: "min",
   },
 ];
+type Point = {
+  x: number;
+  y: number;
+};
+
+function polygonSort(origin: Point[]): Point[] {
+  const center = origin.reduce(
+    (center, now) => ({ x: center.x + now.x, y: center.y + now.y }),
+    { x: 0, y: 0 }
+  );
+
+  return origin
+    .map((p) => ({
+      ...p,
+      angle: Math.atan2(
+        p.y - center.y / origin.length,
+        p.x - center.x / origin.length
+      ),
+    }))
+    .sort((a, b) => (a.angle > b.angle ? 1 : -1));
+}
 
 const Dashboad: FC = () => {
   const [ref, { width, height }] = useMeasure<HTMLDivElement>();
+  const origin = [
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+    { x: Math.random() * 100, y: Math.random() * 100 },
+  ];
+  const results = polygonSort(origin).flatMap((p) => [p.x, p.y]);
+  const [image] = useImage("/sample.svg");
+  const aspect = image !== undefined ? image?.width / image?.height : 1;
+  console.log(image, aspect, image?.width, image?.height);
 
   return (
     <VStack w="full" h="full">
@@ -73,9 +102,7 @@ const Dashboad: FC = () => {
           </Tag>
         </HStack>
         <Spacer />
-        <Select variant={"outline"} w="fit-content">
-          <option>Month</option>
-        </Select>
+        <DatePicker />
       </Flex>
       <Flex
         gap={4}
@@ -111,7 +138,16 @@ const Dashboad: FC = () => {
               }}
               draggable
             >
-              <Layer></Layer>
+              <Layer>
+                <Line
+                  points={origin.flatMap((p) => [p.x, p.y])}
+                  offset={{ x: 100, y: 100 }}
+                  fill="#00D2FF"
+                  closed
+                />
+                <Line points={results} fill="pink" closed />
+                <Image image={image} width={100} height={100 / aspect} />
+              </Layer>
             </Stage>
           </AspectRatio>
         </Card>

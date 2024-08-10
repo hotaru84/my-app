@@ -27,9 +27,9 @@ import LayoutTest from "./LayoutTest";
 
 const BaseLayout: FC = () => {
   return (
-    <VStack w="full" h="100vh">
+    <VStack w="100vw" h="100vh">
       <Navigation />
-      <Flex w="full" h="100vh" overflow={"auto"}>
+      <Flex w="full" h="full" overflow={"auto"}>
         <Outlet />
       </Flex>
     </VStack>

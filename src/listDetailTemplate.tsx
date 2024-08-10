@@ -15,24 +15,14 @@ const ListDetailTemplate: FC<ListDetailTemplateProps> = ({
   list,
   detail,
 }) => {
-  const headerHPix = 68;
   const resizable = useMemo(
     () => list !== undefined && detail !== undefined,
     [detail, list]
   );
-  const boxprops = {
-    w: "full",
-    h: header ? `calc(100vh - ${headerHPix}px)` : "100vh",
-    overflow: "auto",
-  };
 
   return (
-    <VStack w="full" h="full" gap={0} justify={"center"}>
-      {header && (
-        <Flex w="full" h={`${headerHPix}px`} p={2}>
-          {header}
-        </Flex>
-      )}
+    <VStack w="full" h="full" gap={0} as={Fade} in>
+      {header}
       <PanelGroup direction={"horizontal"}>
         {list && (
           <Panel
@@ -43,7 +33,7 @@ const ListDetailTemplate: FC<ListDetailTemplateProps> = ({
               overflow: "auto",
             }}
           >
-            <motion.div {...boxprops}>{list}</motion.div>
+            {list}
           </Panel>
         )}
         {resizable && (
@@ -65,7 +55,7 @@ const ListDetailTemplate: FC<ListDetailTemplateProps> = ({
               overflow: "auto",
             }}
           >
-            <motion.div {...boxprops}>{detail}</motion.div>
+            {detail}
           </Panel>
         )}
       </PanelGroup>

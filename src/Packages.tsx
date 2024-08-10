@@ -5,16 +5,19 @@ import {
   ButtonGroup,
   Card,
   CardHeader,
+  Collapse,
   Flex,
+  HStack,
   IconButton,
   Input,
   Spacer,
   Stack,
   Tag,
+  VStack,
   Wrap,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Tb123, TbAB, TbEdit, TbSettings } from "react-icons/tb";
+import { Tb123, TbAB, TbEdit, TbPlus, TbSettings } from "react-icons/tb";
 import ListDetailTemplate from "./listDetailTemplate";
 import CardTemplate from "./cardTemplate";
 import { useMeasure } from "react-use";
@@ -27,7 +30,7 @@ import {
   SelectComponent,
   components,
 } from "chakra-react-select";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 type CardType = {
   h: string;
@@ -133,77 +136,77 @@ interface Op {
   value: number;
   label: string;
 }
-const Packages: FC = () => {
-  const { isOpen: isTileStyle, onToggle } = useDisclosure();
 
+const render = () => {
+  return (
+    <ButtonGroup w="full">
+      <Spacer />
+      <IconButton aria-label="toogle" icon={<Tb123 />} />
+      <Select<Op, true, GroupBase<Op>>
+        isMulti
+        options={[
+          { value: 1, label: "value1" },
+          { value: 2, label: "value2" },
+          { value: 3, label: "value3" },
+          { value: 4, label: "value4" },
+          { value: 5, label: "value5" },
+          { value: 6, label: "value6" },
+          { value: 7, label: "value7" },
+          { value: 8, label: "value8" },
+          { value: 9, label: "value9" },
+          { value: 10, label: "value0" },
+        ]}
+        placeholder="Groups"
+        closeMenuOnSelect={false}
+        isClearable={true}
+        useBasicStyles
+        variant="filled"
+        hideSelectedOptions={false}
+        selectedOptionStyle="check"
+        components={{
+          ValueContainer: (props) => {
+            return (
+              <components.ValueContainer {...props}>
+                {props.getValue().length < 2 ? (
+                  props.children
+                ) : (
+                  <Tag>{props.getValue().length} selected</Tag>
+                )}
+              </components.ValueContainer>
+            );
+          },
+        }}
+      />
+    </ButtonGroup>
+  );
+};
+
+const Packages: FC = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <ListDetailTemplate
-      header={
-        <ButtonGroup w="full">
-          <Spacer />
-          <IconButton aria-label="toogle" icon={<Tb123 />} onClick={onToggle} />
-          <Select<Op, true, GroupBase<Op>>
-            isMulti
-            options={[
-              { value: 1, label: "value1" },
-              { value: 2, label: "value2" },
-              { value: 3, label: "value3" },
-              { value: 4, label: "value4" },
-              { value: 5, label: "value5" },
-              { value: 6, label: "value6" },
-              { value: 7, label: "value7" },
-              { value: 8, label: "value8" },
-              { value: 9, label: "value9" },
-              { value: 10, label: "value0" },
-            ]}
-            placeholder="Groups"
-            closeMenuOnSelect={false}
-            isClearable={true}
-            useBasicStyles
-            variant="filled"
-            hideSelectedOptions={false}
-            selectedOptionStyle="check"
-            components={{
-              ValueContainer: (props) => {
-                return (
-                  <components.ValueContainer {...props}>
-                    {props.getValue().length < 2 ? (
-                      props.children
-                    ) : (
-                      <Tag>{props.getValue().length} selected</Tag>
-                    )}
-                  </components.ValueContainer>
-                );
-              },
-            }}
-          />
-        </ButtonGroup>
-      }
       list={
-        <Card
-          variant={"outline"}
-          mx={"auto"}
-          maxW="xl"
-          minW={"fit-content"}
-          justify={"center"}
-          as={motion.div}
-          layout
-        >
-          <Flex>
-            <Tag w="fit-content" mx={2} mt={2} colorScheme="teal">
-              Dev type
-            </Tag>
-            <Spacer />
-            <IconButton aria-label="" icon={<TbSettings />} variant={"ghost"} />
-          </Flex>
-          <Flex wrap={"wrap"} m={isTileStyle ? 4 : 2} gap={isTileStyle ? 4 : 1}>
+        <HStack h="full" align={"start"}>
+          <VStack as={motion.div} mx={2} layout>
+            <Button
+              leftIcon={<TbPlus />}
+              colorScheme="cyan"
+              boxShadow={"lg"}
+              justifyContent="flex-start"
+              iconSpacing={0}
+              my={2}
+            >
+              {""}
+            </Button>
+          </VStack>
+          <Flex wrap={"wrap"} m={4} gap={4}>
             {cards.map((c, i) => (
               <SampleCard key={i} id={i.toString()} type={c} />
             ))}
           </Flex>
-        </Card>
+        </HStack>
       }
-      detail={isTileStyle ? undefined : <Outlet />}
+      detail={<Outlet />}
     />
   );
 };

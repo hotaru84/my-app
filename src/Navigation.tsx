@@ -33,15 +33,7 @@ export const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex
-      w="full"
-      align={"center"}
-      bgColor={"bg"}
-      p={2}
-      gap={2}
-      position={"absolute"}
-      top={0}
-    >
+    <Flex w="full" align={"center"} bgColor={"bg"} p={2} gap={2}>
       <IconButton
         aria-label="menu"
         variant={"ghost"}
@@ -51,6 +43,7 @@ export const Navigation = () => {
         onClick={onOpen}
         colorScheme="gray"
       />
+      <Spacer />
       <Tabs colorScheme="cyan" variant="soft-rounded">
         <TabList gap={1}>
           {LinkItems.map((link, i) => (
@@ -63,7 +56,7 @@ export const Navigation = () => {
           ))}
         </TabList>
       </Tabs>
-
+      <Spacer />
       {DetailDrawer(isOpen, onClose)}
     </Flex>
   );
