@@ -18,7 +18,7 @@ import TrendlineChart from "./TrendlineChart";
 import { Layer, Line, Rect, Stage, Image } from "react-konva";
 import { useMeasure } from "react-use";
 import useImage from "use-image";
-import { DatePickerPopover } from "./DatePicker";
+import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
 const stats: StatData[] = [
   {
@@ -102,7 +102,7 @@ const Dashboad: FC = () => {
           </Tag>
         </HStack>
         <Spacer />
-        <DatePickerPopover />
+        <DateTimeRangePicker />
       </Flex>
       <Flex
         gap={4}

@@ -22,7 +22,7 @@
     "@types/react-sparklines": "^1.7.5",
     "@yamatomo/chakra-react-datepicker": "^1.0.0",
     "chakra-dayzed-datepicker": "^0.3.0",
-    "chakra-react-select": "^4.7.6",
+    "chakra-react-select": "^4.9.1",
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-chart-matrix": "^2.0.1",

@@ -1,22 +1,12 @@
 import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
 import { OnDateSelected, RangeCalendarPanel } from "chakra-dayzed-datepicker";
 import {
-  Box,
   Button,
   Text,
   HStack,
   Input,
   InputGroup,
   InputLeftAddon,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverFooter,
-  PopoverHeader,
-  PopoverTrigger,
-  Portal,
-  Switch,
   useDisclosure,
   VStack,
   Collapse,
@@ -27,11 +17,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Center,
 } from "@chakra-ui/react";
 import {
   addDays,
-  addHours,
   compareAsc,
   differenceInCalendarDays,
   endOfDay,
@@ -40,7 +28,8 @@ import {
   startOfDay,
 } from "date-fns";
 import "rc-time-picker/assets/index.css";
-import { motion } from "framer-motion";
+import { Select } from "chakra-react-select";
+import { TbCalendarSearch } from "react-icons/tb";
 
 const Month_Names_Short = [
   "Jan",
@@ -105,12 +94,14 @@ const calenderStyleProps = {
 interface RangeCalendarProps {
   startDate?: Date;
   endDate?: Date;
+  maxDays?: number;
   onChange: (start?: Date, end?: Date) => void;
 }
 
 const RangeCalendar: FC<RangeCalendarProps> = ({
   startDate,
   endDate,
+  maxDays = 7,
   onChange,
 }) => {
   const handleOnDateSelected: OnDateSelected = ({ date }) => {
@@ -137,7 +128,7 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
         maxDate: endDate
           ? undefined
           : startDate
-          ? addDays(startDate, 7)
+          ? addDays(startDate, maxDays)
           : undefined,
       }}
       configs={{
@@ -194,8 +185,34 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
     </Collapse>
   );
 };
+const DateTimeRangeSelector: FC = () => {
+  return (
+    <Select
+      colorScheme="cyan"
+      variant="filled"
+      options={[
+        {
+          label: "Last hour",
+          value: "-1h",
+        },
+        {
+          label: "Last day",
+          value: "-1d",
+        },
+        {
+          label: "Last week",
+          value: "-1w",
+        },
+        {
+          label: "Range Filter",
+          value: "range",
+        },
+      ]}
+    />
+  );
+};
 
-export const DatePickerPopover: FC = () => {
+export const DateTimeRangePicker: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -207,25 +224,28 @@ export const DatePickerPopover: FC = () => {
 
   return (
     <>
-      <Button onClick={onOpen}>Trigger</Button>
+      <Button
+        leftIcon={<TbCalendarSearch />}
+        variant="ghost"
+        colorScheme="cyan"
+        onClick={onOpen}
+      >
+        Filter
+      </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader pb={0}>
-            {startDate &&
-              endDate &&
-              differenceInCalendarDays(endDate, startDate) + 1}
-            Days
+            <DateTimeRangeSelector />
           </ModalHeader>
-          <ModalCloseButton />
           <ModalBody p={0}>
-            <VStack>
+            <VStack w="full">
               <RangeCalendar
                 startDate={startDate}
                 endDate={endDate}
                 onChange={onChangeDate}
               />
-              <HStack gap={2}>
+              <HStack gap={2} w="full" justify={"center"}>
                 <TimePicker
                   label="From:"
                   date={startDate}
