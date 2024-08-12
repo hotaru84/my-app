@@ -2,7 +2,6 @@ import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
 import { OnDateSelected, RangeCalendarPanel } from "chakra-dayzed-datepicker";
 import {
   Button,
-  Text,
   HStack,
   Input,
   InputGroup,
@@ -12,23 +11,15 @@ import {
   Collapse,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Divider,
 } from "@chakra-ui/react";
-import {
-  addDays,
-  compareAsc,
-  differenceInCalendarDays,
-  endOfDay,
-  format,
-  parse,
-  startOfDay,
-} from "date-fns";
+import { compareAsc, endOfDay, format, parse, startOfDay } from "date-fns";
 import "rc-time-picker/assets/index.css";
-import { Select } from "chakra-react-select";
+import { GroupBase, OptionBase, Select } from "chakra-react-select";
 import { TbCalendarSearch } from "react-icons/tb";
 
 const Month_Names_Short = [
@@ -105,10 +96,13 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
   onChange,
 }) => {
   const handleOnDateSelected: OnDateSelected = ({ date }) => {
-    if (startDate && endDate) onChange(startOfDay(date), undefined);
-    else if (!startDate) onChange(startOfDay(date), undefined);
-    else if (!endDate) onChange(startDate, endOfDay(date));
-    else onChange(startOfDay(date), undefined);
+    if (startDate && endDate) onChange(startOfDay(date), undefined); //reset
+    else if (!startDate) onChange(startOfDay(date), undefined); // first
+    else if (!endDate) {
+      if (compareAsc(endOfDay(date), startDate) > 0)
+        onChange(startDate, endOfDay(date)); // update
+      else onChange(startOfDay(date), endOfDay(startDate)); // swap
+    }
   };
   const dates = useMemo(() => {
     let d = [];
@@ -124,12 +118,6 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
         onDateSelected: handleOnDateSelected,
         selected: dates,
         monthsToDisplay: 1,
-        minDate: endDate ? undefined : startDate,
-        maxDate: endDate
-          ? undefined
-          : startDate
-          ? addDays(startDate, maxDays)
-          : undefined,
       }}
       configs={{
         dateFormat: "MM/dd/yyyy",
@@ -144,7 +132,7 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
 
 interface TimePickerProps {
   date: Date | undefined;
-  setDate: (date: Date) => void;
+  setDate: (date?: Date) => void;
   label?: string;
 }
 
@@ -161,59 +149,71 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
 
   return (
     <Collapse in={date !== undefined}>
-      <VStack gap={2} align={"start"} p={2}>
-        {label && (
-          <Text textColor="grayText" fontSize={"sm"}>
-            {label}
-          </Text>
-        )}
-        <InputGroup size="sm">
-          <InputLeftAddon borderLeftRadius={8}>
-            {date && format(date, "MM-dd")}
-          </InputLeftAddon>
-          <Input
-            type="time"
-            borderRadius={8}
-            value={date ? format(date, "HH:mm") : ""}
-            focusBorderColor="cyan.400"
-            pattern="[0-9]{2}:[0-9]{2}"
-            isDisabled={!date}
-            onChange={onChangeTime}
-          />
-        </InputGroup>
-      </VStack>
+      <InputGroup size="sm">
+        <InputLeftAddon borderLeftRadius={8}>
+          {date && format(date, "MM-dd")}
+        </InputLeftAddon>
+        <Input
+          type="time"
+          borderRadius={8}
+          value={date ? format(date, "HH:mm") : ""}
+          focusBorderColor="cyan.400"
+          pattern="[0-9]{2}:[0-9]{2}"
+          isDisabled={!date}
+          onChange={onChangeTime}
+        />
+      </InputGroup>
     </Collapse>
   );
 };
-const DateTimeRangeSelector: FC = () => {
+
+interface SelectOption extends OptionBase {
+  label: string;
+  value: string;
+}
+
+interface RangeSelectorProps {
+  select?: SelectOption;
+  onSelect: (v: SelectOption) => void;
+}
+
+const options: SelectOption[] = [
+  {
+    label: "Last hour",
+    value: "-1h",
+  },
+  {
+    label: "Last day",
+    value: "-1d",
+  },
+  {
+    label: "Last week",
+    value: "-1w",
+  },
+  {
+    label: "Date range",
+    value: "range",
+  },
+];
+
+const DateTimeRangeSelector: FC<RangeSelectorProps> = ({
+  select,
+  onSelect,
+}) => {
   return (
-    <Select
+    <Select<SelectOption, false, GroupBase<SelectOption>>
       colorScheme="cyan"
       variant="filled"
-      options={[
-        {
-          label: "Last hour",
-          value: "-1h",
-        },
-        {
-          label: "Last day",
-          value: "-1d",
-        },
-        {
-          label: "Last week",
-          value: "-1w",
-        },
-        {
-          label: "Range Filter",
-          value: "range",
-        },
-      ]}
+      defaultValue={select}
+      options={options}
+      onChange={(v) => (v ? onSelect(v) : null)}
     />
   );
 };
 
 export const DateTimeRangePicker: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [option, setOption] = useState<SelectOption>(options[0]);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
@@ -236,24 +236,27 @@ export const DateTimeRangePicker: FC = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader pb={0}>
-            <DateTimeRangeSelector />
+            <DateTimeRangeSelector select={option} onSelect={setOption} />
           </ModalHeader>
-          <ModalBody p={0}>
-            <VStack w="full">
-              <RangeCalendar
-                startDate={startDate}
-                endDate={endDate}
-                onChange={onChangeDate}
-              />
-              <HStack gap={2} w="full" justify={"center"}>
-                <TimePicker
-                  label="From:"
-                  date={startDate}
-                  setDate={setStartDate}
+          <ModalBody>
+            <Collapse in={option.value === "range"}>
+              <VStack w="full">
+                <RangeCalendar
+                  startDate={startDate}
+                  endDate={endDate}
+                  onChange={onChangeDate}
                 />
-                <TimePicker label="To:" date={endDate} setDate={setEndDate} />
-              </HStack>
-            </VStack>
+                <HStack gap={2} w="full" justify={"center"}>
+                  <TimePicker
+                    label="From:"
+                    date={startDate}
+                    setDate={setStartDate}
+                  />
+                  <Divider w="10px" />
+                  <TimePicker label="To:" date={endDate} setDate={setEndDate} />
+                </HStack>
+              </VStack>
+            </Collapse>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
