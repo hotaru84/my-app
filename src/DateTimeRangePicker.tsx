@@ -1,64 +1,37 @@
-import {
-  ChangeEvent,
-  FC,
-  ReactElement,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
-import {
-  OnDateSelected,
-  RangeCalendarPanel,
-  RangeDatepicker,
-  SingleDatepicker,
-} from "chakra-dayzed-datepicker";
+import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
+import { OnDateSelected, RangeCalendarPanel } from "chakra-dayzed-datepicker";
 import {
   Button,
-  Select,
-  Text,
   InputGroup,
-  InputLeftAddon,
   useDisclosure,
   VStack,
-  Collapse,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Divider,
-  InputLeftElement,
   Tab,
-  TabIndicator,
   TabList,
-  TabPanel,
   TabPanels,
   Tabs,
   HStack,
-  ButtonGroup,
-  NumberInputField,
-  NumberInput,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  NumberInputStepper,
-  Box,
-  Center,
-  Icon,
   Input,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverFooter,
+  Portal,
+  Icon,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import {
   compareAsc,
   endOfDay,
   endOfToday,
   format,
-  getHours,
   parse,
   startOfDay,
   startOfToday,
 } from "date-fns";
 import "rc-time-picker/assets/index.css";
-import { TbArrowDown, TbCalendarSearch, TbChevronDown } from "react-icons/tb";
+import { TbArrowRight, TbCalendarSearch } from "react-icons/tb";
 
 const Month_Names_Short = [
   "Jan",
@@ -95,8 +68,12 @@ const calenderStyleProps = {
     },
   },
   inputProps: {
-    size: "sm",
-    variants: "fill",
+    width: "20rem",
+    variants: "filled",
+    focusBorderColor: "cyan.400",
+  },
+  triggerIconBtnProps: {
+    colorScheme: "cyan",
   },
   calendarPanelProps: {
     wrapperProps: {
@@ -127,7 +104,7 @@ interface RangeCalendarProps {
   onChange: (start?: Date, end?: Date) => void;
 }
 
-const RangeCalendar: FC<RangeCalendarProps> = ({
+const CustomRangeCalendar: FC<RangeCalendarProps> = ({
   startDate,
   endDate,
   maxDays = 7,
@@ -158,7 +135,7 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
         monthsToDisplay: 1,
       }}
       configs={{
-        dateFormat: "MM/dd/yyyy",
+        dateFormat: "yyyy/MM/dd",
         monthNames: Month_Names_Short,
         dayNames: Weekday_Names_Short,
         firstDayOfWeek: 0,
@@ -188,7 +165,7 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
   return (
     <InputGroup size="sm">
       <InputLeftAddon borderLeftRadius={8}>
-        {date && format(date, "yyyy-MM-dd")}
+        {date ? format(date, "MM-dd") : "-----"}
       </InputLeftAddon>
       <Input
         type="time"
@@ -204,48 +181,12 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
   );
 };
 
-interface SelectOption {
+interface TabOption {
   label: string;
   value: string;
-  panel?: ReactElement;
 }
-const CustomPanel: FC = () => {
-  const [startDate, setStartDate] = useState<Date | undefined>(startOfToday());
-  const [endDate, setEndDate] = useState<Date | undefined>(endOfToday());
 
-  const onChangeDate = (start?: Date, end?: Date) => {
-    if (start && end) {
-      const asc = compareAsc(end, start) > 0;
-      setStartDate(asc ? start : end);
-      setEndDate(asc ? end : start);
-    } else {
-      setStartDate(start);
-      setEndDate(end);
-    }
-  };
-
-  return (
-    <VStack w="full">
-      <RangeCalendar
-        startDate={startDate}
-        endDate={endDate}
-        onChange={onChangeDate}
-      />
-      <HStack>
-        <TimePicker
-          date={startDate}
-          setDate={(d) => onChangeDate(d, endDate)}
-        />
-        <TimePicker
-          date={endDate}
-          setDate={(d) => onChangeDate(startDate, d)}
-        />
-      </HStack>
-    </VStack>
-  );
-};
-
-const options: SelectOption[] = [
+const tabs: TabOption[] = [
   {
     label: "Last hour",
     value: "-1h",
@@ -261,30 +202,48 @@ const options: SelectOption[] = [
   {
     label: "Custom",
     value: "custom",
-    panel: <CustomPanel />,
   },
 ];
 
 export const DateTimeRangePicker: FC = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfToday());
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfToday());
+
+  const onChangeDate = (start?: Date, end?: Date) => {
+    if (start && end) {
+      const asc = compareAsc(end, start) > 0;
+      setStartDate(asc ? start : end);
+      setEndDate(asc ? end : start);
+    } else {
+      setStartDate(start);
+      setEndDate(end);
+    }
+  };
 
   return (
-    <>
-      <Button
-        leftIcon={<TbCalendarSearch />}
-        variant="ghost"
-        colorScheme="cyan"
-        onClick={onOpen}
-      >
-        Filter
-      </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalBody>
+    <Popover isOpen={isOpen} onClose={onClose} placement="bottom">
+      <PopoverTrigger>
+        <Button
+          leftIcon={<TbCalendarSearch />}
+          variant="ghost"
+          colorScheme="cyan"
+          fontWeight={"normal"}
+          size={"sm"}
+          onClick={onOpen}
+        >
+          {startDate && format(startDate, "yyyy/MM/dd")}
+          <Icon as={TbArrowRight} mx={2} />
+          {endDate && format(endDate, "yyyy/MM/dd")}
+        </Button>
+      </PopoverTrigger>
+      <Portal>
+        <PopoverContent w={"full"}>
+          <PopoverArrow />
+          <PopoverBody>
             <Tabs orientation="vertical" colorScheme="cyan" align="start">
               <TabList>
-                {options.map((op) => (
+                {tabs.map((op) => (
                   <Tab
                     w="fit-content"
                     textAlign="start"
@@ -296,18 +255,37 @@ export const DateTimeRangePicker: FC = () => {
                 ))}
               </TabList>
               <TabPanels>
-                <CustomPanel />
+                <VStack w="full">
+                  <VStack w="full">
+                    <CustomRangeCalendar
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={onChangeDate}
+                    />
+                    <HStack textAlign={"center"}>
+                      <TimePicker
+                        date={startDate}
+                        setDate={(d) => onChangeDate(d, endDate)}
+                      />
+                      <Icon as={TbArrowRight} mx={2} />
+                      <TimePicker
+                        date={endDate}
+                        setDate={(d) => onChangeDate(startDate, d)}
+                      />
+                    </HStack>
+                  </VStack>
+                </VStack>
               </TabPanels>
             </Tabs>
-          </ModalBody>
-          <ModalFooter>
+          </PopoverBody>
+          <PopoverFooter>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
               Close
             </Button>
             <Button colorScheme="cyan">Apply</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+          </PopoverFooter>
+        </PopoverContent>
+      </Portal>
+    </Popover>
   );
 };
