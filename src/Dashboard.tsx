@@ -5,7 +5,6 @@ import {
   Card,
   Flex,
   HStack,
-  Select,
   Spacer,
   Tag,
   TagLeftIcon,
@@ -80,7 +79,6 @@ const Dashboad: FC = () => {
   const results = polygonSort(origin).flatMap((p) => [p.x, p.y]);
   const [image] = useImage("/sample.svg");
   const aspect = image !== undefined ? image?.width / image?.height : 1;
-  console.log(image, aspect, image?.width, image?.height);
 
   return (
     <VStack w="full" h="full">

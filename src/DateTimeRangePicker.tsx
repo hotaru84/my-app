@@ -1,9 +1,21 @@
-import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
-import { OnDateSelected, RangeCalendarPanel } from "chakra-dayzed-datepicker";
+import {
+  ChangeEvent,
+  FC,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+import {
+  OnDateSelected,
+  RangeCalendarPanel,
+  RangeDatepicker,
+  SingleDatepicker,
+} from "chakra-dayzed-datepicker";
 import {
   Button,
-  HStack,
-  Input,
+  Select,
+  Text,
   InputGroup,
   InputLeftAddon,
   useDisclosure,
@@ -16,11 +28,37 @@ import {
   ModalHeader,
   ModalOverlay,
   Divider,
+  InputLeftElement,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  HStack,
+  ButtonGroup,
+  NumberInputField,
+  NumberInput,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  NumberInputStepper,
+  Box,
+  Center,
+  Icon,
+  Input,
 } from "@chakra-ui/react";
-import { compareAsc, endOfDay, format, parse, startOfDay } from "date-fns";
+import {
+  compareAsc,
+  endOfDay,
+  endOfToday,
+  format,
+  getHours,
+  parse,
+  startOfDay,
+  startOfToday,
+} from "date-fns";
 import "rc-time-picker/assets/index.css";
-import { GroupBase, OptionBase, Select } from "chakra-react-select";
-import { TbCalendarSearch } from "react-icons/tb";
+import { TbArrowDown, TbCalendarSearch, TbChevronDown } from "react-icons/tb";
 
 const Month_Names_Short = [
   "Jan",
@@ -148,34 +186,64 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
   );
 
   return (
-    <Collapse in={date !== undefined}>
-      <InputGroup size="sm">
-        <InputLeftAddon borderLeftRadius={8}>
-          {date && format(date, "MM-dd")}
-        </InputLeftAddon>
-        <Input
-          type="time"
-          borderRadius={8}
-          value={date ? format(date, "HH:mm") : ""}
-          focusBorderColor="cyan.400"
-          pattern="[0-9]{2}:[0-9]{2}"
-          isDisabled={!date}
-          onChange={onChangeTime}
-        />
-      </InputGroup>
-    </Collapse>
+    <InputGroup size="sm">
+      <InputLeftAddon borderLeftRadius={8}>
+        {date && format(date, "yyyy-MM-dd")}
+      </InputLeftAddon>
+      <Input
+        type="time"
+        borderRadius={8}
+        value={date ? format(date, "HH:mm") : ""}
+        focusBorderColor="cyan.400"
+        pattern="[0-9]{2}:[0-9]{2}"
+        isDisabled={!date}
+        onChange={onChangeTime}
+        w="fit-content"
+      />
+    </InputGroup>
   );
 };
 
-interface SelectOption extends OptionBase {
+interface SelectOption {
   label: string;
   value: string;
+  panel?: ReactElement;
 }
+const CustomPanel: FC = () => {
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfToday());
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfToday());
 
-interface RangeSelectorProps {
-  select?: SelectOption;
-  onSelect: (v: SelectOption) => void;
-}
+  const onChangeDate = (start?: Date, end?: Date) => {
+    if (start && end) {
+      const asc = compareAsc(end, start) > 0;
+      setStartDate(asc ? start : end);
+      setEndDate(asc ? end : start);
+    } else {
+      setStartDate(start);
+      setEndDate(end);
+    }
+  };
+
+  return (
+    <VStack w="full">
+      <RangeCalendar
+        startDate={startDate}
+        endDate={endDate}
+        onChange={onChangeDate}
+      />
+      <HStack>
+        <TimePicker
+          date={startDate}
+          setDate={(d) => onChangeDate(d, endDate)}
+        />
+        <TimePicker
+          date={endDate}
+          setDate={(d) => onChangeDate(startDate, d)}
+        />
+      </HStack>
+    </VStack>
+  );
+};
 
 const options: SelectOption[] = [
   {
@@ -191,36 +259,14 @@ const options: SelectOption[] = [
     value: "-1w",
   },
   {
-    label: "Date range",
-    value: "range",
+    label: "Custom",
+    value: "custom",
+    panel: <CustomPanel />,
   },
 ];
 
-const DateTimeRangeSelector: FC<RangeSelectorProps> = ({
-  select,
-  onSelect,
-}) => {
-  return (
-    <Select<SelectOption, false, GroupBase<SelectOption>>
-      colorScheme="cyan"
-      variant="filled"
-      defaultValue={select}
-      options={options}
-      onChange={(v) => (v ? onSelect(v) : null)}
-    />
-  );
-};
-
 export const DateTimeRangePicker: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [option, setOption] = useState<SelectOption>(options[0]);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-
-  const onChangeDate = (start?: Date, end?: Date) => {
-    setStartDate(start);
-    if ((start && end && compareAsc(end, start) > 0) || !end) setEndDate(end);
-  };
 
   return (
     <>
@@ -232,31 +278,27 @@ export const DateTimeRangePicker: FC = () => {
       >
         Filter
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader pb={0}>
-            <DateTimeRangeSelector select={option} onSelect={setOption} />
-          </ModalHeader>
           <ModalBody>
-            <Collapse in={option.value === "range"}>
-              <VStack w="full">
-                <RangeCalendar
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={onChangeDate}
-                />
-                <HStack gap={2} w="full" justify={"center"}>
-                  <TimePicker
-                    label="From:"
-                    date={startDate}
-                    setDate={setStartDate}
-                  />
-                  <Divider w="10px" />
-                  <TimePicker label="To:" date={endDate} setDate={setEndDate} />
-                </HStack>
-              </VStack>
-            </Collapse>
+            <Tabs orientation="vertical" colorScheme="cyan" align="start">
+              <TabList>
+                {options.map((op) => (
+                  <Tab
+                    w="fit-content"
+                    textAlign="start"
+                    key={op.value}
+                    isTruncated
+                  >
+                    {op.label}
+                  </Tab>
+                ))}
+              </TabList>
+              <TabPanels>
+                <CustomPanel />
+              </TabPanels>
+            </Tabs>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
