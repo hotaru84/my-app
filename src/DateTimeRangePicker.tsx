@@ -1,14 +1,17 @@
-import { ChangeEvent, FC, useCallback, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { OnDateSelected, RangeCalendarPanel } from "chakra-dayzed-datepicker";
 import {
   Button,
   InputGroup,
   useDisclosure,
   VStack,
-  Tab,
-  TabList,
-  TabPanels,
-  Tabs,
   HStack,
   Input,
   Popover,
@@ -16,12 +19,18 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  PopoverFooter,
   Portal,
+  Text,
   Icon,
   InputLeftAddon,
+  ButtonGroup,
+  IconButton,
+  Spacer,
 } from "@chakra-ui/react";
 import {
+  addDays,
+  addHours,
+  addMonths,
   compareAsc,
   endOfDay,
   endOfToday,
@@ -31,7 +40,21 @@ import {
   startOfToday,
 } from "date-fns";
 import "rc-time-picker/assets/index.css";
-import { TbArrowRight, TbCalendarSearch } from "react-icons/tb";
+import {
+  TbArrowLeft,
+  TbArrowRight,
+  TbCalendarEvent,
+  TbCalendarSearch,
+  TbCalendarX,
+} from "react-icons/tb";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdKeyboardDoubleArrowLeft,
+  MdKeyboardDoubleArrowRight,
+} from "react-icons/md";
+import { PropsConfigs } from "chakra-dayzed-datepicker/dist/utils/commonTypes";
+import { useCounter, useObservable } from "react-use";
 
 const Month_Names_Short = [
   "Jan",
@@ -48,32 +71,39 @@ const Month_Names_Short = [
   "Dec",
 ];
 const Weekday_Names_Short = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const calenderStyleProps = {
+const calenderStyleProps: PropsConfigs = {
   dayOfMonthBtnProps: {
     defaultBtnProps: {
       borderColor: "cyan.300",
+      _dark: {
+        borderColor: "cyan.400",
+      },
       _hover: {
         background: "cyan.300",
+        _dark: {
+          background: "cyan.400",
+        },
       },
     },
     isInRangeBtnProps: {
       background: "cyan.200",
+      _dark: {
+        background: "cyan.700",
+      },
     },
     selectedBtnProps: {
-      background: "cyan.200",
+      background: "cyan.400",
+      _dark: {
+        background: "cyan.400",
+      },
     },
     todayBtnProps: {
       borderWidth: 1,
-      borderColor: "gray.400",
+      borderColor: "cyan.400",
+      _dark: {
+        borderColor: "cyan.600",
+      },
     },
-  },
-  inputProps: {
-    width: "20rem",
-    variants: "filled",
-    focusBorderColor: "cyan.400",
-  },
-  triggerIconBtnProps: {
-    colorScheme: "cyan",
   },
   calendarPanelProps: {
     wrapperProps: {
@@ -81,9 +111,6 @@ const calenderStyleProps = {
     },
     contentProps: {
       borderWidth: 0,
-    },
-    headerProps: {
-      padding: "5px",
     },
     dividerProps: {
       display: "none",
@@ -94,24 +121,31 @@ const calenderStyleProps = {
   },
   dateHeadingProps: {
     fontWeight: "semibold",
+    display: "none",
+  },
+  dateNavBtnProps: {
+    display: "none",
   },
 };
 
 interface RangeCalendarProps {
   startDate?: Date;
   endDate?: Date;
-  maxDays?: number;
   onChange: (start?: Date, end?: Date) => void;
+  isDisabled?: boolean;
 }
 
-const CustomRangeCalendar: FC<RangeCalendarProps> = ({
+const RangeCalendar: FC<RangeCalendarProps> = ({
   startDate,
   endDate,
-  maxDays = 7,
   onChange,
+  isDisabled = false,
 }) => {
+  const [offset, { inc, dec, reset, set: setOffset }] = useCounter(0);
   const handleOnDateSelected: OnDateSelected = ({ date }) => {
-    if (startDate && endDate) onChange(startOfDay(date), undefined); //reset
+    if (isDisabled) return;
+    else if (startDate && endDate)
+      onChange(startOfDay(date), undefined); //reset
     else if (!startDate) onChange(startOfDay(date), undefined); // first
     else if (!endDate) {
       if (compareAsc(endOfDay(date), startDate) > 0)
@@ -126,22 +160,76 @@ const CustomRangeCalendar: FC<RangeCalendarProps> = ({
     return d.sort(compareAsc);
   }, [endDate, startDate]);
 
+  useEffect(() => (isDisabled ? reset() : undefined), [isDisabled, reset]);
+
   return (
-    <RangeCalendarPanel
-      selected={dates}
-      dayzedHookProps={{
-        onDateSelected: handleOnDateSelected,
-        selected: dates,
-        monthsToDisplay: 1,
-      }}
-      configs={{
-        dateFormat: "yyyy/MM/dd",
-        monthNames: Month_Names_Short,
-        dayNames: Weekday_Names_Short,
-        firstDayOfWeek: 0,
-      }}
-      propsConfigs={calenderStyleProps}
-    />
+    <VStack>
+      <ButtonGroup variant={"ghost"} colorScheme="cyan" size={"sm"}>
+        <IconButton
+          aria-label="decy"
+          onClick={() => dec(12)}
+          icon={<MdKeyboardDoubleArrowLeft />}
+        />
+        <IconButton
+          aria-label="dec"
+          onClick={() => dec()}
+          icon={<MdKeyboardArrowLeft />}
+        />
+        <Text my="auto" fontWeight={"bold"}>
+          {format(addMonths(startOfToday(), offset), "yyyy-MM")}
+        </Text>
+        <IconButton
+          aria-label="inc"
+          onClick={() => dec()}
+          icon={<MdKeyboardArrowRight />}
+        />
+        <IconButton
+          aria-label="incy"
+          onClick={() => inc(12)}
+          icon={<MdKeyboardDoubleArrowRight />}
+        />
+        <IconButton
+          aria-label="dec"
+          position={"absolute"}
+          right={2}
+          isDisabled={offset === 0}
+          onClick={() => reset()}
+          icon={<TbCalendarEvent />}
+        />
+      </ButtonGroup>
+      <RangeCalendarPanel
+        selected={dates}
+        dayzedHookProps={{
+          onDateSelected: handleOnDateSelected,
+          selected: dates,
+          offset: offset,
+          onOffsetChanged: setOffset,
+          monthsToDisplay: 1,
+          minDate: isDisabled ? startDate : undefined,
+          maxDate: isDisabled ? endDate : undefined,
+        }}
+        configs={{
+          dateFormat: "yyyy/MM/dd",
+          monthNames: Month_Names_Short,
+          dayNames: Weekday_Names_Short,
+          firstDayOfWeek: 0,
+        }}
+        propsConfigs={calenderStyleProps}
+      />
+      <HStack textAlign={"center"} gap={0}>
+        <TimePicker
+          date={startDate}
+          setDate={(d) => onChange(d, endDate)}
+          isDisabled={isDisabled}
+        />
+        <Icon as={TbArrowRight} mx={2} />
+        <TimePicker
+          date={endDate}
+          setDate={(d) => onChange(startDate, d)}
+          isDisabled={isDisabled}
+        />
+      </HStack>
+    </VStack>
   );
 };
 
@@ -149,9 +237,15 @@ interface TimePickerProps {
   date: Date | undefined;
   setDate: (date?: Date) => void;
   label?: string;
+  isDisabled?: boolean;
 }
 
-const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
+const TimePicker: FC<TimePickerProps> = ({
+  date,
+  setDate,
+  label,
+  isDisabled = false,
+}) => {
   const onChangeTime = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const time = e.currentTarget.value;
@@ -173,7 +267,7 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
         value={date ? format(date, "HH:mm") : ""}
         focusBorderColor="cyan.400"
         pattern="[0-9]{2}:[0-9]{2}"
-        isDisabled={!date}
+        isDisabled={!date || isDisabled}
         onChange={onChangeTime}
         w="fit-content"
       />
@@ -181,35 +275,53 @@ const TimePicker: FC<TimePickerProps> = ({ date, setDate, label }) => {
   );
 };
 
-interface TabOption {
-  label: string;
-  value: string;
-}
-
-const tabs: TabOption[] = [
-  {
-    label: "Last hour",
-    value: "-1h",
-  },
-  {
-    label: "Last day",
-    value: "-1d",
-  },
-  {
-    label: "Last week",
-    value: "-1w",
-  },
-  {
-    label: "Custom",
-    value: "custom",
-  },
-];
-
 export const DateTimeRangePicker: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  type PickMode = "-1h" | "lastd" | "lastw" | "custom";
+  const [pickMode, setPickMode] = useState<PickMode>("lastd");
   const [startDate, setStartDate] = useState<Date | undefined>(startOfToday());
   const [endDate, setEndDate] = useState<Date | undefined>(endOfToday());
+  const modes: { value: PickMode; label: string }[] = [
+    { value: "-1h", label: "Last Hour" },
+    { value: "lastd", label: "Last Day" },
+    { value: "lastw", label: "Last Week" },
+    { value: "custom", label: "Custom Range" },
+  ];
+  const onChangePickMode = (mode: PickMode) => {
+    const now = new Date();
+    switch (mode) {
+      case "-1h":
+        setStartDate(addHours(now, -1));
+        setEndDate(now);
+        break;
+      case "lastd":
+        setStartDate(startOfToday());
+        setEndDate(endOfToday());
+        break;
+      case "lastw":
+        setStartDate(addDays(startOfToday(), -6));
+        setEndDate(endOfToday());
+        break;
+      case "custom":
+        break;
+    }
 
+    setPickMode(mode);
+  };
+  const pickerBtnLabel = () => {
+    switch (pickMode) {
+      case "custom":
+        return (
+          <>
+            {startDate && format(startDate, "yyyy/MM/dd")}
+            <Icon as={TbArrowRight} mx={2} />
+            {endDate ? format(endDate, "yyyy/MM/dd") : "----/--/---"}
+          </>
+        );
+      default:
+        return modes.find((m) => m.value === pickMode)?.label;
+    }
+  };
   const onChangeDate = (start?: Date, end?: Date) => {
     if (start && end) {
       const asc = compareAsc(end, start) > 0;
@@ -232,58 +344,44 @@ export const DateTimeRangePicker: FC = () => {
           size={"sm"}
           onClick={onOpen}
         >
-          {startDate && format(startDate, "yyyy/MM/dd")}
-          <Icon as={TbArrowRight} mx={2} />
-          {endDate && format(endDate, "yyyy/MM/dd")}
+          {pickerBtnLabel()}
         </Button>
       </PopoverTrigger>
       <Portal>
-        <PopoverContent w={"full"}>
+        <PopoverContent w={"full"} right={2}>
           <PopoverArrow />
           <PopoverBody>
-            <Tabs orientation="vertical" colorScheme="cyan" align="start">
-              <TabList>
-                {tabs.map((op) => (
-                  <Tab
-                    w="fit-content"
-                    textAlign="start"
-                    key={op.value}
-                    isTruncated
+            <HStack w="full" align={"start"}>
+              <ButtonGroup
+                orientation="vertical"
+                variant={"ghost"}
+                colorScheme="cyan"
+                size={"sm"}
+              >
+                {modes.map((mode) => (
+                  <Button
+                    justifyContent={"start"}
+                    isActive={pickMode === mode.value}
+                    onClick={() => onChangePickMode(mode.value)}
                   >
-                    {op.label}
-                  </Tab>
+                    {mode.label}
+                  </Button>
                 ))}
-              </TabList>
-              <TabPanels>
-                <VStack w="full">
-                  <VStack w="full">
-                    <CustomRangeCalendar
-                      startDate={startDate}
-                      endDate={endDate}
-                      onChange={onChangeDate}
-                    />
-                    <HStack textAlign={"center"}>
-                      <TimePicker
-                        date={startDate}
-                        setDate={(d) => onChangeDate(d, endDate)}
-                      />
-                      <Icon as={TbArrowRight} mx={2} />
-                      <TimePicker
-                        date={endDate}
-                        setDate={(d) => onChangeDate(startDate, d)}
-                      />
-                    </HStack>
-                  </VStack>
-                </VStack>
-              </TabPanels>
-            </Tabs>
+              </ButtonGroup>
+              <RangeCalendar
+                startDate={startDate}
+                endDate={endDate}
+                onChange={onChangeDate}
+                isDisabled={pickMode !== "custom"}
+              />
+            </HStack>
           </PopoverBody>
-          <PopoverFooter>
+          <ButtonGroup alignSelf={"end"} p={2}>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
               Close
             </Button>
             <Button colorScheme="cyan">Apply</Button>
-          </PopoverFooter>
+          </ButtonGroup>
         </PopoverContent>
       </Portal>
     </Popover>
