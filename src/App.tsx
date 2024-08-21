@@ -31,6 +31,7 @@ const BaseLayout: FC = () => {
 };
 
 export const App = () => {
+  
   return (
     <ChakraProvider theme={theme}>
       <BrowserRouter>
@@ -41,7 +42,7 @@ export const App = () => {
               <Route path="test" element={<LayoutTest />}></Route>
             </Route>
             <Route path="system" element={<System />}></Route>
-            <Route path="/" element={<Navigate to="/packages" />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
           </Route>
         </Routes>
       </BrowserRouter>

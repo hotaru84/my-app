@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { FC, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,9 +16,10 @@ import {
   ChartData,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
-import { Chart } from "react-chartjs-2";
+import { Chart, ChartProps } from "react-chartjs-2";
 import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { theme } from "@chakra-ui/react";
 
 ChartJS.register(
   CategoryScale,
@@ -34,7 +35,7 @@ ChartJS.register(
   ChartDataLabels
 );
 
-export const options: ChartOptions<"bar"> = {
+export let options: ChartOptions<"bar"> = {
   maintainAspectRatio: false,
   responsive: true,
   plugins: {
@@ -109,6 +110,7 @@ export const data: ChartData<any> = {
 };
 
 const BarLineTimeChart: FC = () => {
+  const [select,setSelect] = useState(-1);
   const chartRef = useRef<ChartJS<any>>(null);
 
   useInterval(() => {
@@ -116,6 +118,8 @@ const BarLineTimeChart: FC = () => {
       const now = new Date();
       const max = dataset.type === "line" ? 100 : 255;
       const firstdata = dataset.data[0] as Point;
+
+      if(dataset.data.length > 10) return;
       if (firstdata !== undefined && now.getTime() - firstdata.x > 10000) {
         dataset.data.shift();
       }
@@ -123,9 +127,16 @@ const BarLineTimeChart: FC = () => {
         x: now.getTime(),
         y: Math.floor(Math.random() * max),
       });
+      
     });
     chartRef.current?.update();
-  }, 3000);
+  }, 1000);
+
+  options.onClick = (_e,el,chart)=>{
+    if(el.length > 0) {
+      console.log(el,chart.data.datasets[el[0].datasetIndex]);
+    }
+  };
 
   return <Chart type={"bar"} ref={chartRef} options={options} data={data} />;
 };

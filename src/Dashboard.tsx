@@ -1,24 +1,34 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import {
-  AspectRatio,
   Box,
   Card,
+  CardBody,
   Flex,
   HStack,
+  IconButton,
+  Skeleton,
   Spacer,
+  Table,
+  TableCaption,
+  TableContainer,
   Tag,
   TagLeftIcon,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
   VStack,
   chakra,
 } from "@chakra-ui/react";
-import { TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
+import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import TrendlineChart from "./TrendlineChart";
-import { Layer, Line, Rect, Stage, Image } from "react-konva";
-import { useMeasure } from "react-use";
-import useImage from "use-image";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import BarLineTimeChart from "./BarLineTimeChart";
+import { NavLink } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const stats: StatData[] = [
   {
@@ -43,40 +53,8 @@ const stats: StatData[] = [
     unit: "min",
   },
 ];
-type Point = {
-  x: number;
-  y: number;
-};
-
-function polygonSort(origin: Point[]): Point[] {
-  const center = origin.reduce(
-    (center, now) => ({ x: center.x + now.x, y: center.y + now.y }),
-    { x: 0, y: 0 }
-  );
-
-  return origin
-    .map((p) => ({
-      ...p,
-      angle: Math.atan2(
-        p.y - center.y / origin.length,
-        p.x - center.x / origin.length
-      ),
-    }))
-    .sort((a, b) => (a.angle > b.angle ? 1 : -1));
-}
 
 const Dashboad: FC = () => {
-  const [ref, { height }] = useMeasure<HTMLDivElement>();
-  const origin = [
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-    { x: Math.random() * 100, y: Math.random() * 100 },
-  ];
 
   return (
     <VStack w="full" h="full">
@@ -108,7 +86,7 @@ const Dashboad: FC = () => {
         justify={"center"}
         overflow={"auto"}
         flexWrap={"wrap"}
-        alignItems={"center"}
+        alignItems={"start"}
         wrap={"wrap"}
       >
         {stats.map((s, i) => (
@@ -119,12 +97,70 @@ const Dashboad: FC = () => {
           p={4}
           boxShadow={"lg"}
           w="full"
-          h="fit-content"
-          minH={`${height}px`}
         >
-          <AspectRatio ref={ref} ratio={4} w="full">
+          <Box w="full" h="40vh">
             <BarLineTimeChart/>
-          </AspectRatio>
+          </Box>
+        </Card>
+        <Card
+          rounded={16}
+          p={4}
+          boxShadow={"lg"}
+          flex={"1"}
+          flexDir={"row"}
+          gap={2}
+          h="25vh"
+        >
+          {[1,2,3].map((i)=>(
+            <Card variant={"outline"} key={i} w="full" boxShadow={0}>
+              <HStack gap={2} m={2}>
+                <Skeleton w="full" aspectRatio={2} speed={3}/>
+                <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight/>} as={NavLink} to="../packages"/>
+              </HStack>
+            </Card>))}
+        </Card>
+        <Card
+          rounded={16}
+          p={4}
+          boxShadow={"lg"}
+          flex={"1"}
+          maxH="50vh"
+        >
+          <TableContainer overflowY={"auto"}>
+            <Table variant='simple'>
+              <Thead position={"sticky"} top={0}>
+                <Tr>
+                  <Th>To convert</Th>
+                  <Th>into</Th>
+                  <Th isNumeric>multiply by</Th>
+                </Tr>
+              </Thead>
+              <Tbody >
+                <Tr>
+                  <Td>inches</Td>
+                  <Td>millimetres (mm)</Td>
+                  <Td isNumeric>25.4</Td>
+                </Tr>
+                <Tr>
+                  <Td>feet</Td>
+                  <Td>centimetres (cm)</Td>
+                  <Td isNumeric>30.48</Td>
+                </Tr>
+                <Tr>
+                  <Td>yards</Td>
+                  <Td>metres (m)</Td>
+                  <Td isNumeric>0.91444</Td>
+                </Tr>
+              </Tbody>
+              <Tfoot>
+                <Tr>
+                  <Th>To convert</Th>
+                  <Th>into</Th>
+                  <Th isNumeric>multiply by</Th>
+                </Tr>
+              </Tfoot>
+            </Table>
+          </TableContainer>
         </Card>
       </Flex>
     </VStack>

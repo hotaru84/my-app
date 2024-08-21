@@ -360,6 +360,7 @@ export const DateTimeRangePicker: FC = () => {
               >
                 {modes.map((mode) => (
                   <Button
+                    key={mode.value}
                     justifyContent={"start"}
                     isActive={pickMode === mode.value}
                     onClick={() => onChangePickMode(mode.value)}
