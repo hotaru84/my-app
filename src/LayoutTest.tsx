@@ -1,13 +1,12 @@
 import { FC } from "react";
 import { PanelGroup, Panel } from "react-resizable-panels";
-import BarLineTimeChart from "./BarLineTimeChart";
 import CalendarChart from "./CalendarChart";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { DeviceTest } from "./DeviceTest";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import TreemapChart from "./TreemapChart";
 import { Box, Fade } from "@chakra-ui/react";
-import { motion } from "framer-motion";
+import BarLineTimeChart from "./BarLineTimeChart";
 
 const LayoutTest: FC = () => {
   return (

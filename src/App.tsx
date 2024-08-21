@@ -1,12 +1,6 @@
 import {
   ChakraProvider,
   Flex,
-  Grid,
-  GridItem,
-  HStack,
-  Tab,
-  TabList,
-  Tabs,
   VStack,
   theme,
 } from "@chakra-ui/react";
@@ -17,18 +11,18 @@ import {
   Route,
   Outlet,
   Navigate,
-  NavLink,
 } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Packages from "./Packages";
 import System from "./System";
 import { FC } from "react";
 import LayoutTest from "./LayoutTest";
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
 const BaseLayout: FC = () => {
   return (
     <VStack w="100vw" h="100vh">
-      <Navigation />
+      <ColorModeSwitcher position={"absolute"} top={2} left={2}/>
       <Flex w="full" h="full" overflow={"auto"}>
         <Outlet />
       </Flex>

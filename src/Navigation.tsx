@@ -3,25 +3,18 @@ import {
   Spacer,
   useDisclosure,
   Flex,
-  Divider,
   Tab,
   TabList,
   Tabs,
   Icon,
-  theme,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import {
-  TbDashboard,
   TbDeviceMobile,
   TbMenu2,
   TbRoute,
-  TbSettings,
 } from "react-icons/tb";
-import NavMenuItem from "./MenuButton";
 import { DetailDrawer } from "./DetailDrawer";
-import { useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const LinkItems = [

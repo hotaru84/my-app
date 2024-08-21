@@ -125,7 +125,7 @@ const BarLineTimeChart: FC = () => {
       });
     });
     chartRef.current?.update();
-  }, 1000);
+  }, 3000);
 
   return <Chart type={"bar"} ref={chartRef} options={options} data={data} />;
 };

@@ -12,7 +12,6 @@ import {
   chakra,
   Spacer,
   IconButton,
-  keyframes,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { FC } from "react";
@@ -48,9 +47,7 @@ const StatCard: FC<StatData> = ({
       minW="fit-content"
       w="full"
       flex="1"
-      h="fit-content"
-      borderColor="gray.100"
-      borderWidth={1}
+      h="fit-content" 
       as={motion.div}
       whileHover={{ filter: "brightness(0.9)" }}
     >
