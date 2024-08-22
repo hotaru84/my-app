@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   Box,
   Card,
@@ -55,6 +55,7 @@ const stats: StatData[] = [
 ];
 
 const Dashboad: FC = () => {
+  const [selectTime,setSelectTime] = useState(0);
 
   return (
     <VStack w="full" h="full">
@@ -98,8 +99,8 @@ const Dashboad: FC = () => {
           boxShadow={"lg"}
           w="full"
         >
-          <Box w="full" h="40vh">
-            <BarLineTimeChart/>
+          <Box w="full" >
+            <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime}/>
           </Box>
         </Card>
         <Card

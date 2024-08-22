@@ -21,7 +21,7 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Box, Button, IconButton } from "@chakra-ui/react";
+import { AspectRatio, Button } from "@chakra-ui/react";
 import { TbZoomInArea } from "react-icons/tb";
 
 ChartJS.register(
@@ -38,11 +38,14 @@ ChartJS.register(
   ChartDataLabels
 );
 
-const BarLineTimeChart: FC = () => {
+interface BarLineTimeChartProps {
+  activeTime?:number;
+  setActiveTime?:(time:number) => void;
+}
+
+const BarLineTimeChart: FC<BarLineTimeChartProps> = ({activeTime = 0,setActiveTime}) => {
   const [linePoints,setLinePoints] = useState<Point[]>([]);
   const [barPoints,setBarPoints] = useState<Point[]>([]);
-  const [selectTime,setSelectTime] = useState(0);
-  const isSelected = barPoints.findIndex((p)=>p.x === selectTime) >= 0;
 
   useInterval(() => {
     const now = new Date();
@@ -79,9 +82,10 @@ const BarLineTimeChart: FC = () => {
         type: "bar",
         label: "Throuput",
         data: barPoints,
-        backgroundColor: barPoints.map((p)=>p.x === selectTime?'#ff6384':"#63B3ED"),
-        borderWidth: 0,
-        borderRadius: 4,
+        backgroundColor: "#63B3ED",
+        borderColor:barPoints.map((p)=>p.x === activeTime?'#ff6384':"#63B3ED"),
+        borderWidth: 2,
+        borderRadius: 8,
         yAxisID: "y",
         datalabels: {
           align: "start",
@@ -94,7 +98,7 @@ const BarLineTimeChart: FC = () => {
         },
       },
     ],
-  }),[barPoints, linePoints, selectTime]);
+  }),[activeTime, barPoints, linePoints]);
   
   const options:ChartOptions<"bar"|"line"> = useMemo(()=>(
   {
@@ -103,6 +107,7 @@ const BarLineTimeChart: FC = () => {
     plugins: {
       legend: {
         position: "top",
+        align:"end",
       },
       title: {
         display: true,
@@ -136,17 +141,18 @@ const BarLineTimeChart: FC = () => {
       },
     },
     onClick:(_event: ChartEvent, el: ActiveElement[], chart: ChartJS)=>{
-      if(el.length > 0) {
+      if(el.length > 0 && setActiveTime !== undefined) {
         const v = chart.data.datasets[el[0].datasetIndex].data[el[0].index] as Point;
-        setSelectTime(selectTime === v.x? 0:v.x);  //toggle 
+        setActiveTime(activeTime === v.x? 0:v.x);  //toggle 
       }
     },
-  }),[selectTime]);
+  }),[activeTime, setActiveTime]);
 
   
   return <>
-  {isSelected&&<Button leftIcon={<TbZoomInArea/>}  color="#ff6384" variant={"ghost"}>Drill down</Button>}
+  <AspectRatio ratio={{base:1,sm:2,md:3,lg:4}}>
   <Chart type={"bar"} options={options} data={data} />
+  </AspectRatio>
   </>;
 };
 
