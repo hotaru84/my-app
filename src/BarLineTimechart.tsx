@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,12 +14,15 @@ import {
   TimeSeriesScale,
   ChartOptions,
   ChartData,
+  ChartEvent,
+  ActiveElement,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
-import { Chart, ChartProps } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { theme } from "@chakra-ui/react";
+import { Box, Button, IconButton } from "@chakra-ui/react";
+import { TbZoomInArea } from "react-icons/tb";
 
 ChartJS.register(
   CategoryScale,
@@ -35,110 +38,116 @@ ChartJS.register(
   ChartDataLabels
 );
 
-export let options: ChartOptions<"bar"> = {
-  maintainAspectRatio: false,
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "",
-    },
-  },
-  scales: {
-    x: {
-      type: "time",
-      time: {
-        unit: "second",
-      },
-
-      grid: {
-        display: false,
-      },
-    },
-    y: {
-      type: "linear",
-      max: 256,
-      position: "right",
-      display: false,
-      grid: {
-        display: false,
-      },
-    },
-    y1: {
-      type: "linear",
-      max: 100,
-      position: "left",
-    },
-  },
-};
-
-export const data: ChartData<any> = {
-  datasets: [
-    {
-      type: "line",
-      label: "Rate",
-      borderColor: "#68D391",
-      backgroundColor: "#68D391",
-      data: [],
-      yAxisID: "y1",
-      datalabels: {
-        display: false,
-      },
-    },
-    {
-      type: "bar",
-      label: "Throuput",
-      data: [],
-      backgroundColor: "#63B3ED",
-      borderWidth: 0,
-      borderRadius: 4,
-      yAxisID: "y",
-      datalabels: {
-        align: "start",
-        anchor: "end",
-        formatter: (value: Point) => {
-          return Math.round(value.y);
-        },
-        color: "whitesmoke",
-        font: { size: 12, weight: "bold" },
-      },
-    },
-  ],
-};
-
 const BarLineTimeChart: FC = () => {
-  const [select,setSelect] = useState(-1);
-  const chartRef = useRef<ChartJS<any>>(null);
+  const [linePoints,setLinePoints] = useState<Point[]>([]);
+  const [barPoints,setBarPoints] = useState<Point[]>([]);
+  const [selectTime,setSelectTime] = useState(0);
+  const isSelected = barPoints.findIndex((p)=>p.x === selectTime) >= 0;
 
   useInterval(() => {
-    chartRef.current?.data.datasets.forEach((dataset) => {
-      const now = new Date();
-      const max = dataset.type === "line" ? 100 : 255;
-      const firstdata = dataset.data[0] as Point;
-
-      if(dataset.data.length > 10) return;
-      if (firstdata !== undefined && now.getTime() - firstdata.x > 10000) {
-        dataset.data.shift();
-      }
-      dataset.data.push({
+    const now = new Date();
+    setLinePoints([
+      ...linePoints.length > 10 ? linePoints.slice(1):barPoints,
+      {        
         x: now.getTime(),
-        y: Math.floor(Math.random() * max),
-      });
-      
-    });
-    chartRef.current?.update();
+        y: Math.floor(Math.random() * 100),
+      }
+    ]);
+    setBarPoints([
+      ...barPoints.length > 10 ? barPoints.slice(1):barPoints,
+      {        
+        x: now.getTime(),
+        y: Math.floor(Math.random() * 255),
+      }
+    ]);
   }, 1000);
 
-  options.onClick = (_e,el,chart)=>{
-    if(el.length > 0) {
-      console.log(el,chart.data.datasets[el[0].datasetIndex]);
-    }
-  };
+  const data:ChartData<any> = useMemo(()=>({
+    datasets: [
+      {
+        type: "line",
+        label: "Rate",
+        borderColor: "#68D391",
+        backgroundColor: "#68D391",
+        data: linePoints,
+        yAxisID: "y1",
+        datalabels: {
+          display: false,
+        },
+      },
+      {
+        type: "bar",
+        label: "Throuput",
+        data: barPoints,
+        backgroundColor: barPoints.map((p)=>p.x === selectTime?'#ff6384':"#63B3ED"),
+        borderWidth: 0,
+        borderRadius: 4,
+        yAxisID: "y",
+        datalabels: {
+          align: "start",
+          anchor: "end",
+          formatter: (value: Point) => {
+            return Math.round(value.y);
+          },
+          color: "whitesmoke",
+          font: { size: 12, weight: "bold" },
+        },
+      },
+    ],
+  }),[barPoints, linePoints, selectTime]);
+  
+  const options:ChartOptions<"bar"|"line"> = useMemo(()=>(
+  {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "",
+      },
+    },
+    scales: {
+      x: {
+        type: "time",
+        time: {
+          unit: "second",
+        },
+  
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        type: "linear",
+        max: 256,
+        position: "right",
+        display: false,
+        grid: {
+          display: false,
+        },
+      },
+      y1: {
+        type: "linear",
+        max: 100,
+        position: "left",
+      },
+    },
+    onClick:(_event: ChartEvent, el: ActiveElement[], chart: ChartJS)=>{
+      if(el.length > 0) {
+        const v = chart.data.datasets[el[0].datasetIndex].data[el[0].index] as Point;
+        setSelectTime(selectTime === v.x? 0:v.x);  //toggle 
+      }
+    },
+  }),[selectTime]);
 
-  return <Chart type={"bar"} ref={chartRef} options={options} data={data} />;
+  
+  return <>
+  {isSelected&&<Button leftIcon={<TbZoomInArea/>}  color="#ff6384" variant={"ghost"}>Drill down</Button>}
+  <Chart type={"bar"} options={options} data={data} />
+  </>;
 };
 
 export default BarLineTimeChart;
