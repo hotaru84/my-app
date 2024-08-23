@@ -83,7 +83,6 @@ const PkgEdgePosSlider: FC = () => {
     mb={8}
   >
     <SliderTrack>
-      <SliderFilledTrack />
     </SliderTrack>
     {success.map((v, i) =>
       <SliderMark value={v} mt={-1.5} key={"success-" + String(i)}>
@@ -92,7 +91,7 @@ const PkgEdgePosSlider: FC = () => {
     )}
     {error.map((v, i) =>
       <SliderMark value={v} mt={-1.5} key={"error-" + String(i)}>
-        <Box boxSize={3} bgColor={"red.300"} rounded={"full"} />
+        <Box boxSize={3} bgColor={"gray.300"} rounded={"full"} />
       </SliderMark>
     )}
     <SliderMark value={pos} mt={4} ml={-8} >
