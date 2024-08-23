@@ -1,12 +1,23 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   Box,
   Card,
   CardBody,
   Flex,
   HStack,
+  Icon,
   IconButton,
+  RangeSlider,
+  RangeSliderFilledTrack,
+  RangeSliderMark,
+  RangeSliderThumb,
+  RangeSliderTrack,
   Skeleton,
+  Slider,
+  SliderFilledTrack,
+  SliderMark,
+  SliderThumb,
+  SliderTrack,
   Spacer,
   Table,
   TableCaption,
@@ -54,17 +65,54 @@ const stats: StatData[] = [
   },
 ];
 
+const CustomSlider: FC = () => {
+  const success = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 30)), []);
+  const error = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 20)), []);
+  const min = Math.min(...success, ...error);
+  const max = Math.max(...success, ...error);
+  const [pos, setPos] = useState(min);
+
+  return <RangeSlider min={0} max={100} value={[min, pos]}
+    colorScheme="orange"
+    onChange={(e) => {
+      if (e[1] <= max) setPos(e[1]);
+    }}
+    mb={8}
+  >
+    <RangeSliderTrack>
+      <RangeSliderFilledTrack />
+    </RangeSliderTrack>
+    {success.map((v) =>
+      <RangeSliderMark value={v} mt={-1.5}>
+        <Box boxSize={3} bgColor={"green.300"} rounded={"full"} />
+      </RangeSliderMark>
+    )}
+    {error.map((v) =>
+      <RangeSliderMark value={v} mt={-1.5}>
+        <Box boxSize={3} bgColor={"red.300"} rounded={"full"} />
+      </RangeSliderMark>
+    )}
+    <RangeSliderMark value={pos} mt={4} ml={-3}>
+      <Tag colorScheme="orange">{pos}mm</Tag>
+    </RangeSliderMark>
+    <RangeSliderThumb index={1} boxSize={8}>
+      <Icon as={TbPackage} color={'orange.300'} />
+    </RangeSliderThumb>
+  </RangeSlider>
+}
+
 const Dashboad: FC = () => {
-  const [selectTime,setSelectTime] = useState(0);
+  const [selectTime, setSelectTime] = useState(0);
+
 
   return (
     <VStack w="full" h="full">
       <Flex w="full" align={"center"} justify={"center"} p={2} gap={4}>
-        <Spacer/>
+        <Spacer />
         <Tag colorScheme={"green"}>
-            <TagLeftIcon as={TbCheck} />
-            Ready
-          </Tag>
+          <TagLeftIcon as={TbCheck} />
+          Ready
+        </Tag>
         <HStack gap={2} borderWidth={1} p={2} borderRadius={8} mx="auto">
           <Box w="30vw" h="20px">
             <TrendlineChart />
@@ -100,9 +148,10 @@ const Dashboad: FC = () => {
           w="full"
         >
           <Box w="full" >
-            <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime}/>
+            <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime} />
           </Box>
         </Card>
+        <CustomSlider />
         <Card
           rounded={16}
           p={4}
@@ -112,11 +161,11 @@ const Dashboad: FC = () => {
           gap={2}
           h="25vh"
         >
-          {[1,2,3].map((i)=>(
+          {[1, 2, 3].map((i) => (
             <Card variant={"outline"} key={i} w="full" boxShadow={0}>
               <HStack gap={2} m={2}>
-                <Skeleton w="full" aspectRatio={2} speed={3}/>
-                <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight/>} as={NavLink} to="../packages"/>
+                <Skeleton w="full" aspectRatio={2} speed={3} />
+                <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../packages" />
               </HStack>
             </Card>))}
         </Card>
