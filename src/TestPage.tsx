@@ -1,36 +1,25 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import {
-  Box,
   Button,
   ButtonGroup,
-  Card,
-  CardHeader,
-  Collapse,
   Flex,
   HStack,
   IconButton,
-  Input,
   Spacer,
-  Stack,
   Tag,
   VStack,
-  Wrap,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Tb123, TbAB, TbEdit, TbPlus, TbSettings } from "react-icons/tb";
+import { Tb123, TbPlus } from "react-icons/tb";
 import ListDetailTemplate from "./listDetailTemplate";
 import CardTemplate from "./cardTemplate";
-import { useMeasure } from "react-use";
 import { NavLink, Outlet, useSearchParams } from "react-router-dom";
 import {
-  ChakraStylesConfig,
   GroupBase,
-  OptionBase,
   Select,
-  SelectComponent,
   components,
 } from "chakra-react-select";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 type CardType = {
   h: string;
@@ -181,7 +170,7 @@ const render = () => {
   );
 };
 
-const Packages: FC = () => {
+const TestPage: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <ListDetailTemplate
@@ -211,4 +200,4 @@ const Packages: FC = () => {
   );
 };
 
-export default Packages;
+export default TestPage;

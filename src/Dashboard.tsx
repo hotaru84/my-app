@@ -2,25 +2,17 @@ import { FC, useCallback, useMemo, useState } from "react";
 import {
   Box,
   Card,
-  CardBody,
   Flex,
   HStack,
   Icon,
   IconButton,
-  RangeSlider,
-  RangeSliderFilledTrack,
-  RangeSliderMark,
-  RangeSliderThumb,
-  RangeSliderTrack,
   Skeleton,
   Slider,
-  SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
   Spacer,
   Table,
-  TableCaption,
   TableContainer,
   Tag,
   TagLeftIcon,
@@ -63,45 +55,6 @@ const stats: StatData[] = [
     unit: "min",
   },
 ];
-
-const PkgEdgePosSlider: FC = () => {
-  const success = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 30)), []);
-  const error = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 20)), []);
-  const min = Math.min(...success, ...error);
-  const [pos, setPos] = useState(min);
-  const onChange = useCallback((e: number) => {
-    const t = [...success, ...error].reduce((a, b) => (Math.abs(a - e) < Math.abs(b - e)) ? a : b);
-    setPos(t);
-  }, [error, success]);
-
-  return <Slider
-    min={0}
-    max={100}
-    value={pos}
-    colorScheme="orange"
-    onChange={onChange}
-    mb={8}
-  >
-    <SliderTrack>
-    </SliderTrack>
-    {success.map((v, i) =>
-      <SliderMark value={v} mt={-1.5} key={"success-" + String(i)}>
-        <Box boxSize={3} bgColor={"green.300"} rounded={"full"} />
-      </SliderMark>
-    )}
-    {error.map((v, i) =>
-      <SliderMark value={v} mt={-1.5} key={"error-" + String(i)}>
-        <Box boxSize={3} bgColor={"gray.300"} rounded={"full"} />
-      </SliderMark>
-    )}
-    <SliderMark value={pos} mt={4} ml={-8} >
-      <Tag colorScheme="orange" w={16}> {pos}mm</Tag>
-    </SliderMark>
-    <SliderThumb boxSize={6} bgColor={'orange.100'}>
-      <Icon as={TbPackage} color={'orange.300'} />
-    </SliderThumb>
-  </Slider>
-}
 
 const Dashboad: FC = () => {
   const [selectTime, setSelectTime] = useState(0);
@@ -153,7 +106,6 @@ const Dashboad: FC = () => {
             <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime} />
           </Box>
         </Card>
-        <PkgEdgePosSlider />
         <Card
           rounded={16}
           p={4}
