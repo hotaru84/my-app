@@ -95,7 +95,7 @@ const CustomSlider: FC = () => {
     <RangeSliderMark value={pos} mt={4} ml={-3}>
       <Tag colorScheme="orange">{pos}mm</Tag>
     </RangeSliderMark>
-    <RangeSliderThumb index={1} boxSize={8}>
+    <RangeSliderThumb index={1} boxSize={6} bgColor={'orange.100'}>
       <Icon as={TbPackage} color={'orange.300'} />
     </RangeSliderThumb>
   </RangeSlider>
