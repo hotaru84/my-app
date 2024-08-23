@@ -39,33 +39,33 @@ ChartJS.register(
 );
 
 interface BarLineTimeChartProps {
-  activeTime?:number;
-  setActiveTime?:(time:number) => void;
+  activeTime?: number;
+  setActiveTime?: (time: number) => void;
 }
 
-const BarLineTimeChart: FC<BarLineTimeChartProps> = ({activeTime = 0,setActiveTime}) => {
-  const [linePoints,setLinePoints] = useState<Point[]>([]);
-  const [barPoints,setBarPoints] = useState<Point[]>([]);
+const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActiveTime }) => {
+  const [linePoints, setLinePoints] = useState<Point[]>([]);
+  const [barPoints, setBarPoints] = useState<Point[]>([]);
 
   useInterval(() => {
     const now = new Date();
     setLinePoints([
-      ...linePoints.length > 10 ? linePoints.slice(1):barPoints,
-      {        
+      ...linePoints.length > 10 ? linePoints.slice(1) : barPoints,
+      {
         x: now.getTime(),
         y: Math.floor(Math.random() * 100),
       }
     ]);
     setBarPoints([
-      ...barPoints.length > 10 ? barPoints.slice(1):barPoints,
-      {        
+      ...barPoints.length > 10 ? barPoints.slice(1) : barPoints,
+      {
         x: now.getTime(),
         y: Math.floor(Math.random() * 255),
       }
     ]);
   }, 1000);
 
-  const data:ChartData<any> = useMemo(()=>({
+  const data: ChartData<any> = useMemo(() => ({
     datasets: [
       {
         type: "line",
@@ -83,8 +83,8 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({activeTime = 0,setActiveTi
         label: "Throuput",
         data: barPoints,
         backgroundColor: "#63B3ED",
-        borderColor:barPoints.map((p)=>p.x === activeTime?'#ff6384':"#63B3ED"),
-        borderWidth: 2,
+        borderColor: barPoints.map((p) => p.x === activeTime ? '#ff6384' : "#63B3ED"),
+        borderWidth: barPoints.map((p) => p.x === activeTime ? 4 : 0),
         borderRadius: 8,
         yAxisID: "y",
         datalabels: {
@@ -98,61 +98,61 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({activeTime = 0,setActiveTi
         },
       },
     ],
-  }),[activeTime, barPoints, linePoints]);
-  
-  const options:ChartOptions<"bar"|"line"> = useMemo(()=>(
-  {
-    maintainAspectRatio: false,
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-        align:"end",
-      },
-      title: {
-        display: true,
-        text: "",
-      },
-    },
-    scales: {
-      x: {
-        type: "time",
-        time: {
-          unit: "second",
-        },
-  
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        type: "linear",
-        max: 256,
-        position: "right",
-        display: false,
-        grid: {
-          display: false,
-        },
-      },
-      y1: {
-        type: "linear",
-        max: 100,
-        position: "left",
-      },
-    },
-    onClick:(_event: ChartEvent, el: ActiveElement[], chart: ChartJS)=>{
-      if(el.length > 0 && setActiveTime !== undefined) {
-        const v = chart.data.datasets[el[0].datasetIndex].data[el[0].index] as Point;
-        setActiveTime(activeTime === v.x? 0:v.x);  //toggle 
-      }
-    },
-  }),[activeTime, setActiveTime]);
+  }), [activeTime, barPoints, linePoints]);
 
-  
+  const options: ChartOptions<"bar" | "line"> = useMemo(() => (
+    {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+          align: "end",
+        },
+        title: {
+          display: true,
+          text: "",
+        },
+      },
+      scales: {
+        x: {
+          type: "time",
+          time: {
+            unit: "second",
+          },
+
+          grid: {
+            display: false,
+          },
+        },
+        y: {
+          type: "linear",
+          max: 256,
+          position: "right",
+          display: false,
+          grid: {
+            display: false,
+          },
+        },
+        y1: {
+          type: "linear",
+          max: 100,
+          position: "left",
+        },
+      },
+      onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
+        if (el.length > 0 && setActiveTime !== undefined) {
+          const v = chart.data.datasets[el[0].datasetIndex].data[el[0].index] as Point;
+          setActiveTime(activeTime === v.x ? 0 : v.x);  //toggle 
+        }
+      },
+    }), [activeTime, setActiveTime]);
+
+
   return <>
-  <AspectRatio ratio={{base:1,sm:2,md:3,lg:4}}>
-  <Chart type={"bar"} options={options} data={data} />
-  </AspectRatio>
+    <AspectRatio ratio={{ base: 1, sm: 2, md: 3, lg: 4 }}>
+      <Chart type={"bar"} options={options} data={data} />
+    </AspectRatio>
   </>;
 };
 

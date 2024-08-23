@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import {
   Box,
   Card,
@@ -39,7 +39,6 @@ import TrendlineChart from "./TrendlineChart";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
 
 const stats: StatData[] = [
   {
@@ -65,40 +64,44 @@ const stats: StatData[] = [
   },
 ];
 
-const CustomSlider: FC = () => {
+const PkgEdgePosSlider: FC = () => {
   const success = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 30)), []);
   const error = useMemo(() => [...Array(10)].map(() => Math.round(Math.random() * 60 + 20)), []);
   const min = Math.min(...success, ...error);
-  const max = Math.max(...success, ...error);
   const [pos, setPos] = useState(min);
+  const onChange = useCallback((e: number) => {
+    const t = [...success, ...error].reduce((a, b) => (Math.abs(a - e) < Math.abs(b - e)) ? a : b);
+    setPos(t);
+  }, [error, success]);
 
-  return <RangeSlider min={0} max={100} value={[min, pos]}
+  return <Slider
+    min={0}
+    max={100}
+    value={pos}
     colorScheme="orange"
-    onChange={(e) => {
-      if (e[1] <= max) setPos(e[1]);
-    }}
+    onChange={onChange}
     mb={8}
   >
-    <RangeSliderTrack>
-      <RangeSliderFilledTrack />
-    </RangeSliderTrack>
-    {success.map((v) =>
-      <RangeSliderMark value={v} mt={-1.5}>
+    <SliderTrack>
+      <SliderFilledTrack />
+    </SliderTrack>
+    {success.map((v, i) =>
+      <SliderMark value={v} mt={-1.5} key={"success-" + String(i)}>
         <Box boxSize={3} bgColor={"green.300"} rounded={"full"} />
-      </RangeSliderMark>
+      </SliderMark>
     )}
-    {error.map((v) =>
-      <RangeSliderMark value={v} mt={-1.5}>
+    {error.map((v, i) =>
+      <SliderMark value={v} mt={-1.5} key={"error-" + String(i)}>
         <Box boxSize={3} bgColor={"red.300"} rounded={"full"} />
-      </RangeSliderMark>
+      </SliderMark>
     )}
-    <RangeSliderMark value={pos} mt={4} ml={-3}>
-      <Tag colorScheme="orange">{pos}mm</Tag>
-    </RangeSliderMark>
-    <RangeSliderThumb index={1} boxSize={6} bgColor={'orange.100'}>
+    <SliderMark value={pos} mt={4} ml={-8} >
+      <Tag colorScheme="orange" w={16}> {pos}mm</Tag>
+    </SliderMark>
+    <SliderThumb boxSize={6} bgColor={'orange.100'}>
       <Icon as={TbPackage} color={'orange.300'} />
-    </RangeSliderThumb>
-  </RangeSlider>
+    </SliderThumb>
+  </Slider>
 }
 
 const Dashboad: FC = () => {
@@ -151,7 +154,7 @@ const Dashboad: FC = () => {
             <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime} />
           </Box>
         </Card>
-        <CustomSlider />
+        <PkgEdgePosSlider />
         <Card
           rounded={16}
           p={4}
