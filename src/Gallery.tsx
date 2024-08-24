@@ -160,19 +160,20 @@ const Gallery: FC = () => {
   ) :
     <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
       {cardlist.map((list, j) => (
-        <VStack key={"list" + j} w="full" my={4} px={8} sx={{ scrollSnapAlign: "start" }}>
+        <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
           <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
           <Wrap
             shouldWrapChildren
             justifyContent={"space-around"}
             w="full"
+            pl={4}
           >
             {list.infos.map((info, i) =>
               <Card
                 rounded={"lg"}
                 key={`card-${i}`}
                 onClick={() => { select(i.toString()) }}
-                w="20vw"
+                w="23vw"
                 minW="250px"
                 sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
                 as={motion.div}
