@@ -22,7 +22,6 @@ import Gallery from "./Gallery";
 const BaseLayout: FC = () => {
   return (
     <VStack w="100vw" h="100vh">
-      <ColorModeSwitcher position={"absolute"} top={2} left={2} />
       <Flex w="full" h="full" overflow={"auto"}>
         <Outlet />
       </Flex>
@@ -38,7 +37,7 @@ export const App = () => {
         <Routes>
           <Route path="/" element={<BaseLayout />}>
             <Route path="dashboard" element={<Dashboad />}></Route>
-            <Route path="packages" element={<Gallery />}>
+            <Route path="gallery" element={<Gallery />}>
               <Route path="test" element={<LayoutTest />}></Route>
             </Route>
             <Route path="system" element={<System />}></Route>

@@ -20,6 +20,7 @@ import { useSearchParams } from "react-router-dom";
 import { TbPackage } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { addHours, differenceInHours, format, startOfHour } from "date-fns";
+import { Navigation } from "./Navigation";
 
 interface IdSearchReturn {
   isSelected: (id: string) => boolean;
@@ -159,28 +160,32 @@ const Gallery: FC = () => {
   return selected.length > 0 ? (
     <DetailViewer />
   ) :
-    <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
-      {cardlist.map((list, j) => (
-        <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
-          <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
-          <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
-            {list.infos.map((info, i) =>
-              <Card
-                rounded={"lg"}
-                key={`card-${i}`}
-                onClick={() => { select(i.toString()) }}
-                sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
-                as={motion.div}
-                layout
-                whileHover={{ opacity: 0.5 }}
-              >
-                <CardHeader>{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
-                <CardBody>
-                  <Skeleton aspectRatio={2} speed={3} />
-                </CardBody>
-              </Card>)}
-          </SimpleGrid>
-        </VStack>))}
+
+    <VStack w="full" gap={0}>
+      <Navigation />
+      <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
+        {cardlist.map((list, j) => (
+          <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
+            <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
+            <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
+              {list.infos.map((info, i) =>
+                <Card
+                  rounded={"lg"}
+                  key={`card-${i}`}
+                  onClick={() => { select(i.toString()) }}
+                  sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
+                  as={motion.div}
+                  layout
+                  whileHover={{ opacity: 0.5 }}
+                >
+                  <CardHeader>{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
+                  <CardBody>
+                    <Skeleton aspectRatio={2} speed={3} />
+                  </CardBody>
+                </Card>)}
+            </SimpleGrid>
+          </VStack>))}
+      </VStack>
     </VStack>;
 };
 

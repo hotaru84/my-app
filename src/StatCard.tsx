@@ -43,11 +43,8 @@ const StatCard: FC<StatData> = ({
       rounded={16}
       role="group"
       p={4}
-      boxShadow="lg"
-      minW="fit-content"
-      w="full"
       flex="1"
-      h="fit-content" 
+      h="fit-content"
       as={motion.div}
       whileHover={{ filter: "brightness(0.9)" }}
     >

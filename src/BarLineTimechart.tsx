@@ -21,8 +21,7 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { AspectRatio, Button } from "@chakra-ui/react";
-import { TbZoomInArea } from "react-icons/tb";
+import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
 
 ChartJS.register(
   CategoryScale,
@@ -41,9 +40,10 @@ ChartJS.register(
 interface BarLineTimeChartProps {
   activeTime?: number;
   setActiveTime?: (time: number) => void;
+  ratio?: ResponsiveValue<number>;
 }
 
-const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActiveTime }) => {
+const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActiveTime, ratio }) => {
   const [linePoints, setLinePoints] = useState<Point[]>([]);
   const [barPoints, setBarPoints] = useState<Point[]>([]);
 
@@ -150,7 +150,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
 
 
   return <>
-    <AspectRatio ratio={{ base: 1, sm: 2, md: 3, lg: 4 }}>
+    <AspectRatio ratio={ratio}>
       <Chart type={"bar"} options={options} data={data} />
     </AspectRatio>
   </>;
