@@ -1,11 +1,10 @@
 import { FC, useCallback, useMemo, useState } from "react";
 import {
   Box,
-  Button,
+  Text,
   Card,
   CardBody,
-  CardFooter,
-  Flex,
+  CardHeader,
   Icon,
   Skeleton,
   Slider,
@@ -13,12 +12,13 @@ import {
   SliderThumb,
   SliderTrack,
   Tag,
-  useDisclosure,
+  VStack,
   Wrap,
 } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { TbPackage } from "react-icons/tb";
-import { motion, Variants } from "framer-motion";
+import { motion } from "framer-motion";
+import { addHours, differenceInHours, format, startOfHour } from "date-fns";
 
 interface IdSearchReturn {
   isSelected: (id: string) => boolean;
@@ -122,45 +122,71 @@ const DetailViewer: FC = () => {
   return <PosSlider />;
 }
 
-
+type CardInfo = {
+  id: number;
+  time: Date,
+  value: number;
+}
+type CardLists = {
+  label: Date;
+  infos: CardInfo[];
+}
 const Gallery: FC = () => {
   const { selected, select } = useIdSearchParams();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const footerVariants: Variants = {
-    hover: {
-      display: 'block'
+  const cardlist: CardLists[] = [...Array(100)].map((_, i) => {
+    const v = Math.round(Math.random() * 20);
+
+    return {
+      id: i,
+      time: addHours(new Date(), -v),
+      value: v
+    } as CardInfo;
+  }).reduce((res: CardLists[], info: CardInfo) => {
+    const f = startOfHour(info.time);
+    const idx = res.findIndex((v) => differenceInHours(v.label, f) === 0);
+    if (idx < 0) {
+      res.push({
+        label: f,
+        infos: [info]
+      });
+    } else {
+      res[idx].infos.push(info);
     }
-  };
+    return res;
+  }, [] as CardLists[]).sort((a, b) => differenceInHours(b.label, a.label));
 
   return selected.length > 0 ? (
     <DetailViewer />
-  ) : (
-    <Wrap
-      shouldWrapChildren
-      w="full"
-      m={8}
-      justify={"center"}
-      justifyContent={"space-between"}
-    >
-      {[...Array(10)].map((_, i) => (
-        <Card
-          rounded={"lg"}
-          key={`card-${i}`}
-          onClick={() => { select(i.toString()) }}
-          as={motion.div}
-          layout
-          whileHover="hover"
-        >
-          <CardBody>
-            <Skeleton w="xs" aspectRatio={2} speed={3} />
-          </CardBody>
-          <CardFooter as={motion.div} variants={footerVariants} display="none">
-            <Button>TEST</Button>
-          </CardFooter>
-        </Card>
-      ))}
-    </Wrap>
-  );
+  ) :
+    <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
+      {cardlist.map((list, j) => (
+        <VStack key={"list" + j} w="full" my={4} px={8} sx={{ scrollSnapAlign: "start" }}>
+          <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
+          <Wrap
+            shouldWrapChildren
+            justifyContent={"space-around"}
+            w="full"
+          >
+            {list.infos.map((info, i) =>
+              <Card
+                rounded={"lg"}
+                key={`card-${i}`}
+                onClick={() => { select(i.toString()) }}
+                w="20vw"
+                minW="250px"
+                sx={{ scrollSnapAlign: "start" }}
+                as={motion.div}
+                layout
+                whileHover={{ opacity: 0.5 }}
+              >
+                <CardHeader>{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
+                <CardBody>
+                  <Skeleton aspectRatio={2} speed={3} />
+                </CardBody>
+              </Card>)}
+          </Wrap>
+        </VStack>))}
+    </VStack>;
 };
 
 export default Gallery;
