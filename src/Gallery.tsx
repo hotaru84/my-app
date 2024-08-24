@@ -174,7 +174,7 @@ const Gallery: FC = () => {
                 onClick={() => { select(i.toString()) }}
                 w="20vw"
                 minW="250px"
-                sx={{ scrollSnapAlign: "start" }}
+                sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
                 as={motion.div}
                 layout
                 whileHover={{ opacity: 0.5 }}
