@@ -14,6 +14,7 @@ import {
   Tag,
   VStack,
   Wrap,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { TbPackage } from "react-icons/tb";
@@ -162,19 +163,12 @@ const Gallery: FC = () => {
       {cardlist.map((list, j) => (
         <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
           <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
-          <Wrap
-            shouldWrapChildren
-            justifyContent={"space-around"}
-            w="full"
-            pl={4}
-          >
+          <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
             {list.infos.map((info, i) =>
               <Card
                 rounded={"lg"}
                 key={`card-${i}`}
                 onClick={() => { select(i.toString()) }}
-                w="23vw"
-                minW="250px"
                 sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
                 as={motion.div}
                 layout
@@ -185,7 +179,7 @@ const Gallery: FC = () => {
                   <Skeleton aspectRatio={2} speed={3} />
                 </CardBody>
               </Card>)}
-          </Wrap>
+          </SimpleGrid>
         </VStack>))}
     </VStack>;
 };
