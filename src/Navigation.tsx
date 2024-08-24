@@ -3,36 +3,23 @@ import {
   Spacer,
   useDisclosure,
   Flex,
-  Tab,
-  TabList,
-  Tabs,
-  Icon,
   Tag,
   HStack,
   Box,
   TagLeftIcon,
   chakra,
-  Button,
+  Input,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import {
   TbCheck,
-  TbDashboard,
-  TbDeviceMobile,
-  TbGalaxy,
   TbMenu2,
-  TbRoute,
 } from "react-icons/tb";
 import { DetailDrawer } from "./DetailDrawer";
-import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import TrendlineChart from "./TrendlineChart";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
-
-const LinkItems = [
-  { label: "Dashboard", icon: <TbDashboard />, to: "/dashboard" },
-  { label: "Gallery", icon: <TbGalaxy />, to: "/gallery" },
-];
+import { CustomFilter } from "./CustomFilter";
+import { ReportActions } from "./ReportActions";
 
 export const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -48,9 +35,7 @@ export const Navigation = () => {
         onClick={onOpen}
         colorScheme="gray"
       />
-      <ColorModeSwitcher />
-      <Spacer />
-      <Tag colorScheme={"green"}>
+      <Tag colorScheme={"green"} w="fit-content">
         <TagLeftIcon as={TbCheck} />
         Ready
       </Tag>
@@ -65,13 +50,13 @@ export const Navigation = () => {
           </chakra.span>
         </Tag>
       </HStack>
+
       <Spacer />
-      <DateTimeRangePicker />
-      {LinkItems.map((link, i) => (
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <IconButton aria-label={link.label} icon={link.icon} as={NavLink} to={link.to} />
-        </motion.div>
-      ))}
+      <ButtonGroup isAttached colorScheme="cyan" variant={'ghost'}>
+        <CustomFilter />
+        <DateTimeRangePicker />
+        <ReportActions />
+      </ButtonGroup>
       {DetailDrawer(isOpen, onClose)}
     </Flex>
   );

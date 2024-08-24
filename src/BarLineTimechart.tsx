@@ -48,6 +48,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
   const [barPoints, setBarPoints] = useState<Point[]>([]);
 
   useInterval(() => {
+    if (activeTime > 0) return;
     const now = new Date();
     setLinePoints([
       ...linePoints.length > 10 ? linePoints.slice(1) : barPoints,
@@ -63,6 +64,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
         y: Math.floor(Math.random() * 255),
       }
     ]);
+    if (barPoints.findIndex((p) => p.x === activeTime) < 0 && setActiveTime !== undefined) setActiveTime(0);
   }, 1000);
 
   const data: ChartData<any> = useMemo(() => ({

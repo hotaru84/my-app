@@ -13,13 +13,16 @@ import {
   Th,
   Thead,
   Tr,
+  Text,
   VStack,
+  Tag,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
+import { format } from "date-fns";
 
 const stats: StatData[] = [
   {
@@ -72,14 +75,14 @@ const Dashboad: FC = () => {
           <Card
             rounded={16}
             p={4}
-            flexDir={"row"}
             gap={2}
             aspectRatio={2}
           >
+            {selectTime > 0 && <Tag textColor={'#ff6384'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
             {[1, 2, 3].map((i) => (
-              <Card variant={"outline"} key={i} w="full" boxShadow={0}>
+              <Card variant={"outline"} key={i} boxShadow={0}>
                 <HStack gap={2} m={2}>
-                  <Skeleton w="full" aspectRatio={2} speed={3} />
+                  <Skeleton aspectRatio={2} speed={3} />
                   <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../gallery" />
                 </HStack>
               </Card>))}
@@ -89,6 +92,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={2}
           >
+            {selectTime > 0 && <Tag textColor={'#ff6384'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
                 <Thead position={"sticky"} top={0}>

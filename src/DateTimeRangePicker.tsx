@@ -164,7 +164,7 @@ const RangeCalendar: FC<RangeCalendarProps> = ({
 
   return (
     <VStack>
-      <ButtonGroup variant={"ghost"} colorScheme="cyan" size={"sm"}>
+      <ButtonGroup variant={"ghost"} colorScheme="cyan" >
         <IconButton
           aria-label="decy"
           onClick={() => dec(12)}
@@ -338,17 +338,13 @@ export const DateTimeRangePicker: FC = () => {
       <PopoverTrigger>
         <Button
           leftIcon={<TbCalendarSearch />}
-          variant="ghost"
-          colorScheme="cyan"
-          fontWeight={"normal"}
-          size={"sm"}
           onClick={onOpen}
         >
           {pickerBtnLabel()}
         </Button>
       </PopoverTrigger>
       <Portal>
-        <PopoverContent w={"full"} right={2}>
+        <PopoverContent w={"full"} right={6}>
           <PopoverArrow />
           <PopoverBody>
             <HStack w="full" align={"start"}>
