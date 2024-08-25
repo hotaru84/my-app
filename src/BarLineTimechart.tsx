@@ -44,17 +44,25 @@ interface BarLineTimeChartProps {
 }
 
 const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActiveTime, ratio }) => {
-  const [linePoints, setLinePoints] = useState<Point[]>([]);
+  const [successPoints, setSuccessPoints] = useState<Point[]>([]);
+  const [errorPoints, setErrorPoints] = useState<Point[]>([]);
   const [barPoints, setBarPoints] = useState<Point[]>([]);
 
   useInterval(() => {
     if (activeTime > 0) return;
     const now = new Date();
-    setLinePoints([
-      ...linePoints.length > 10 ? linePoints.slice(1) : barPoints,
+    setSuccessPoints([
+      ...successPoints.length > 10 ? successPoints.slice(1) : barPoints,
       {
         x: now.getTime(),
         y: Math.floor(Math.random() * 100),
+      }
+    ]);
+    setErrorPoints([
+      ...errorPoints.length > 10 ? errorPoints.slice(1) : errorPoints,
+      {
+        x: now.getTime(),
+        y: Math.floor(Math.random() * 30),
       }
     ]);
     setBarPoints([
@@ -71,10 +79,10 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
     datasets: [
       {
         type: "line",
-        label: "Rate",
+        label: "Throughput",
         borderColor: "#68D391",
         backgroundColor: "#68D391",
-        data: linePoints,
+        data: successPoints,
         yAxisID: "y1",
         datalabels: {
           display: false,
@@ -82,10 +90,26 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
       },
       {
         type: "bar",
-        label: "Throuput",
+        label: "Error",
+        backgroundColor: "#ff6384",
+        data: errorPoints,
+        yAxisID: "y",
+        datalabels: {
+          align: "start",
+          anchor: "end",
+          formatter: (value: Point) => {
+            return Math.round(value.y);
+          },
+          color: "whitesmoke",
+          font: { size: 12, weight: "bold" },
+        },
+      },
+      {
+        type: "bar",
+        label: "Success",
         data: barPoints,
         backgroundColor: "#63B3ED",
-        borderColor: barPoints.map((p) => p.x === activeTime ? '#ff6384' : "#63B3ED"),
+        borderColor: barPoints.map((p) => p.x === activeTime ? '#4299e1' : "#63B3ED"),
         borderWidth: barPoints.map((p) => p.x === activeTime ? 4 : 0),
         borderRadius: 8,
         yAxisID: "y",
@@ -98,9 +122,10 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
           color: "whitesmoke",
           font: { size: 12, weight: "bold" },
         },
+
       },
     ],
-  }), [activeTime, barPoints, linePoints]);
+  }), [activeTime, barPoints, errorPoints, successPoints]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
@@ -110,10 +135,9 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
         legend: {
           position: "top",
           align: "end",
-        },
-        title: {
-          display: true,
-          text: "",
+          labels: {
+            usePointStyle: true
+          }
         },
       },
       scales: {
@@ -122,19 +146,19 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
           time: {
             unit: "second",
           },
-
           grid: {
             display: false,
           },
+          stacked: true
         },
         y: {
           type: "linear",
-          max: 256,
           position: "right",
           display: false,
           grid: {
             display: false,
           },
+          stacked: true,
         },
         y1: {
           type: "linear",
@@ -146,6 +170,8 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
         if (el.length > 0 && setActiveTime !== undefined) {
           const v = chart.data.datasets[el[0].datasetIndex].data[el[0].index] as Point;
           setActiveTime(activeTime === v.x ? 0 : v.x);  //toggle 
+        } else if (setActiveTime !== undefined) {
+          setActiveTime(0);
         }
       },
     }), [activeTime, setActiveTime]);

@@ -98,7 +98,7 @@ const Dashboad: FC = () => {
             gap={2}
             aspectRatio={2}
           >
-            {selectTime > 0 && <Tag textColor={'#ff6384'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
+            {selectTime > 0 && <Tag textColor={'#4299e1'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
             {[1, 2, 3].map((i) => (
               <Card variant={"outline"} key={i} boxShadow={0}>
                 <HStack gap={2} m={2}>
@@ -112,7 +112,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={2}
           >
-            {selectTime > 0 && <Tag textColor={'#ff6384'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
+            {selectTime > 0 && <Tag textColor={'#4299e1'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
                 <Thead position={"sticky"} top={0}>
