@@ -44,45 +44,47 @@ interface BarLineTimeChartProps {
 }
 
 const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActiveTime, ratio }) => {
-  const [successPoints, setSuccessPoints] = useState<Point[]>([]);
+  const [ratePoints, setRatePoints] = useState<Point[]>([]);
   const [errorPoints, setErrorPoints] = useState<Point[]>([]);
-  const [barPoints, setBarPoints] = useState<Point[]>([]);
+  const [totalPoints, setTotalPoints] = useState<Point[]>([]);
 
   useInterval(() => {
     if (activeTime > 0) return;
+    const total = Math.floor(Math.random() * 250 + 30);
+    const err = Math.floor(Math.random() * 30);
     const now = new Date();
-    setSuccessPoints([
-      ...successPoints.length > 10 ? successPoints.slice(1) : barPoints,
-      {
-        x: now.getTime(),
-        y: Math.floor(Math.random() * 100),
-      }
-    ]);
     setErrorPoints([
       ...errorPoints.length > 10 ? errorPoints.slice(1) : errorPoints,
       {
         x: now.getTime(),
-        y: Math.floor(Math.random() * 30),
+        y: err,
       }
     ]);
-    setBarPoints([
-      ...barPoints.length > 10 ? barPoints.slice(1) : barPoints,
+    setTotalPoints([
+      ...totalPoints.length > 10 ? totalPoints.slice(1) : totalPoints,
       {
         x: now.getTime(),
-        y: Math.floor(Math.random() * 255),
+        y: total
       }
     ]);
-    if (barPoints.findIndex((p) => p.x === activeTime) < 0 && setActiveTime !== undefined) setActiveTime(0);
+    setRatePoints([
+      ...ratePoints.length > 10 ? ratePoints.slice(1) : ratePoints,
+      {
+        x: now.getTime(),
+        y: Math.floor((total - err) / total * 100),
+      }
+    ]);
+    if (totalPoints.findIndex((p) => p.x === activeTime) < 0 && setActiveTime !== undefined) setActiveTime(0);
   }, 1000);
 
   const data: ChartData<any> = useMemo(() => ({
     datasets: [
       {
         type: "line",
-        label: "Throughput",
+        label: "Rate(%)",
         borderColor: "#68D391",
         backgroundColor: "#68D391",
-        data: successPoints,
+        data: ratePoints,
         yAxisID: "y1",
         datalabels: {
           display: false,
@@ -90,10 +92,14 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
       },
       {
         type: "bar",
-        label: "Error",
-        backgroundColor: "#ff6384",
-        data: errorPoints,
+        label: "Total count",
+        data: totalPoints,
+        backgroundColor: "#63B3ED",
+        borderColor: totalPoints.map((p) => p.x === activeTime ? '#4299e1' : "#63B3ED"),
+        borderWidth: totalPoints.map((p) => p.x === activeTime ? 4 : 0),
+        borderRadius: 8,
         yAxisID: "y",
+        order: 2,
         datalabels: {
           align: "start",
           anchor: "end",
@@ -105,27 +111,25 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ activeTime = 0, setActive
         },
       },
       {
-        type: "bar",
-        label: "Success",
-        data: barPoints,
-        backgroundColor: "#63B3ED",
-        borderColor: barPoints.map((p) => p.x === activeTime ? '#4299e1' : "#63B3ED"),
-        borderWidth: barPoints.map((p) => p.x === activeTime ? 4 : 0),
-        borderRadius: 8,
+        type: "line",
+        label: "Error count",
+        backgroundColor: "#ff6384",
+        data: errorPoints,
         yAxisID: "y",
         datalabels: {
-          align: "start",
+          display: false,
+          align: "end",
           anchor: "end",
           formatter: (value: Point) => {
             return Math.round(value.y);
           },
-          color: "whitesmoke",
+          color: "#ff6384",
           font: { size: 12, weight: "bold" },
+          order: 3
         },
-
       },
     ],
-  }), [activeTime, barPoints, errorPoints, successPoints]);
+  }), [activeTime, totalPoints, errorPoints, ratePoints]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
