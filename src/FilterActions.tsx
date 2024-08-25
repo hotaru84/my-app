@@ -15,11 +15,12 @@ import {
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
+  TbDotsVertical,
   TbReportAnalytics,
 } from "react-icons/tb";
 
 
-export const ReportActions: FC = () => {
+export const FilterActions: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   type PickMode = "-1h" | "lastd" | "lastw" | "custom";
   const modes: { value: PickMode; label: string }[] = [
@@ -33,7 +34,7 @@ export const ReportActions: FC = () => {
     <Popover isOpen={isOpen} onClose={onClose} placement="bottom">
       <PopoverTrigger>
         <IconButton
-          icon={<TbReportAnalytics />}
+          icon={<TbDotsVertical />}
           onClick={onOpen}
           aria-label={"edit"}
         />

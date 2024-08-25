@@ -41,7 +41,6 @@ const StatCard: FC<StatData> = ({
   return (
     <Card
       rounded={16}
-      role="group"
       p={4}
       flex="1"
       h="fit-content"
@@ -78,24 +77,6 @@ const StatCard: FC<StatData> = ({
           </VStack>
         </VStack>
       </HStack>
-      <Flex
-        visibility="hidden"
-        opacity={0}
-        h={0}
-        alignItems="center"
-        _groupHover={{ visibility: "visible", opacity: 1, h: "20px", mt: 2 }}
-        transition="opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, height 0.3s ease-in-out"
-      >
-        <Spacer />
-        <IconButton
-          aria-label={"edit"}
-          icon={<TbEdit />}
-          variant={"ghost"}
-          size={"sm"}
-          as={NavLink}
-          to={"/"}
-        />
-      </Flex>
     </Card>
   );
 };

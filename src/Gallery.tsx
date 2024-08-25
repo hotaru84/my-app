@@ -15,9 +15,12 @@ import {
   VStack,
   Wrap,
   SimpleGrid,
+  Flex,
+  IconButton,
+  Spacer,
 } from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
-import { TbPackage } from "react-icons/tb";
+import { NavLink, useSearchParams } from "react-router-dom";
+import { TbEdit, TbPackage } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { addHours, differenceInHours, format, startOfHour } from "date-fns";
 import { Navigation } from "./Navigation";
@@ -133,6 +136,30 @@ type CardLists = {
   label: Date;
   infos: CardInfo[];
 }
+
+type ImageCardProps = {
+  id: string;
+  info: CardInfo;
+  onClick?: (id: string) => void;
+}
+
+const ImageCard: FC<ImageCardProps> = ({ id, info, onClick }) => {
+
+  return <Card
+    rounded={"lg"}
+    onClick={() => { onClick !== undefined && onClick(id) }}
+    sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
+    as={motion.div}
+    layout
+    whileHover={{ filter: "brightness(0.9)" }}
+  >
+    <CardHeader>{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
+    <CardBody>
+      <Skeleton aspectRatio={2} speed={3} />
+    </CardBody>
+  </Card>
+}
+
 const Gallery: FC = () => {
   const { selected, select } = useIdSearchParams();
   const cardlist: CardLists[] = [...Array(100)].map((_, i) => {
@@ -169,20 +196,12 @@ const Gallery: FC = () => {
             <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
             <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
               {list.infos.map((info, i) =>
-                <Card
-                  rounded={"lg"}
+                <ImageCard
                   key={`card-${i}`}
-                  onClick={() => { select(i.toString()) }}
-                  sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
-                  as={motion.div}
-                  layout
-                  whileHover={{ opacity: 0.5 }}
-                >
-                  <CardHeader>{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
-                  <CardBody>
-                    <Skeleton aspectRatio={2} speed={3} />
-                  </CardBody>
-                </Card>)}
+                  info={info}
+                  id={String(i)}
+                  onClick={select} />
+              )}
             </SimpleGrid>
           </VStack>))}
       </VStack>

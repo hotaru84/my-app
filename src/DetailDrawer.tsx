@@ -7,13 +7,14 @@ import {
   Button,
   DrawerBody,
 } from "@chakra-ui/react";
-import { TbDashboard, TbEyeEdit, TbGalaxy, TbInfoCircle, TbMailPin, TbUser } from "react-icons/tb";
+import { TbDashboard, TbEyeEdit, TbGalaxy, TbInfoCircle, TbMailPin, TbReportAnalytics, TbUser } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
 const Menu = [
   { name: "Dashboard", icon: <TbDashboard />, to: "/dashboard" },
   { name: "Gallery", icon: <TbGalaxy />, to: "/gallery" },
+  { name: "Analytics", icon: <TbReportAnalytics />, to: "/analytics" },
   { name: "Accounts", icon: <TbUser />, to: "/" },
   { name: "Appearance", icon: <TbEyeEdit />, to: "/" },
   { name: "Maintenance", icon: <TbMailPin />, to: "/" },

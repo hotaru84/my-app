@@ -3,25 +3,22 @@ import {
   Spacer,
   useDisclosure,
   Flex,
-  Tag,
-  HStack,
-  Box,
-  TagLeftIcon,
-  chakra,
-  Input,
   ButtonGroup,
 } from "@chakra-ui/react";
 import {
-  TbCheck,
   TbMenu2,
 } from "react-icons/tb";
 import { DetailDrawer } from "./DetailDrawer";
-import TrendlineChart from "./TrendlineChart";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import { CustomFilter } from "./CustomFilter";
-import { ReportActions } from "./ReportActions";
+import { FilterActions } from "./FilterActions";
+import { FC, ReactElement } from "react";
 
-export const Navigation = () => {
+type NavigationProps = {
+  children?: ReactElement;
+}
+
+export const Navigation: FC<NavigationProps> = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -35,27 +32,12 @@ export const Navigation = () => {
         onClick={onOpen}
         colorScheme="gray"
       />
-      <Tag colorScheme={"green"} w="fit-content">
-        <TagLeftIcon as={TbCheck} />
-        Ready
-      </Tag>
-      <HStack gap={2} borderWidth={1} p={2} borderRadius={8} mx="auto">
-        <Box w="30vw" h="20px">
-          <TrendlineChart />
-        </Box>
-        <Tag colorScheme={"gray"}>
-          123
-          <chakra.span textColor={"gray"} fontSize={"0.5rem"} ml={1}>
-            pkg/min
-          </chakra.span>
-        </Tag>
-      </HStack>
-
+      {children}
       <Spacer />
       <ButtonGroup isAttached colorScheme="cyan" variant={'ghost'}>
         <CustomFilter />
         <DateTimeRangePicker />
-        <ReportActions />
+        <FilterActions />
       </ButtonGroup>
       {DetailDrawer(isOpen, onClose)}
     </Flex>

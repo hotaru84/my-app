@@ -16,6 +16,9 @@ import {
   Text,
   VStack,
   Tag,
+  Box,
+  chakra,
+  TagLeftIcon,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -23,6 +26,7 @@ import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import { format } from "date-fns";
+import TrendlineChart from "./TrendlineChart";
 
 const stats: StatData[] = [
   {
@@ -55,7 +59,23 @@ const Dashboad: FC = () => {
 
   return (
     <VStack w="full" gap={0}>
-      <Navigation />
+      <Navigation >
+        <HStack gap={2} borderWidth={1} p={2} borderRadius={8} mx="auto">
+          <Tag colorScheme={"green"} w="fit-content">
+            <TagLeftIcon as={TbCheck} />
+            Ready
+          </Tag>
+          <Box w="30vw" h="20px">
+            <TrendlineChart />
+          </Box>
+          <Tag colorScheme={"gray"}>
+            123
+            <chakra.span textColor={"gray"} fontSize={"0.5rem"} ml={1}>
+              pkg/min
+            </chakra.span>
+          </Tag>
+        </HStack>
+      </Navigation>
       <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0}>
         <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4}>
           {stats.map((s, i) => (
