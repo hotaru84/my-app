@@ -339,6 +339,7 @@ export const DateTimeRangePicker: FC = () => {
         <Button
           leftIcon={<TbCalendarSearch />}
           onClick={onOpen}
+          isActive={isOpen}
         >
           {pickerBtnLabel()}
         </Button>

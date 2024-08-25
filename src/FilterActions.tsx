@@ -37,6 +37,7 @@ export const FilterActions: FC = () => {
           icon={<TbDotsVertical />}
           onClick={onOpen}
           aria-label={"edit"}
+          isActive={isOpen}
         />
       </PopoverTrigger>
       <Portal>

@@ -18,6 +18,15 @@ import {
   Flex,
   IconButton,
   Spacer,
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Tooltip,
 } from "@chakra-ui/react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { TbEdit, TbPackage } from "react-icons/tb";
@@ -123,10 +132,6 @@ const PosSlider: FC = () => {
   </Slider>
 }
 
-const DetailViewer: FC = () => {
-  return <PosSlider />;
-}
-
 type CardInfo = {
   id: number;
   time: Date,
@@ -161,7 +166,7 @@ const ImageCard: FC<ImageCardProps> = ({ id, info, onClick }) => {
 }
 
 const Gallery: FC = () => {
-  const { selected, select } = useIdSearchParams();
+  const { selected, select, deselectAll } = useIdSearchParams();
   const cardlist: CardLists[] = [...Array(100)].map((_, i) => {
     const v = Math.round(Math.random() * 20);
 
@@ -184,28 +189,37 @@ const Gallery: FC = () => {
     return res;
   }, [] as CardLists[]).sort((a, b) => differenceInHours(b.label, a.label));
 
-  return selected.length > 0 ? (
-    <DetailViewer />
-  ) :
-
-    <VStack w="full" gap={0}>
-      <Navigation />
-      <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
-        {cardlist.map((list, j) => (
-          <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
-            <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
-            <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
-              {list.infos.map((info, i) =>
-                <ImageCard
-                  key={`card-${i}`}
-                  info={info}
-                  id={String(i)}
-                  onClick={select} />
-              )}
-            </SimpleGrid>
-          </VStack>))}
-      </VStack>
-    </VStack>;
+  return <VStack w="full" gap={0}>
+    <Navigation />
+    <PosSlider />
+    <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
+      {cardlist.map((list, j) => (
+        <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
+          <Text>{format(list.label, "yyyy/MM/dd hh:00")}</Text>
+          <SimpleGrid columns={{ sm: 2, md: 3, lg: 4, xl: 5 }} gap={4} w="full" px={4} justifyContent={"space-around"}>
+            {list.infos.map((info, i) =>
+              <ImageCard
+                key={`card-${i}`}
+                info={info}
+                id={String(i)}
+                onClick={select} />
+            )}
+          </SimpleGrid>
+        </VStack>))}
+    </VStack>
+    <Modal isOpen={selected.length > 0} onClose={deselectAll} size="full">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Modal Title</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <PosSlider />
+        </ModalBody>
+        <ModalFooter>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  </VStack>;
 };
 
 export default Gallery;

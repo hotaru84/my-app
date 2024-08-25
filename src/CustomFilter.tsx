@@ -13,11 +13,15 @@ import {
   Portal,
   ButtonGroup,
   Input,
+  VStack,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
   TbFilterEdit,
 } from "react-icons/tb";
+import { Select } from "chakra-react-select";
 
 
 export const CustomFilter: FC = () => {
@@ -37,6 +41,7 @@ export const CustomFilter: FC = () => {
         <Button
           leftIcon={<TbFilterEdit />}
           onClick={onOpen}
+          isActive={isOpen}
         >
           Filter
         </Button>
@@ -45,8 +50,12 @@ export const CustomFilter: FC = () => {
         <PopoverContent w={"full"} right={6}>
           <PopoverArrow />
           <PopoverBody>
-            <Input focusBorderColor="cyan.400" w="auto" placeholder="search" />
-            {/** 
+            <VStack>
+              <FormControl>
+                <FormLabel>Success result definition</FormLabel>
+              </FormControl>
+              <Input focusBorderColor="cyan.400" w="auto" placeholder="search" />
+              {/** 
              * result
              *  code
              *  analysis result
@@ -55,6 +64,7 @@ export const CustomFilter: FC = () => {
              *  code
              *  scanner
              */}
+            </VStack>
           </PopoverBody>
           <ButtonGroup alignSelf={"end"} p={2}>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
