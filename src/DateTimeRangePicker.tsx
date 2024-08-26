@@ -345,7 +345,7 @@ export const DateTimeRangePicker: FC = () => {
         </Button>
       </PopoverTrigger>
       <Portal>
-        <PopoverContent w={"full"} right={6}>
+        <PopoverContent w={"full"}>
           <PopoverArrow />
           <PopoverBody>
             <HStack w="full" align={"start"}>

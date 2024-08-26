@@ -16,24 +16,26 @@ import {
   VStack,
   FormControl,
   FormLabel,
+  Select,
+  Heading,
+  PopoverHeader,
+  Tag,
+  HStack,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  Box,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
   TbFilterEdit,
 } from "react-icons/tb";
-import { Select } from "chakra-react-select";
-
 
 export const CustomFilter: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  type PickMode = "-1h" | "lastd" | "lastw" | "custom";
-  const [pickMode, setPickMode] = useState<PickMode>("lastd");
-  const modes: { value: PickMode; label: string }[] = [
-    { value: "-1h", label: "Last Hour" },
-    { value: "lastd", label: "Last Day" },
-    { value: "lastw", label: "Last Week" },
-    { value: "custom", label: "Custom Range" },
-  ];
+  const { isOpen: isAdvanced, onToggle: onToggleAdvanced } = useDisclosure();
 
   return (
     <Popover isOpen={isOpen} onClose={onClose} placement="bottom">
@@ -49,22 +51,63 @@ export const CustomFilter: FC = () => {
       <Portal>
         <PopoverContent w={"full"} right={6}>
           <PopoverArrow />
+          <PopoverHeader><Tag colorScheme="green">Success definition</Tag></PopoverHeader>
           <PopoverBody>
-            <VStack>
-              <FormControl>
-                <FormLabel>Success result definition</FormLabel>
-              </FormControl>
-              <Input focusBorderColor="cyan.400" w="auto" placeholder="search" />
-              {/** 
-             * result
-             *  code
-             *  analysis result
-             *  output data
-             * settings
-             *  code
-             *  scanner
-             */}
-            </VStack>
+            <Accordion allowToggle defaultIndex={0} minW={'300px'}>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box as='span' flex='1' textAlign='left'>
+                      Package
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <FormControl>
+                    <FormLabel textColor={"GrayText"}>Results</FormLabel>
+                    <Select focusBorderColor="cyan.400" w="auto" >
+                      <option>Success</option>
+                    </Select>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel textColor={"GrayText"}>Output data</FormLabel>
+                    <Input focusBorderColor="cyan.400" w="auto" placeholder="Format" />
+                  </FormControl>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box as='span' flex='1' textAlign='left'>
+                      Detail
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+
+                  <FormControl>
+                    <FormLabel textColor={"GrayText"}>codes</FormLabel>
+                    <Select focusBorderColor="cyan.400" w="auto" >
+                      <option></option>
+                    </Select>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel textColor={"GrayText"}>scanners</FormLabel>
+                    <Select focusBorderColor="cyan.400" w="auto" >
+                      <option></option>
+                    </Select>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel textColor={"GrayText"}>Analytics result</FormLabel>
+                    <Select focusBorderColor="cyan.400" w="auto" >
+                      <option></option>
+                    </Select>
+                  </FormControl>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
           </PopoverBody>
           <ButtonGroup alignSelf={"end"} p={2}>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
@@ -74,6 +117,6 @@ export const CustomFilter: FC = () => {
           </ButtonGroup>
         </PopoverContent>
       </Portal>
-    </Popover>
+    </Popover >
   );
 };

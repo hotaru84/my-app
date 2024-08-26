@@ -19,6 +19,8 @@ import {
   Box,
   chakra,
   TagLeftIcon,
+  ScaleFade,
+  SlideFade,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -27,6 +29,7 @@ import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import { format } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
+import { AnimatePresence, motion } from "framer-motion";
 
 const stats: StatData[] = [
   {
@@ -55,7 +58,9 @@ const stats: StatData[] = [
 const Dashboad: FC = () => {
   const [selectTime, setSelectTime] = useState(0);
   const ratio = { base: 1, sm: 2, md: 3, lg: 4 };
-
+  const selectedTimeTag = () => <SlideFade in={selectTime > 0} unmountOnExit>
+    <Tag textColor={'#FF9F40'} w="fit-content" as={motion.div} layout>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>
+  </SlideFade>;
 
   return (
     <VStack w="full" gap={0}>
@@ -76,13 +81,13 @@ const Dashboad: FC = () => {
           </Tag>
         </HStack>
       </Navigation>
-      <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0}>
-        <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4}>
+      <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0} overflow={"auto"}>
+        <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4} >
           {stats.map((s, i) => (
             <StatCard key={i} {...s} />
           ))}
         </SimpleGrid>
-        <SimpleGrid columns={1} w="full" justifyContent={"space-around"} gap={4}>
+        <SimpleGrid columns={1} w="full" justifyContent={"space-around"} gap={4} >
           <Card
             rounded={16}
             p={4}
@@ -91,14 +96,14 @@ const Dashboad: FC = () => {
             <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime} ratio={ratio} />
           </Card>
         </SimpleGrid>
-        <SimpleGrid columns={2} w="full" justifyContent={"space-around"} gap={4}>
+        <SimpleGrid columns={2} w="full" justifyContent={"space-around"} gap={4} >
           <Card
             rounded={16}
             p={4}
             gap={2}
             aspectRatio={2}
           >
-            {selectTime > 0 && <Tag textColor={'#4299e1'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
+            {selectedTimeTag()}
             {[1, 2, 3].map((i) => (
               <Card variant={"outline"} key={i} boxShadow={0}>
                 <HStack gap={2} m={2}>
@@ -112,7 +117,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={2}
           >
-            {selectTime > 0 && <Tag textColor={'#4299e1'}>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>}
+            {selectedTimeTag()}
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
                 <Thead position={"sticky"} top={0}>
