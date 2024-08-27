@@ -14,6 +14,7 @@ import {
   TimeSeriesScale,
   ChartOptions,
   ChartData,
+  ChartDataset,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
@@ -92,7 +93,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
     ]);
   }, 1000);
 
-  const data: ChartData<any> = useMemo(() => ({
+  const data: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
       {
         type: "line",
@@ -138,10 +139,11 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
           },
           color: "#ff6384",
           font: { size: 12, weight: "bold" },
-          order: 3
+          order: 3,
         },
+        hidden: true,
       },
-    ],
+    ] as ChartDataset<"bar" | "line">[],
   }), [totalPoints, errorPoints, ratePoints]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
@@ -205,12 +207,13 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
     }), [onChangeX]);
 
   return <motion.div layout>
-    <ButtonGroup colorScheme="orange" isAttached variant={'ghost'}>
+    <ButtonGroup colorScheme="orange" variant={'ghost'}>
       <TimeRangeTag
         min={new Date(chartRef?.current?.scales.x.min ?? 0)}
         max={new Date(chartRef?.current?.scales.x.max ?? 0)}
         isActive={isActive}
       />
+
       {!isActive && <IconButton aria-label={"zoom-reset"} icon={<TbZoomOutArea />} size="sm" onClick={resetTimescale} />}
     </ButtonGroup>
     <AspectRatio ratio={ratio}>

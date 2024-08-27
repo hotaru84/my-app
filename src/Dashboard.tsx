@@ -58,7 +58,7 @@ const stats: StatData[] = [
 
 const Dashboad: FC = () => {
   const [timescale, setTimescale] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
-  const ratio = { base: 1, sm: 1.6, md: 2, lg: 3 };
+  const ratio = { base: 1, sm: 1.6, md: 3, lg: 3.5 };
 
   return (
     <VStack w="full" gap={0}>
