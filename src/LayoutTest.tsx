@@ -38,11 +38,6 @@ const LayoutTest: FC = () => {
           </PanelGroup>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />
-        <Panel defaultSize={30}>
-          <Box p={2} w="full" h="full" maxH="100vh">
-            <BarLineTimeChart />
-          </Box>
-        </Panel>
       </PanelGroup>
     </Fade>
   );

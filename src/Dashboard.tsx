@@ -30,6 +30,7 @@ import { Navigation } from "./Navigation";
 import { format } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
 import { AnimatePresence, motion } from "framer-motion";
+import { TimeRangeTag } from "./TimeRangeTag";
 
 const stats: StatData[] = [
   {
@@ -56,11 +57,8 @@ const stats: StatData[] = [
 ];
 
 const Dashboad: FC = () => {
-  const [selectTime, setSelectTime] = useState(0);
-  const ratio = { base: 1, sm: 2, md: 3, lg: 4 };
-  const selectedTimeTag = () => <SlideFade in={selectTime > 0} unmountOnExit>
-    <Tag textColor={'#FF9F40'} w="fit-content" as={motion.div} layout>{format(selectTime, "yyyy/MM/dd hh:mm:ss")}</Tag>
-  </SlideFade>;
+  const [timescale, setTimescale] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
+  const ratio = { base: 1, sm: 1.6, md: 2, lg: 3 };
 
   return (
     <VStack w="full" gap={0}>
@@ -93,7 +91,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={ratio}
           >
-            <BarLineTimeChart activeTime={selectTime} setActiveTime={setSelectTime} ratio={ratio} />
+            <BarLineTimeChart ratio={ratio} onChangeTimescale={setTimescale} isActive={timescale.includes(undefined)} />
           </Card>
         </SimpleGrid>
         <SimpleGrid columns={2} w="full" justifyContent={"space-around"} gap={4} >
@@ -103,7 +101,7 @@ const Dashboad: FC = () => {
             gap={2}
             aspectRatio={2}
           >
-            {selectedTimeTag()}
+            <TimeRangeTag min={timescale[0]} max={timescale[1]} />
             {[1, 2, 3].map((i) => (
               <Card variant={"outline"} key={i} boxShadow={0}>
                 <HStack gap={2} m={2}>
@@ -117,7 +115,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={2}
           >
-            {selectedTimeTag()}
+            <TimeRangeTag min={timescale[0]} max={timescale[1]} />
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
                 <Thead position={"sticky"} top={0}>

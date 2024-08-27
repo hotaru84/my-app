@@ -28,6 +28,7 @@
     "chartjs-chart-matrix": "^2.0.1",
     "chartjs-chart-treemap": "^2.3.1",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "chartjs-plugin-zoom": "^2.0.1",
     "date-fns": "^3.6.0",
     "dayzed": "^3.2.3",
     "framer-motion": "^6.2.9",
