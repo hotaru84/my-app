@@ -15,6 +15,8 @@ import {
   ChartOptions,
   ChartData,
   ChartDataset,
+  ChartEvent,
+  ActiveElement,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
@@ -22,9 +24,9 @@ import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ButtonGroup, IconButton, ResponsiveValue } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import { TbZoomOutArea } from "react-icons/tb";
+import { AspectRatio, ButtonGroup, IconButton, ResponsiveValue, Tooltip as TooltipLabel, Text } from "@chakra-ui/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { TbZoomOutArea, TbZoomReset } from "react-icons/tb";
 import { TimeRangeTag } from "./TimeRangeTag";
 
 ChartJS.register(
@@ -59,13 +61,12 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
     if (onChangeTimescale !== undefined) onChangeTimescale([undefined, undefined]);
   }, [onChangeTimescale]);
 
-  const onChangeX = useCallback(({ chart }: { chart: ChartJS }) => {
+  const onChangeTimescaleRange = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
     if (onChangeTimescale !== undefined) onChangeTimescale([new Date(min), new Date(max)]);
   }, [onChangeTimescale]);
 
   useInterval(() => {
-    console.log(isActive);
     if (!isActive) return;
     const total = Math.floor(Math.random() * 250 + 30);
     const err = Math.floor(Math.random() * 30);
@@ -164,9 +165,9 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
           },
           pan: {
             enabled: true,
-            mode: 'x',
             modifierKey: 'ctrl',
-            onPanComplete: onChangeX
+            mode: 'x',
+            onPanComplete: onChangeTimescaleRange
           },
           zoom: {
             drag: {
@@ -174,7 +175,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
               backgroundColor: '#FF9F405f',
             },
             mode: 'x',
-            onZoomComplete: onChangeX
+            onZoomComplete: onChangeTimescaleRange
           },
         }
       },
@@ -204,22 +205,27 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
           position: "left",
         },
       },
-    }), [onChangeX]);
+      onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
+        if (el.length === 0) {
+          //resetTimescale();
+        }
+      },
+    }), [onChangeTimescaleRange]);
 
   return <motion.div layout>
     <ButtonGroup colorScheme="orange" variant={'ghost'}>
+
       <TimeRangeTag
         min={new Date(chartRef?.current?.scales.x.min ?? 0)}
         max={new Date(chartRef?.current?.scales.x.max ?? 0)}
         isActive={isActive}
+        onClick={resetTimescale}
       />
-
-      {!isActive && <IconButton aria-label={"zoom-reset"} icon={<TbZoomOutArea />} size="sm" onClick={resetTimescale} />}
     </ButtonGroup>
     <AspectRatio ratio={ratio}>
       <Chart type={"bar"} options={options} data={data} ref={chartRef} />
     </AspectRatio>
-  </motion.div>;
+  </motion.div >;
 };
 
 export default BarLineTimeChart;
