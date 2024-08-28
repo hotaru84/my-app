@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,14 +20,13 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
-import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ButtonGroup, IconButton, ResponsiveValue, Tooltip as TooltipLabel, Text } from "@chakra-ui/react";
-import { AnimatePresence, motion } from "framer-motion";
-import { TbZoomOutArea, TbZoomReset } from "react-icons/tb";
+import { AspectRatio, ButtonGroup, ResponsiveValue } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
+import { TimelineStats } from "./useTimelineStats";
 
 ChartJS.register(
   CategoryScale,
@@ -46,53 +45,22 @@ ChartJS.register(
 
 interface BarLineTimeChartProps {
   ratio?: ResponsiveValue<number>;
-  isActive: boolean;
-  onChangeTimescale?: (timescale: [Date | undefined, Date | undefined]) => void;
+  timeline: TimelineStats
 }
 
-const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChangeTimescale }) => {
+const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
   const chartRef = useRef<ChartJS<"bar">>(null);
-  const [ratePoints, setRatePoints] = useState<Point[]>([]);
-  const [errorPoints, setErrorPoints] = useState<Point[]>([]);
-  const [totalPoints, setTotalPoints] = useState<Point[]>([]);
 
   const resetTimescale = useCallback(() => {
     chartRef?.current?.resetZoom();
-    if (onChangeTimescale !== undefined) onChangeTimescale([undefined, undefined]);
-  }, [onChangeTimescale]);
+    timeline.resetScale();
+  }, [timeline]);
 
-  const onChangeTimescaleRange = useCallback(({ chart }: { chart: ChartJS }) => {
+  const onChangeTimescale = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
-    if (onChangeTimescale !== undefined) onChangeTimescale([new Date(min), new Date(max)]);
-  }, [onChangeTimescale]);
+    timeline.setScale({ start: new Date(min), end: new Date(max) });
+  }, [timeline]);
 
-  useInterval(() => {
-    if (!isActive) return;
-    const total = Math.floor(Math.random() * 250 + 30);
-    const err = Math.floor(Math.random() * 30);
-    const now = new Date();
-    setErrorPoints([
-      ...errorPoints.length > 10 ? errorPoints.slice(1) : errorPoints,
-      {
-        x: now.getTime(),
-        y: err,
-      }
-    ]);
-    setTotalPoints([
-      ...totalPoints.length > 10 ? totalPoints.slice(1) : totalPoints,
-      {
-        x: now.getTime(),
-        y: total
-      }
-    ]);
-    setRatePoints([
-      ...ratePoints.length > 10 ? ratePoints.slice(1) : ratePoints,
-      {
-        x: now.getTime(),
-        y: Math.floor((total - err) / total * 100),
-      }
-    ]);
-  }, 1000);
 
   const data: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -101,7 +69,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
         label: "Rate(%)",
         borderColor: "#68D391",
         backgroundColor: "#68D391",
-        data: ratePoints,
+        data: timeline.ratePoints,
         yAxisID: "y1",
         datalabels: {
           display: false,
@@ -110,7 +78,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
       {
         type: "bar",
         label: "Total count",
-        data: totalPoints,
+        data: timeline.totalPoints,
         backgroundColor: "#63B3ED", //'#FF9F40'
         borderRadius: 8,
         yAxisID: "y",
@@ -129,7 +97,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
         type: "line",
         label: "Error count",
         backgroundColor: "#ff6384",
-        data: errorPoints,
+        data: timeline.errorPoints,
         yAxisID: "y",
         datalabels: {
           display: false,
@@ -145,7 +113,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
         hidden: true,
       },
     ] as ChartDataset<"bar" | "line">[],
-  }), [totalPoints, errorPoints, ratePoints]);
+  }), [timeline.ratePoints, timeline.totalPoints, timeline.errorPoints]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
@@ -167,7 +135,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
             enabled: true,
             modifierKey: 'ctrl',
             mode: 'x',
-            onPanComplete: onChangeTimescaleRange
+            onPanComplete: onChangeTimescale
           },
           zoom: {
             drag: {
@@ -175,13 +143,13 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
               backgroundColor: '#FF9F405f',
             },
             mode: 'x',
-            onZoomComplete: onChangeTimescaleRange
+            onZoomComplete: onChangeTimescale
           },
         }
       },
       scales: {
         x: {
-          type: "time",
+          type: "timeseries",
           time: {
             unit: "second",
           },
@@ -201,8 +169,11 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
         },
         y1: {
           type: "linear",
-          max: 100,
+          max: 105,
           position: "left",
+          ticks: {
+            callback: (v, i) => v <= 100 ? v : '',
+          }
         },
       },
       onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
@@ -210,7 +181,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
           //resetTimescale();
         }
       },
-    }), [onChangeTimescaleRange]);
+    }), [onChangeTimescale]);
 
   return <motion.div layout>
     <ButtonGroup colorScheme="orange" variant={'ghost'}>
@@ -219,7 +190,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, isActive, onChange
         min={new Date(chartRef?.current?.scales.x.min ?? 0)}
         max={new Date(chartRef?.current?.scales.x.max ?? 0)}
         isActive={isActive}
-        onClick={resetTimescale}
+        onClose={resetTimescale}
       />
     </ButtonGroup>
     <AspectRatio ratio={ratio}>

@@ -27,10 +27,11 @@ import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
 import { AnimatePresence, motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
+import { useTimelineStats } from "./useTimelineStats";
 
 const stats: StatData[] = [
   {
@@ -57,7 +58,9 @@ const stats: StatData[] = [
 ];
 
 const Dashboad: FC = () => {
-  const [timescale, setTimescale] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
+  const [timescale, setTimescale] = useState<[Date, Date]>([new Date(), addDays(new Date(), 7)]);
+  const timeline = useTimelineStats(timescale[0], timescale[1], 7);
+
   const ratio = { base: 1, sm: 1.6, md: 3, lg: 3.5 };
 
   return (
@@ -91,7 +94,7 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={ratio}
           >
-            <BarLineTimeChart ratio={ratio} onChangeTimescale={setTimescale} isActive={timescale.includes(undefined)} />
+            <BarLineTimeChart ratio={ratio} timeline={timeline} />
           </Card>
         </SimpleGrid>
         <SimpleGrid columns={2} w="full" justifyContent={"space-around"} gap={4} >
