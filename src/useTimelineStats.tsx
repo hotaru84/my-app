@@ -1,11 +1,12 @@
 import { Point } from "chart.js";
-import { addHours, addSeconds, differenceInMinutes, differenceInSeconds, secondsToHours } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
-import { useInterval } from "react-use";
+import { addSeconds, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, endOfDay, endOfHour, endOfMinute, startOfDay, startOfHour, startOfMinute } from "date-fns";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { start } from "repl";
 
 type Timescale = {
   start: Date;
   end: Date;
+  slot: number;
 }
 
 export type TimelineStats = {
@@ -17,39 +18,74 @@ export type TimelineStats = {
   scaleDiffSec: number;
   setScale: (scale: Timescale) => void;
   resetScale: () => void;
-  refresh: () => void;
 }
 
+export function makeTimescale(start: number, end: number): Timescale {
+  const s = differenceInSeconds(end, start);
+  const m = differenceInMinutes(end, start);
+  const h = differenceInHours(end, start);
+  const d = differenceInDays(end, start);
+  if (m <= 60) {
+    return {
+      start: new Date(start),
+      end: new Date(end),
+      slot: s
+    }
+  }
+  if (m < 60) {
+    return {
+      start: startOfMinute(start),
+      end: endOfMinute(end),
+      slot: m
+    }
+  }
+  if (h < 24) {
+    return {
+      start: startOfHour(start),
+      end: endOfHour(end),
+      slot: h
+    }
+  }
 
-export function useTimelineStats(min: Date, max: Date, numOfSlot: number = 60): TimelineStats {
-  const [scale, setScale] = useState<Timescale>({ start: min, end: max });
+  return {
+    start: startOfDay(start),
+    end: endOfDay(end),
+    slot: d
+  }
+}
+
+export function useTimelineStats(base: Timescale): TimelineStats {
+  const [scale, setScale] = useState<Timescale>(base);
   const [errorPoints, setErrorPoints] = useState<Point[]>([]);
   const [totalPoints, setTotalPoints] = useState<Point[]>([]);
 
   const resetScale = useCallback(() => {
-    setScale({ start: min, end: max });
-  }, [max, min]);
+    setScale(base);
+  }, [base]);
 
   const scaleDiffSec = useMemo(() => Math.max(
     Math.floor(
-      differenceInSeconds(scale.start, scale.end) / numOfSlot
+      differenceInSeconds(scale.end, scale.start) / base.slot
     ), 1),
-    [numOfSlot, scale.end, scale.start]);
+    [base.slot, scale.end, scale.start]);
 
+  const isZoomed = useMemo(() =>
+    base.start.getSeconds() !== scale.start.getSeconds() ||
+    base.end.getSeconds() !== scale.end.getSeconds(),
+    [base.end, base.start, scale.end, scale.start]);
 
-  const refresh = useCallback(() => {
-    const now = new Date();
-    setTotalPoints([...Array(numOfSlot)].map((_, i) => ({
-      x: addSeconds(now, scaleDiffSec * i).getTime(),
+  useEffect(() => {
+    setTotalPoints([...Array(scale.slot)].map((_, i) => ({
+      x: addSeconds(scale.start, scaleDiffSec * i).getTime(),
       y: Math.floor(Math.random() * 250)
     })));
 
-    setErrorPoints([...Array(numOfSlot)].map((_, i) => ({
-      x: addSeconds(now, scaleDiffSec * i).getTime(),
+    setErrorPoints([...Array(scale.slot)].map((_, i) => ({
+      x: addSeconds(scale.start, scaleDiffSec * i).getTime(),
       y: Math.floor(Math.random() * 30)
     })));
 
-  }, [numOfSlot, scaleDiffSec]);
+  }, [scale.slot, scale.start, scaleDiffSec]);
 
   const ratePoints = useMemo(() => totalPoints.map((p, i) => ({
     x: p.x,
@@ -62,9 +98,8 @@ export function useTimelineStats(min: Date, max: Date, numOfSlot: number = 60): 
     ratePoints,
     scale,
     scaleDiffSec,
-    isZoomed: min.getSeconds() ===
-      setScale,
+    isZoomed,
+    setScale,
     resetScale,
-    refresh,
   }
 }

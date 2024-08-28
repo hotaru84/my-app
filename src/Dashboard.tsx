@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Card,
   HStack,
@@ -27,7 +27,7 @@ import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
-import { addDays, format } from "date-fns";
+import { addDays, format, startOfToday } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
 import { AnimatePresence, motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
@@ -58,9 +58,7 @@ const stats: StatData[] = [
 ];
 
 const Dashboad: FC = () => {
-  const [timescale, setTimescale] = useState<[Date, Date]>([new Date(), addDays(new Date(), 7)]);
-  const timeline = useTimelineStats(timescale[0], timescale[1], 7);
-
+  const timeline = useTimelineStats({ start: startOfToday(), end: addDays(startOfToday(), 7), slot: 7 });
   const ratio = { base: 1, sm: 1.6, md: 3, lg: 3.5 };
 
   return (
@@ -104,7 +102,6 @@ const Dashboad: FC = () => {
             gap={2}
             aspectRatio={2}
           >
-            <TimeRangeTag min={timescale[0]} max={timescale[1]} />
             {[1, 2, 3].map((i) => (
               <Card variant={"outline"} key={i} boxShadow={0}>
                 <HStack gap={2} m={2}>
@@ -118,7 +115,6 @@ const Dashboad: FC = () => {
             p={4}
             aspectRatio={2}
           >
-            <TimeRangeTag min={timescale[0]} max={timescale[1]} />
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
                 <Thead position={"sticky"} top={0}>

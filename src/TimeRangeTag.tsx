@@ -4,23 +4,24 @@ import { FC } from "react";
 import { TbRefresh } from "react-icons/tb";
 
 interface TimeRangeTagProps {
-    min: Date | undefined;
-    max: Date | undefined;
+  min: Date | undefined;
+  max: Date | undefined;
+  isZoom: boolean;
+  onClick: () => void;
 }
 
 export const TimeRangeTag: FC<TimeRangeTagProps> = (
-    {
-        min, max,
-    }) => {
-    if (min === undefined || max === undefined) return <></>;
+  {
+    min, max, isZoom, onClick
+  }) => {
+  if (min === undefined || max === undefined) return <></>;
 
-    return <Tag colorScheme={time ? 'white' : 'orange'} w="fit-content">
-        {isActive && <TagLeftIcon as={TbRefresh} onClick={onOpen} />}
-        {
-            isSameDay(max, min) ?
-                format(min, "yyyy/MM/dd ") + format(min, "hh:mm:ss") + ' - ' + format(max, "hh:mm:ss")
-                : format(min, "yyyy/MM/dd hh:mm") + '-' + format(max, "yyyy/MM/dd hh:mm")
-        }
-        {<TagCloseButton />}
-    </Tag>;
+  return <Tag colorScheme={isZoom ? 'orange' : 'white'} w="fit-content">
+    {!isZoom && <TagLeftIcon as={TbRefresh} onClick={onClick} />}
+    {isSameDay(max, min) ?
+      format(min, "yyyy/MM/dd ") + format(min, "hh:mm:ss") + ' - ' + format(max, "hh:mm:ss")
+      : format(min, "yyyy/MM/dd hh:mm") + '-' + format(max, "yyyy/MM/dd hh:mm")
+    }
+    {isZoom && <TagCloseButton onClick={onClick} />}
+  </Tag>;
 }

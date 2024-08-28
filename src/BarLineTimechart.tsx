@@ -26,7 +26,7 @@ import ZoomPlugin from 'chartjs-plugin-zoom';
 import { AspectRatio, ButtonGroup, ResponsiveValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
-import { TimelineStats } from "./useTimelineStats";
+import { makeTimescale, TimelineStats } from "./useTimelineStats";
 
 ChartJS.register(
   CategoryScale,
@@ -58,7 +58,7 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
 
   const onChangeTimescale = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
-    timeline.setScale({ start: new Date(min), end: new Date(max) });
+    timeline.setScale(makeTimescale(min, max));
   }, [timeline]);
 
 
@@ -151,7 +151,12 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
         x: {
           type: "timeseries",
           time: {
-            unit: "second",
+            displayFormats: {
+              second: "HH:mm:ss",
+              minute: "HH:mm",
+              hour: 'MM:dd HH:mm',
+              day: 'MM:dd'
+            }
           },
           grid: {
             display: false,
@@ -169,11 +174,8 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
         },
         y1: {
           type: "linear",
-          max: 105,
+          max: 100,
           position: "left",
-          ticks: {
-            callback: (v, i) => v <= 100 ? v : '',
-          }
         },
       },
       onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
@@ -187,10 +189,10 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
     <ButtonGroup colorScheme="orange" variant={'ghost'}>
 
       <TimeRangeTag
-        min={new Date(chartRef?.current?.scales.x.min ?? 0)}
-        max={new Date(chartRef?.current?.scales.x.max ?? 0)}
-        isActive={isActive}
-        onClose={resetTimescale}
+        min={timeline.scale.start}
+        max={timeline.scale.end}
+        isZoom={timeline.isZoomed}
+        onClick={resetTimescale}
       />
     </ButtonGroup>
     <AspectRatio ratio={ratio}>
