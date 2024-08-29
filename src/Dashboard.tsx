@@ -21,8 +21,10 @@ import {
   TagLeftIcon,
   ScaleFade,
   SlideFade,
+  Button,
+  CardFooter,
 } from "@chakra-ui/react";
-import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
+import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage, TbTableShortcut } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
@@ -113,7 +115,6 @@ const Dashboad: FC = () => {
           <Card
             rounded={16}
             p={4}
-            aspectRatio={2}
           >
             <TableContainer overflowY={"auto"}>
               <Table variant='simple'>
@@ -150,6 +151,9 @@ const Dashboad: FC = () => {
                 </Tfoot>
               </Table>
             </TableContainer>
+            <CardFooter justifyContent={"end"} p={4}>
+              <Button leftIcon={<TbTableShortcut />} as={NavLink} to="/datatable">Data list</Button>
+            </CardFooter>
           </Card>
         </SimpleGrid>
       </VStack>

@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useRef } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,10 +23,11 @@ import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ButtonGroup, ResponsiveValue } from "@chakra-ui/react";
+import { AspectRatio, ButtonGroup, IconButton, ResponsiveValue, Switch } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
 import { makeTimescale, TimelineStats } from "./useTimelineStats";
+import { TbClockEdit } from "react-icons/tb";
 
 ChartJS.register(
   CategoryScale,
@@ -49,6 +50,7 @@ interface BarLineTimeChartProps {
 }
 
 const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
+  const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
 
   const resetTimescale = useCallback(() => {
@@ -74,6 +76,8 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
         datalabels: {
           display: false,
         },
+        order: 1,
+        hidden: hidden[0],
       },
       {
         type: "bar",
@@ -82,7 +86,6 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
         backgroundColor: "#63B3ED", //'#FF9F40'
         borderRadius: 8,
         yAxisID: "y",
-        order: 2,
         datalabels: {
           align: "start",
           anchor: "end",
@@ -92,6 +95,8 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
           color: "whitesmoke",
           font: { size: 12, weight: "bold" },
         },
+        order: 2,
+        hidden: hidden[1],
       },
       {
         type: "line",
@@ -108,12 +113,12 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
           },
           color: "#ff6384",
           font: { size: 12, weight: "bold" },
-          order: 3,
         },
-        hidden: true,
+        order: 0,
+        hidden: hidden[2],
       },
     ] as ChartDataset<"bar" | "line">[],
-  }), [timeline.ratePoints, timeline.totalPoints, timeline.errorPoints]);
+  }), [timeline.ratePoints, timeline.totalPoints, timeline.errorPoints, hidden]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
@@ -125,11 +130,17 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
           align: "end",
           labels: {
             usePointStyle: true
-          }
+          },
+          onClick(_, legendItem, legend) {
+            setHidden(
+              hidden.map((b, i) => (i === legendItem.datasetIndex) ? !b : b)
+            );
+            legend.chart.update();
+          },
         },
         zoom: {
           limits: {
-            x: { minRange: 1000 },//seconds, min: -200, max: 200,
+            x: { minRange: 1000 * 30 },//seconds, min: -200, max: 200,
           },
           pan: {
             enabled: true,
@@ -183,11 +194,10 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
           //resetTimescale();
         }
       },
-    }), [onChangeTimescale]);
+    }), [hidden, onChangeTimescale]);
 
   return <motion.div layout>
     <ButtonGroup colorScheme="orange" variant={'ghost'}>
-
       <TimeRangeTag
         min={timeline.scale.start}
         max={timeline.scale.end}
