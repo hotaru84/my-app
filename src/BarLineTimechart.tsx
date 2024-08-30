@@ -17,6 +17,7 @@ import {
   ChartDataset,
   ChartEvent,
   ActiveElement,
+  _adapters,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
@@ -28,6 +29,8 @@ import { motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
 import { makeTimescale, TimelineStats } from "./useTimelineStats";
 import { TbClockEdit } from "react-icons/tb";
+import { ja } from "date-fns/locale";
+import { format } from "date-fns";
 
 ChartJS.register(
   CategoryScale,
@@ -138,6 +141,15 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
             legend.chart.update();
           },
         },
+        tooltip: {
+          callbacks: {
+            title: context => {
+              const p = context[0].raw as Point;
+              console.log(p.x);
+              return format(new Date(p.x), 'PP p', { locale: ja })
+            }
+          }
+        },
         zoom: {
           limits: {
             x: { minRange: 1000 * 30 },//seconds, min: -200, max: 200,
@@ -158,21 +170,27 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
           },
         }
       },
+
       scales: {
         x: {
           type: "timeseries",
           time: {
             displayFormats: {
-              second: "HH:mm:ss",
-              minute: "HH:mm",
-              hour: 'MM:dd HH:mm',
-              day: 'MM:dd'
-            }
+              second: "pp",
+              minute: "p",
+              hour: 'Mo do p',
+              day: 'PP'
+            },
           },
           grid: {
             display: false,
           },
-          stacked: true
+          stacked: true,
+          adapters: {
+            date: {
+              locale: ja,
+            }
+          }
         },
         y: {
           type: "linear",

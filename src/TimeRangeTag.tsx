@@ -1,8 +1,9 @@
 import { Tag, TagCloseButton, TagLeftIcon, Tooltip, useDisclosure } from "@chakra-ui/react";
-import { format, isSameDay } from "date-fns";
+import { Duration, format, formatDistanceStrict, formatDuration, intervalToDuration, isSameDay } from "date-fns";
 import { motion } from "framer-motion";
 import { FC } from "react";
 import { TbCalendarSearch, TbRefresh } from "react-icons/tb";
+import { ja, enUS, de } from 'date-fns/locale';
 
 interface TimeRangeTagProps {
   min: Date | undefined;
@@ -19,9 +20,8 @@ export const TimeRangeTag: FC<TimeRangeTagProps> = (
 
   return <Tag colorScheme={isZoom ? 'orange' : 'gray'} w="fit-content" onClick={onClick} cursor={'pointer'} as={motion.div} whileHover={{ filter: 'brightness(0.9)' }}>
     {!isZoom && <TagLeftIcon as={TbCalendarSearch} />}
-    {isSameDay(max, min) ?
-      format(min, "yyyy/MM/dd ") + format(min, "hh:mm:ss") + ' - ' + format(max, "hh:mm:ss")
-      : format(min, "yyyy/MM/dd hh:mm") + '-' + format(max, "yyyy/MM/dd hh:mm")
+    {
+      format(min, "PP p", { locale: ja }) + ',  ' + formatDistanceStrict(min, max, { locale: ja })
     }
     {isZoom && <TagCloseButton />}
   </Tag>;
