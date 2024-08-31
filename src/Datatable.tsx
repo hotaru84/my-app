@@ -10,7 +10,7 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Table,
+  Table as ChakraTable,
   TableContainer,
   Tag,
   Tbody,
@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import { TbChevronDown, TbChevronUp, TbDownload, TbSearch } from "react-icons/tb";
-import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
+import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, Table as ReactTable, useReactTable } from "@tanstack/react-table";
 import { addHours, format } from "date-fns";
 
 type DataSample = {
@@ -36,18 +36,59 @@ type DataSample = {
 
 const columnHelper = createColumnHelper<DataSample>();
 
+const NewTable: FC<ReactTable<DataSample>> = (table: ReactTable<DataSample>) => {
+  return <ChakraTable variant='simple'>
+    <Thead>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <Tr key={headerGroup.id} position={'sticky'} top={0}>
+          {headerGroup.headers.map((header) => {
+            const meta: any = header.column.columnDef.meta;
+            return (
+              <Th
+                key={header.id}
+                onClick={header.column.getToggleSortingHandler()}
+                isNumeric={meta?.isNumeric}
+              >
+                {flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
+                <chakra.span pl="4">
+                  {header.column.getIsSorted() ? (
+                    header.column.getIsSorted() === "desc" ? (
+                      <Icon as={TbChevronDown} aria-label="sorted descending" />
+                    ) : (
+                      <Icon as={TbChevronUp} aria-label="sorted ascending" />
+                    )
+                  ) : null}
+                </chakra.span>
+              </Th>
+            );
+          })}
+        </Tr>
+      ))}
+    </Thead>
+    <Tbody>
+      {table.getRowModel().rows.map((row) => (
+        <Tr key={row.id}>
+          {row.getVisibleCells().map((cell) => {
+            const meta: any = cell.column.columnDef.meta;
+            return (
+              <Td key={cell.id} isNumeric={meta?.isNumeric}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </Td>
+            );
+          })}
+        </Tr>
+      ))}
+    </Tbody>
+  </ChakraTable>;
+}
+
 const Datatable: FC = () => {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
-  const [search, setSearch] = useState<string>('');
   const [sorting, setSorting] = useState<SortingState>([
     { id: "id", desc: true }
   ]);
-  const [pageSetting, setPageSetting] = useState({
-    pageIndex: 0,
-    pageSize: 2
-  });
 
   const columns = useMemo(() => [
     columnHelper.accessor("id", {
@@ -99,17 +140,21 @@ const Datatable: FC = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     state: {
       sorting,
-      columnFilters
     }
   });
+
+  const formatValueForCsv = (v: any) => {
+    if (typeof v === 'string') return '"' + v + '"';
+    if (Object.prototype.toString.call(v) === "[object Date]") return '"' + format(v, 'PP p') + '"';
+    return v;
+  }
 
   const download = () => {
     const csvheader = table.getHeaderGroups().map((g) => g.headers.map((h) => "#" + h.id)).join(',') + ',\n';
     const csv = table.getRowModel().rows.map(
-      (r) => r.getVisibleCells().map((c, i) => i === 1 ? format(c.getValue() as Date, 'PP p') : c.getValue()).join(',')
+      (r) => r.getVisibleCells().map((c, i) => formatValueForCsv(c.getValue())).join(',')
     ).join(",\n");
 
     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
@@ -146,52 +191,7 @@ const Datatable: FC = () => {
           <Tag>Total 100 data</Tag>
         </HStack>
         <TableContainer w="full" h="70vh" overflowX={'auto'} overflowY={"auto"}>
-          <Table variant='simple' >
-            <Thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <Tr key={headerGroup.id} position={'sticky'} top={0}>
-                  {headerGroup.headers.map((header) => {
-                    const meta: any = header.column.columnDef.meta;
-                    return (
-                      <Th
-                        key={header.id}
-                        onClick={header.column.getToggleSortingHandler()}
-                        isNumeric={meta?.isNumeric}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        <chakra.span pl="4">
-                          {header.column.getIsSorted() ? (
-                            header.column.getIsSorted() === "desc" ? (
-                              <Icon as={TbChevronDown} aria-label="sorted descending" />
-                            ) : (
-                              <Icon as={TbChevronUp} aria-label="sorted ascending" />
-                            )
-                          ) : null}
-                        </chakra.span>
-                      </Th>
-                    );
-                  })}
-                </Tr>
-              ))}
-            </Thead>
-            <Tbody>
-              {table.getRowModel().rows.map((row) => (
-                <Tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    const meta: any = cell.column.columnDef.meta;
-                    return (
-                      <Td key={cell.id} isNumeric={meta?.isNumeric}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </Td>
-                    );
-                  })}
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
+          <NewTable {...table} />
         </TableContainer>
         <CardFooter>
 
