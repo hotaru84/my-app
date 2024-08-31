@@ -32,8 +32,8 @@ export const Navigation: FC<NavigationProps> = ({ children }) => {
         onClick={onOpen}
         colorScheme="gray"
       />
+
       {children}
-      <Spacer />
       <ButtonGroup isAttached colorScheme="cyan" variant={'ghost'}>
         <CustomFilter />
         <DateTimeRangePicker />
