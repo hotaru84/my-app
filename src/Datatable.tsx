@@ -120,7 +120,7 @@ const Datatable: FC = () => {
 
   return <VStack w="full" gap={0}>
     <Navigation>
-      <Flex mx="auto" w="full" gap={2}>
+      <Flex mx="auto" gap={2}>
         <InputGroup size='md' flex="1">
           <Input placeholder="Search data2..."
             focusBorderColor="cyan.400"
@@ -141,7 +141,7 @@ const Datatable: FC = () => {
             placeholder={'Select result..'}
           />
         </Box>
-        {filteredRowCount() + '/' + rowCount()}
+        <Tag>{filteredRowCount()}</Tag>
       </Flex>
     </Navigation>
     <Card w="90%" h="90%" borderRadius={16}>

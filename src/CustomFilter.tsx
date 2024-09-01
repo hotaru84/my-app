@@ -16,7 +16,6 @@ import {
   VStack,
   FormControl,
   FormLabel,
-  Select,
   Heading,
   PopoverHeader,
   Tag,
@@ -27,93 +26,72 @@ import {
   AccordionIcon,
   AccordionPanel,
   Box,
+  Icon,
+  InputGroup,
+  InputRightElement,
+  Badge,
+  IconButton,
+  Progress,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
   TbFilterEdit,
+  TbSearch,
 } from "react-icons/tb";
+import { Select } from "chakra-react-select";
+
+const results = [
+  "success",
+  "error",
+  "warning"
+];
 
 export const CustomFilter: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { isOpen: isAdvanced, onToggle: onToggleAdvanced } = useDisclosure();
 
   return (
-    <Popover isOpen={isOpen} onClose={onClose} placement="bottom">
+    <Popover isOpen={isOpen} onClose={onClose} placement="bottom-end">
       <PopoverTrigger>
-        <Button
-          leftIcon={<TbFilterEdit />}
+        <IconButton
+          icon={<TbFilterEdit />}
           onClick={onOpen}
-          isActive={isOpen}
-        >
-          Filter
-        </Button>
+          isActive
+          aria-label={""}
+        />
       </PopoverTrigger>
       <Portal>
         <PopoverContent w={"full"} right={6}>
-          <PopoverArrow />
-          <PopoverHeader><Tag colorScheme="green">Success definition</Tag></PopoverHeader>
+          <PopoverHeader>Success filter</PopoverHeader>
+          <Progress size='xs' isIndeterminate colorScheme="cyan" />
           <PopoverBody>
-            <Accordion allowToggle defaultIndex={0} minW={'300px'}>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as='span' flex='1' textAlign='left'>
-                      Package
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <FormControl>
-                    <FormLabel textColor={"GrayText"}>Results</FormLabel>
-                    <Select focusBorderColor="cyan.400" w="auto" >
-                      <option>Success</option>
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel textColor={"GrayText"}>Output data</FormLabel>
-                    <Input focusBorderColor="cyan.400" w="auto" placeholder="Format" />
-                  </FormControl>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <Box as='span' flex='1' textAlign='left'>
-                      Detail
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-
-                  <FormControl>
-                    <FormLabel textColor={"GrayText"}>codes</FormLabel>
-                    <Select focusBorderColor="cyan.400" w="auto" >
-                      <option></option>
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel textColor={"GrayText"}>scanners</FormLabel>
-                    <Select focusBorderColor="cyan.400" w="auto" >
-                      <option></option>
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <FormLabel textColor={"GrayText"}>Analytics result</FormLabel>
-                    <Select focusBorderColor="cyan.400" w="auto" >
-                      <option></option>
-                    </Select>
-                  </FormControl>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
+            <VStack>
+              <FormControl>
+                <FormLabel>Data</FormLabel>
+                <InputGroup size='md'>
+                  <Input placeholder="Search data2..."
+                    focusBorderColor="cyan.400"
+                  />
+                  <InputRightElement>
+                    <Icon as={TbSearch} />
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+              <FormControl w="full">
+                <FormLabel>Success</FormLabel>
+                <Select
+                  options={results.map((r) => ({ value: r, label: r, colorScheme: 'green' }))}
+                  isMulti
+                  useBasicStyles
+                  placeholder={'Select result..'}
+                />
+              </FormControl>
+            </VStack>
           </PopoverBody>
           <ButtonGroup alignSelf={"end"} p={2}>
             <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button colorScheme="cyan">Apply</Button>
+            <Button colorScheme="cyan" isDisabled>Apply</Button>
           </ButtonGroup>
         </PopoverContent>
       </Portal>
