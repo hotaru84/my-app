@@ -22,21 +22,28 @@ import {
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import { TbChevronDown, TbChevronUp, TbDownload, TbSearch } from "react-icons/tb";
-import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, Table as ReactTable, useReactTable } from "@tanstack/react-table";
+import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, Table as ReactTable, useReactTable, FilterFn } from "@tanstack/react-table";
 import { addHours, format } from "date-fns";
+import { Select } from "chakra-react-select";
+
+const results = [
+  "success",
+  "error",
+  "warning"
+];
+type Result = typeof results[keyof typeof results];
 
 type DataSample = {
   id: number;
   date: Date;
+  result: Result;
   data1: string;
   data2: string;
   data3: string;
   data4: number;
 };
 
-const columnHelper = createColumnHelper<DataSample>();
-
-const NewTable: FC<ReactTable<DataSample>> = (table: ReactTable<DataSample>) => {
+const Table: FC<ReactTable<DataSample>> = (table: ReactTable<DataSample>) => {
   return <ChakraTable variant='simple'>
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -86,9 +93,9 @@ const NewTable: FC<ReactTable<DataSample>> = (table: ReactTable<DataSample>) => 
 }
 
 const Datatable: FC = () => {
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "id", desc: true }
-  ]);
+  const columnHelper = createColumnHelper<DataSample>();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]) // can set initial column filter state here
+  const [sorting, setSorting] = useState<SortingState>([{ id: "id", desc: true }]);
 
   const columns = useMemo(() => [
     columnHelper.accessor("id", {
@@ -99,10 +106,17 @@ const Datatable: FC = () => {
       cell: (info) => format(info.getValue(), "PP p"),
       header: "date time",
     }),
+    columnHelper.accessor("result", {
+      cell: (info) => {
+        const color = info.getValue() === "success" ? "green" : info.getValue() === "warning" ? "yellow" : "red";
+        return <Tag colorScheme={color}>{String(info.getValue())}</Tag>;
+      },
+      header: "result",
+      filterFn: 'arrIncludesSome'
+    }),
     columnHelper.accessor("data1", {
       cell: (info) => info.getValue(),
       header: "data1",
-      filterFn: 'includesString'
     }),
     columnHelper.accessor("data2", {
       cell: (info) => info.getValue(),
@@ -123,14 +137,15 @@ const Datatable: FC = () => {
         isNumeric: true
       }
     })
-  ], []);
+  ], [columnHelper]);
 
   const sample: DataSample[] = useMemo(() => [...Array(100)].map((_, i) => ({
     id: i,
     date: addHours(new Date(), i + Math.random() * 10),
-    data1: 'test',
-    data2: 'test' + i,
-    data3: 'datea',
+    result: Math.random() > 0.5 ? 'success' : Math.random() > 0.5 ? 'warning' : 'error',
+    data1: Math.random().toString(32).substring(2),
+    data2: Math.random().toString(32).substring(2) + i,
+    data3: Math.random().toString(32).substring(2),
     data4: Math.random() * 100
   })), []);
   const table = useReactTable<DataSample>({
@@ -140,8 +155,10 @@ const Datatable: FC = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     state: {
       sorting,
+      columnFilters
     }
   });
 
@@ -176,13 +193,25 @@ const Datatable: FC = () => {
           <Input placeholder="Search text..."
             focusBorderColor="cyan.400"
             onChange={(v) => {
-              table?.getColumn("data2")?.setFilterValue(v.target.value);
+              setColumnFilters([
+                { id: 'data2', value: v.target.value },
+                ...columnFilters.filter((c) => c.id !== 'data2')
+              ]);
             }
             } />
           <InputRightElement>
             <IconButton size='sm' aria-label={"search"} icon={<TbSearch />} />
           </InputRightElement>
         </InputGroup>
+        {/** multiple selection test */}
+        <Select options={results.map((r) => ({ value: r, label: r }))} onChange={
+          (v) => {
+            if (v !== null) setColumnFilters([
+              { id: 'result', value: [v?.value] },
+              ...columnFilters.filter((c) => c.id !== 'result')
+            ]);
+          }
+        } />
       </HStack>
     </Navigation>
     <VStack w="full">
@@ -191,7 +220,7 @@ const Datatable: FC = () => {
           <Tag>Total 100 data</Tag>
         </HStack>
         <TableContainer w="full" h="70vh" overflowX={'auto'} overflowY={"auto"}>
-          <NewTable {...table} />
+          <Table {...table} />
         </TableContainer>
         <CardFooter>
 
