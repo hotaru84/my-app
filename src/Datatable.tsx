@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardFooter,
-  HStack,
   IconButton,
   Input,
   InputGroup,
@@ -12,6 +11,9 @@ import {
   Tag,
   VStack,
   ButtonGroup,
+  Flex,
+  Box,
+  Icon,
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import { TbArrowLeft, TbArrowRight, TbDownload, TbSearch } from "react-icons/tb";
@@ -54,7 +56,7 @@ const Datatable: FC = () => {
         return <Tag colorScheme={color}>{String(info.getValue())}</Tag>;
       },
       header: "result",
-      filterFn: 'arrIncludesSome'
+      filterFn: (row, id, values) => values.length === 0 || values.findIndex((v: string) => v === row.getValue(id)) >= 0,
     }),
     columnHelper.accessor("data1", {
       cell: (info) => info.getValue(),
@@ -63,20 +65,17 @@ const Datatable: FC = () => {
     columnHelper.accessor("data2", {
       cell: (info) => info.getValue(),
       header: "data2",
-      filterFn: 'includesString'
     }),
     columnHelper.accessor("data3", {
       cell: (info) => info.getValue(),
       header: "data3",
-      filterFn: 'includesString'
     }),
 
     columnHelper.accessor("data4", {
       cell: (info) => info.getValue(),
       header: "data4",
-      filterFn: 'includesString',
       meta: {
-        isNumeric: true
+        isNumeric: true,
       }
     })
   ], [columnHelper]);
@@ -101,7 +100,7 @@ const Datatable: FC = () => {
     canPreviousPage,
     nextPage,
     previousPage
-  } = useDataTable<DataSample>(columns, sample, 100);
+  } = useDataTable<DataSample>(columns, sample, 10);
 
   const download = () => {
     const csv = makeCsvData();
@@ -119,52 +118,51 @@ const Datatable: FC = () => {
 
   return <VStack w="full" gap={0}>
     <Navigation>
-      <HStack mx="auto" justify={"end"}>
-        <InputGroup size='md' ml={8}>
-          <Input placeholder="Search text..."
+      <Flex mx="auto" w="full" gap={2}>
+        <InputGroup size='md' flex="1">
+          <Input placeholder="Search data2..."
             focusBorderColor="cyan.400"
             onChange={(v) => {
               addFilter('data2', v.target.value);
-            }
-            } />
+            }}
+          />
           <InputRightElement>
-            <IconButton size='sm' aria-label={"search"} icon={<TbSearch />} />
+            <Icon as={TbSearch} />
           </InputRightElement>
         </InputGroup>
-        {/** multiple selection test */}
-        <Select options={results.map((r) => ({ value: r, label: r }))} onChange={
-          (v) => {
-            addFilter('result', [v?.value]);
-          }
-        } />
-      </HStack>
+        <Box flex="1" h={30}>
+          <Select
+            options={results.map((r) => ({ value: r, label: r }))}
+            onChange={(v) => { addFilter('result', v?.map((d) => d.value)) }}
+            isMulti
+            useBasicStyles
+            placeholder={'Select result..'}
+          />
+        </Box>
+      </Flex>
     </Navigation>
-    <VStack w="full">
-      <Card m={4} w="80%" borderRadius={16}>
-        <HStack p={4}>
-          <ButtonGroup isAttached variant={'ghost'}>
-            <IconButton aria-label={"prev"}
-              icon={<TbArrowLeft />}
-              onClick={previousPage}
-              isDisabled={!canPreviousPage()}
-            />
-            <Tag colorScheme="white">{pageIndex + 1} / {pageCount()}</Tag>
-            <IconButton aria-label={"prev"}
-              icon={<TbArrowRight />}
-              onClick={nextPage}
-              isDisabled={!canNextPage()} />
-          </ButtonGroup>
-        </HStack>
-        <TableContainer w="full" h="70vh" overflowX={'auto'} overflowY={"auto"}>
-          {renderTable()}
-        </TableContainer>
-        <CardFooter>
-          <Button leftIcon={<TbDownload />} onClick={download}>
-            Download
-          </Button>
-        </CardFooter>
-      </Card>
-    </VStack>
+    <Card w="90%" h="90%" borderRadius={16}>
+      <ButtonGroup isAttached variant={'ghost'} m={2}>
+        <IconButton aria-label={"prev"}
+          icon={<TbArrowLeft />}
+          onClick={previousPage}
+          isDisabled={!canPreviousPage()}
+        />
+        <Tag colorScheme="white">{pageIndex + 1} / {pageCount()}</Tag>
+        <IconButton aria-label={"prev"}
+          icon={<TbArrowRight />}
+          onClick={nextPage}
+          isDisabled={!canNextPage()} />
+      </ButtonGroup>
+      <TableContainer w="full" overflowX={'auto'} overflowY={"auto"}>
+        {renderTable()}
+      </TableContainer>
+      <CardFooter>
+        <Button leftIcon={<TbDownload />} onClick={download}>
+          Download
+        </Button>
+      </CardFooter>
+    </Card>
   </VStack >;
 };
 

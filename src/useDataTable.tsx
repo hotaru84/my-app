@@ -41,7 +41,6 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
       columnFilters
     },
   });
-
   const makeCsvData = useCallback((): string => {
     const formatValueForCsv = (v: any) => {
       if (typeof v === 'string') return '"' + v + '"';
@@ -59,7 +58,7 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
   const renderTable = useCallback(() => <ChakraTable variant='simple'>
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <Tr key={headerGroup.id} position={'sticky'} top={0}>
+        <Tr key={headerGroup.id} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
           {headerGroup.headers.map((header) => {
             const meta: any = header.column.columnDef.meta;
             return (
