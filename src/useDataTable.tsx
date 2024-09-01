@@ -9,6 +9,8 @@ type DataTable = {
   addFilter: (id: string, value: unknown) => void;
   removeFilter: (id: string) => void;
   renderTable: () => ReactElement;
+  rowCount: () => number;
+  filteredRowCount: () => number;
   pageIndex: number;
   pageCount: () => number;
   canPreviousPage: () => boolean;
@@ -48,8 +50,8 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
       return v;
     }
     const csvheader = table.getHeaderGroups().map((g) => g.headers.map((h) => "#" + h.id)).join(',') + ',\n';
-    const csv = table.getRowModel().rows.map(
-      (r) => r.getVisibleCells().map((c, i) => formatValueForCsv(c.getValue())).join(',')
+    const csv = table.getFilteredRowModel().rows.map(
+      (r) => r.getAllCells().map((c, i) => formatValueForCsv(c.getValue())).join(',')
     ).join(",\n");
 
     return csvheader + csv;
@@ -109,12 +111,17 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
   const removeFilter = useCallback((id: string) => {
     setColumnFilters([...columnFilters.filter((c) => c.id !== id)]);
   }, [columnFilters]);
+  const rowCount = useCallback(() => data.length, [data.length]);
+  const filteredRowCount = useCallback(() => table.getRowCount(), [table]);
+
 
   return {
     makeCsvData,
     addFilter,
     removeFilter,
     renderTable,
+    rowCount,
+    filteredRowCount,
     pageIndex: pagination.pageIndex,
     pageCount: table.getPageCount,
     canNextPage: table.getCanNextPage,

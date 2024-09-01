@@ -94,6 +94,8 @@ const Datatable: FC = () => {
     renderTable,
     makeCsvData,
     addFilter,
+    rowCount,
+    filteredRowCount,
     pageIndex,
     pageCount,
     canNextPage,
@@ -139,6 +141,7 @@ const Datatable: FC = () => {
             placeholder={'Select result..'}
           />
         </Box>
+        {filteredRowCount() + '/' + rowCount()}
       </Flex>
     </Navigation>
     <Card w="90%" h="90%" borderRadius={16}>
