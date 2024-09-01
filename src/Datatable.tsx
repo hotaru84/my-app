@@ -19,10 +19,11 @@ import {
   Thead,
   Tr,
   VStack,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
-import { TbChevronDown, TbChevronUp, TbDownload, TbSearch } from "react-icons/tb";
-import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, Table as ReactTable, useReactTable, FilterFn } from "@tanstack/react-table";
+import { TbArrowLeft, TbArrowRight, TbChevronDown, TbChevronUp, TbDownload, TbSearch } from "react-icons/tb";
+import { ColumnFiltersState, createColumnHelper, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, Table as ReactTable, useReactTable, FilterFn, PaginationState, getPaginationRowModel } from "@tanstack/react-table";
 import { addHours, format } from "date-fns";
 import { Select } from "chakra-react-select";
 
@@ -96,6 +97,10 @@ const Datatable: FC = () => {
   const columnHelper = createColumnHelper<DataSample>();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]) // can set initial column filter state here
   const [sorting, setSorting] = useState<SortingState>([{ id: "id", desc: true }]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const columns = useMemo(() => [
     columnHelper.accessor("id", {
@@ -148,18 +153,22 @@ const Datatable: FC = () => {
     data3: Math.random().toString(32).substring(2),
     data4: Math.random() * 100
   })), []);
+
   const table = useReactTable<DataSample>({
     columns,
     data: sample,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
     state: {
+      pagination,
       sorting,
       columnFilters
-    }
+    },
   });
 
   const formatValueForCsv = (v: any) => {
@@ -217,7 +226,11 @@ const Datatable: FC = () => {
     <VStack w="full">
       <Card m={4} w="80%" borderRadius={16}>
         <HStack p={4}>
-          <Tag>Total 100 data</Tag>
+          <ButtonGroup isAttached variant={'ghost'}>
+            <IconButton aria-label={"prev"} icon={<TbArrowLeft />} onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} />
+            <Tag colorScheme="white">{pagination.pageIndex + 1} / {table.getPageCount()}</Tag>
+            <IconButton aria-label={"prev"} icon={<TbArrowRight />} onClick={() => table.nextPage()} isDisabled={!table.getCanNextPage()} />
+          </ButtonGroup>
         </HStack>
         <TableContainer w="full" h="70vh" overflowX={'auto'} overflowY={"auto"}>
           <Table {...table} />
