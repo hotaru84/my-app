@@ -18,7 +18,6 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
-import { useInterval } from "react-use";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { color } from "chart.js/helpers";
 import { theme } from "@chakra-ui/react";
@@ -81,8 +80,8 @@ export const options: ChartOptions<"bar"> = {
 export const data: ChartData<any> = {
   datasets: [
     {
-      type: "bar",
-      label: "Throuput",
+      type: "line",
+      label: "W",
       data: [],
       hoverBorderWidth: 0,
       hoverBackgroundColor: theme.colors.orange[500],
@@ -103,7 +102,7 @@ interface Props {
   moving?: boolean;
 }
 
-const TrendlineChart: FC<Props> = ({ moving }) => {
+const TimelineChart: FC<Props> = ({ moving }) => {
   const chartRef = useRef<ChartJS<any>>(null);
   const data = useMemo<ChartData<'bar'>>((): ChartData<any> => {
     return {
@@ -132,4 +131,4 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
   return <Chart type={"bar"} ref={chartRef} options={options} data={data} />;
 };
 
-export default TrendlineChart;
+export default TimelineChart;

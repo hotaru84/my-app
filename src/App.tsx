@@ -12,11 +12,9 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
-import TestPage from "./TestPage";
 import System from "./System";
 import { FC } from "react";
 import LayoutTest from "./LayoutTest";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import Gallery from "./Gallery";
 import Analytics from "./Analytics";
 import Datatable from "./Datatable";

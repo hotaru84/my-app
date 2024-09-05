@@ -1,39 +1,25 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import {
   Card,
   HStack,
   IconButton,
   SimpleGrid,
   Skeleton,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
-  Text,
   VStack,
   Tag,
   Box,
   chakra,
   TagLeftIcon,
-  ScaleFade,
-  SlideFade,
-  Button,
-  CardFooter,
 } from "@chakra-ui/react";
-import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage, TbTableShortcut } from "react-icons/tb";
+import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";
 import { Navigation } from "./Navigation";
-import { addDays, format, startOfToday } from "date-fns";
+import { addDays, startOfToday } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
-import { AnimatePresence, motion } from "framer-motion";
-import { TimeRangeTag } from "./TimeRangeTag";
 import { useTimelineStats } from "./useTimelineStats";
+import Datacard from "./Datacard";
 
 const stats: StatData[] = [
   {
@@ -72,7 +58,7 @@ const Dashboad: FC = () => {
             Ready
           </Tag>
           <Box w="30vw" h="20px">
-            <TrendlineChart />
+            <TrendlineChart moving={false} />
           </Box>
           <Tag colorScheme={"gray"}>
             123
@@ -97,12 +83,16 @@ const Dashboad: FC = () => {
             <BarLineTimeChart ratio={ratio} timeline={timeline} />
           </Card>
         </SimpleGrid>
-        <SimpleGrid columns={2} w="full" justifyContent={"space-around"} gap={4} >
+        <SimpleGrid
+          columns={2}
+          w="full"
+          justifyContent={"space-around"}
+          gap={4}
+        >
           <Card
             rounded={16}
             p={4}
             gap={2}
-            aspectRatio={2}
           >
             {[1, 2, 3].map((i) => (
               <Card variant={"outline"} key={i} boxShadow={0}>
@@ -112,49 +102,7 @@ const Dashboad: FC = () => {
                 </HStack>
               </Card>))}
           </Card>
-          <Card
-            rounded={16}
-            p={4}
-          >
-            <TableContainer overflowY={"auto"}>
-              <Table variant='simple'>
-                <Thead position={"sticky"} top={0}>
-                  <Tr>
-                    <Th>To convert</Th>
-                    <Th>into</Th>
-                    <Th isNumeric>multiply by</Th>
-                  </Tr>
-                </Thead>
-                <Tbody >
-                  <Tr>
-                    <Td>inches</Td>
-                    <Td>millimetres (mm)</Td>
-                    <Td isNumeric>25.4</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>feet</Td>
-                    <Td>centimetres (cm)</Td>
-                    <Td isNumeric>30.48</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>yards</Td>
-                    <Td>metres (m)</Td>
-                    <Td isNumeric>0.91444</Td>
-                  </Tr>
-                </Tbody>
-                <Tfoot>
-                  <Tr>
-                    <Th>To convert</Th>
-                    <Th>into</Th>
-                    <Th isNumeric>multiply by</Th>
-                  </Tr>
-                </Tfoot>
-              </Table>
-            </TableContainer>
-            <CardFooter justifyContent={"end"} p={4}>
-              <Button leftIcon={<TbTableShortcut />} as={NavLink} to="/datatable">Data list</Button>
-            </CardFooter>
-          </Card>
+          <Datacard />
         </SimpleGrid>
       </VStack>
     </VStack>

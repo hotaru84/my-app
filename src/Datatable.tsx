@@ -33,7 +33,7 @@ type DataSample = {
   id: number;
   date: Date;
   result: Result;
-  data1: string;
+  data1: number;
   data2: string;
   data3: string;
   data4: number;
@@ -59,7 +59,7 @@ const Datatable: FC = () => {
       filterFn: (row, id, values) => values.length === 0 || values.findIndex((v: string) => v === row.getValue(id)) >= 0,
     }),
     columnHelper.accessor("data1", {
-      cell: (info) => info.getValue(),
+      cell: (info) => new Intl.NumberFormat(window.navigator.language).format(info.getValue()),
       header: "data1",
     }),
     columnHelper.accessor("data2", {
@@ -84,7 +84,7 @@ const Datatable: FC = () => {
     id: i,
     date: addHours(new Date(), i + Math.random() * 10),
     result: Math.random() > 0.5 ? 'success' : Math.random() > 0.5 ? 'warning' : 'error',
-    data1: Math.random().toString(32).substring(2),
+    data1: Math.random(),
     data2: Math.random().toString(32).substring(2) + i,
     data3: Math.random().toString(32).substring(2),
     data4: Math.random() * 100
@@ -94,7 +94,6 @@ const Datatable: FC = () => {
     renderTable,
     makeCsvData,
     addFilter,
-    rowCount,
     filteredRowCount,
     pageIndex,
     pageCount,

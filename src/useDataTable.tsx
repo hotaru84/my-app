@@ -1,8 +1,9 @@
-import { Thead, Tr, Th, chakra, Icon, Tbody, Td, Table as ChakraTable } from "@chakra-ui/react";
+import { Thead, Tr, Th, chakra, Icon, Tbody, Td, Table as ChakraTable, Box, Divider, IconButton } from "@chakra-ui/react";
 import { ColumnDef, ColumnFiltersState, SortingState, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ReactElement, useState, useCallback } from "react";
-import { TbChevronDown, TbChevronUp } from "react-icons/tb";
+import { MdOutlineDragIndicator } from "react-icons/md";
+import { TbChevronDown, TbChevronUp, TbDragDrop } from "react-icons/tb";
 
 type DataTable = {
   makeCsvData: () => string;
@@ -30,6 +31,8 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
   const table = useReactTable<T>({
     columns,
     data,
+    columnResizeMode: 'onChange',
+    columnResizeDirection: 'ltr',
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -57,34 +60,38 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
     return csvheader + csv;
   }, [table]);
 
-  const renderTable = useCallback(() => <ChakraTable variant='simple'>
+  const renderTable = useCallback(() => <ChakraTable variant='simple' width={table.getCenterTotalSize()}>
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
         <Tr key={headerGroup.id} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
-          {headerGroup.headers.map((header) => {
-            const meta: any = header.column.columnDef.meta;
-            return (
-              <Th
-                key={header.id}
-                onClick={header.column.getToggleSortingHandler()}
-                isNumeric={meta?.isNumeric}
-              >
-                {flexRender(
+          {headerGroup.headers.map(header => (
+            <Th
+              key={header.id}
+              colSpan={header.colSpan}
+              width={header.getSize()}
+              position={"relative"}
+            >
+              {header.isPlaceholder
+                ? null
+                : flexRender(
                   header.column.columnDef.header,
                   header.getContext()
                 )}
-                <chakra.span pl="4">
-                  {header.column.getIsSorted() ? (
-                    header.column.getIsSorted() === "desc" ? (
-                      <Icon as={TbChevronDown} aria-label="sorted descending" />
-                    ) : (
-                      <Icon as={TbChevronUp} aria-label="sorted ascending" />
-                    )
-                  ) : null}
-                </chakra.span>
-              </Th>
-            );
-          })}
+
+              <Box
+                position={"absolute"}
+                bottom={0}
+                right={0}
+                onDoubleClick={() => header.column.resetSize()}
+                onMouseDown={header.getResizeHandler()}
+                onTouchStart={header.getResizeHandler()}
+                cursor={'col-resize'}
+                w={4}
+                _hover={{ borderRightWidth: 1 }}
+                h="full"
+              />
+            </Th>
+          ))}
         </Tr>
       ))}
     </Thead>
@@ -93,8 +100,9 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
         <Tr key={row.id}>
           {row.getVisibleCells().map((cell) => {
             const meta: any = cell.column.columnDef.meta;
+            console.log(meta)
             return (
-              <Td key={cell.id} isNumeric={meta?.isNumeric}>
+              <Td key={cell.id} isNumeric={meta?.isNumeric} isTruncated w={meta?.mw ?? 'fit-content'}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Td>
             );
@@ -113,7 +121,6 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
   }, [columnFilters]);
   const rowCount = useCallback(() => data.length, [data.length]);
   const filteredRowCount = useCallback(() => table.getRowCount(), [table]);
-
 
   return {
     makeCsvData,
