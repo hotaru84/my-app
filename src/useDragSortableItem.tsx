@@ -1,11 +1,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { useMemo } from "react";
 import { CSS } from "@dnd-kit/utilities";
-import { BoxProps } from "@chakra-ui/react";
+import { BoxProps, IconProps } from "@chakra-ui/react";
 
 interface ItemProps {
   itemProps: BoxProps;
-  handleProps: BoxProps;
+  handleProps: IconProps;
 }
 export function useDragSortableItem(id: string): ItemProps {
   const {
@@ -22,14 +22,13 @@ export function useDragSortableItem(id: string): ItemProps {
     () => ({
       id: id.toString(),
       ref: setNodeRef,
-      boxShadow: isDragging ? "lg" : "sm",
       style: {
         transform: CSS.Transform.toString(transform),
         transition,
         touchAction: "none",
       },
     }),
-    [id, isDragging, setNodeRef, transform, transition]
+    [id, setNodeRef, transform, transition]
   );
 
   const handleProps = useMemo(

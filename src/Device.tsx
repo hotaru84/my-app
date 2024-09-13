@@ -1,13 +1,11 @@
-import { AspectRatio } from "@chakra-ui/react";
-import { FC, useRef } from "react";
-import { Layer, Stage, Rect } from "react-konva";
-import { useSize } from "@chakra-ui/react-use-size";
+import { Box, Card, CardBody, Icon, IconButton } from "@chakra-ui/react";
+import { FC } from "react";
 import { useList, useRafLoop } from "react-use";
+import { useDragSortableItem } from "./useDragSortableItem";
+import { TbDragDrop } from "react-icons/tb";
+import { MdDragHandle } from "react-icons/md";
 
-interface Props {
-  width: number;
-  onSelect?: () => void;
-}
+
 type RectProp = {
   w: number;
   h: number;
@@ -16,9 +14,12 @@ type RectProp = {
   lastUpdateTick: number;
 };
 
-export const Device: FC<Props> = ({ width, onSelect }) => {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const parentSize = useSize(parentRef);
+interface Props {
+  id: string;
+}
+export const Device: FC<Props> = ({ id }) => {
+  const { itemProps, handleProps } = useDragSortableItem(id);
+
   const [rects, { set: setRects }] = useList<RectProp>([]);
 
   const [stop, start, isStart] = useRafLoop((t) => {
@@ -44,22 +45,15 @@ export const Device: FC<Props> = ({ width, onSelect }) => {
   };
 
   return (
-    <AspectRatio
-      ref={parentRef}
-      w={`calc(${width}% - 32px)`}
-      minW="20vw"
-      ratio={16 / 7}
+    <Card
+      {...itemProps}
       borderRadius={8}
       onClick={onToggle}
-      bgColor={"blue.50"}
+      colorScheme="cyan"
+      aspectRatio={1}
     >
-      <Stage width={parentSize?.width} height={parentSize?.height}>
-        <Layer>
-          {rects.map((r) => (
-            <Rect fill={"teal"} x={r.x} y={r.y} width={r.w} height={r.h}></Rect>
-          ))}
-        </Layer>
-      </Stage>
-    </AspectRatio>
+      <Icon as={MdDragHandle} {...handleProps} />
+      <CardBody>{id}</CardBody>
+    </Card>
   );
 };
