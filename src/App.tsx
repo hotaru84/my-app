@@ -18,7 +18,7 @@ import LayoutTest from "./LayoutTest";
 import Gallery from "./Gallery";
 import Analytics from "./Analytics";
 import Datatable from "./Datatable";
-import { DeviceTest } from "./DeviceTest";
+import { Cards } from "./Cards";
 
 const BaseLayout: FC = () => {
   return (
@@ -37,7 +37,7 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<BaseLayout />}>
-            <Route path="layout" element={<DeviceTest />} ></Route>
+            <Route path="layout" element={<Cards />} ></Route>
             <Route path="dashboard" element={<Dashboad />}></Route>
             <Route path="gallery" element={<Gallery />} />
             <Route path="analytics" element={<Analytics />} />

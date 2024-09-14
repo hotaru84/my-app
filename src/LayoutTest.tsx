@@ -2,11 +2,10 @@ import { FC } from "react";
 import { PanelGroup, Panel } from "react-resizable-panels";
 import CalendarChart from "./CalendarChart";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { DeviceTest } from "./DeviceTest";
+import { Cards } from "./Cards";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import TreemapChart from "./TreemapChart";
 import { Box, Fade } from "@chakra-ui/react";
-import BarLineTimeChart from "./BarLineTimeChart";
 
 const LayoutTest: FC = () => {
   return (
@@ -18,7 +17,7 @@ const LayoutTest: FC = () => {
         <PanelResizeHandler w={2} h="100vh" />
         <Panel defaultSize={30}>
           <Box p={2} h="full" w="full">
-            <DeviceTest />
+            <Cards />
           </Box>
         </Panel>
         <PanelResizeHandler w={2} h="100vh" />

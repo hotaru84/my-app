@@ -109,15 +109,11 @@ const SampleCard: FC<SampleCardProps> = ({ id, type }) => {
       title={type.t}
       footer={type.f}
       indicator={type.i}
-      actionL={
-        <Button as={NavLink} to={"test"} onClick={(e) => e.stopPropagation()}>
-          Select
-        </Button>
-      }
-      isSelected={isSelected}
+      actionL={<Button as={NavLink} to={"test"} onClick={(e) => e.stopPropagation()}>
+        Select
+      </Button>}
       isDisabled={false}
-      onClick={toggle}
-    />
+      id={id} />
   );
 };
 

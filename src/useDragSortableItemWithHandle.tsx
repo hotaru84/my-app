@@ -1,12 +1,13 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { useMemo } from "react";
 import { CSS } from "@dnd-kit/utilities";
-import { BoxProps } from "@chakra-ui/react";
+import { BoxProps, IconProps } from "@chakra-ui/react";
 
 interface ItemProps {
   itemProps: BoxProps;
+  handleProps: BoxProps;
 }
-export function useDragSortableItem(id: string): ItemProps {
+export function useDragSortableItemWithHandle(id: string): ItemProps {
   const {
     attributes,
     listeners,
@@ -14,14 +15,13 @@ export function useDragSortableItem(id: string): ItemProps {
     transform,
     transition,
     isDragging,
+    setDraggableNodeRef,
   } = useSortable({ id });
 
   const itemProps = useMemo(
     () => ({
       id: id.toString(),
       ref: setNodeRef,
-      ...attributes,
-      ...listeners,
       style: {
         transform: CSS.Transform.toString(transform),
         transition,
@@ -33,10 +33,22 @@ export function useDragSortableItem(id: string): ItemProps {
         touchAction: "none",
       },
     }),
-    [attributes, id, isDragging, listeners, setNodeRef, transform, transition]
+    [id, isDragging, setNodeRef, transform, transition]
+  );
+
+  const handleProps = useMemo(
+    () => ({
+      ref: setDraggableNodeRef,
+      ...attributes,
+      ...listeners,
+      focusBorderWidth: 0,
+      cursor: isDragging ? "grabbing" : "grab",
+    }),
+    [attributes, isDragging, listeners, setDraggableNodeRef]
   );
 
   return {
     itemProps,
+    handleProps,
   };
 }
