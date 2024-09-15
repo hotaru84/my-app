@@ -62,6 +62,9 @@ const CardTemplate: FC<CardTemplateProps> = ({
         borderColor: "blue.300",
       })}
       {...cardProps}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
+      onClick={onToggleSelect}
     >
       <Box as={MdDragIndicator}
         {...handleProps}
@@ -69,21 +72,20 @@ const CardTemplate: FC<CardTemplateProps> = ({
         color="GrayText"
       />
       <AnimatePresence>
-        {isSelected && (
+        {(isHover || isSelected) &&
           <Avatar
+            position="absolute"
+            top={-3}
+            left={-3}
+            bgColor={isSelected ? "blue.300" : 'gray.300'}
+            rounded="full"
+            boxSize={6}
+            icon={<TbCheck size={12} />}
             as={motion.div}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            position="absolute"
-            top={-2}
-            left={-2}
-            bgColor={"blue.300"}
-            rounded="full"
-            boxSize={4}
-            icon={<TbCheck size={12} />}
-          />
-        )}
+          />}
       </AnimatePresence>
       {indicator && (
         <Indicator
