@@ -11,22 +11,19 @@ import { DragSortableContext } from "./dragSortableContext";
 import { FC, useState } from "react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import CardTemplate from "./cardTemplate";
-const Items = [
-  { id: "0", title: "first" },
-  { id: "1", title: "first" },
-  { id: "2", title: "first" },
-  { id: "3", title: "first" },
-  { id: "4", title: "first" },
-  { id: "5", title: "first" },
-  { id: "6", title: "first" },
-];
+
+function getUniqueStr(id: number) {
+  var strong = 100;
+  return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16) + id;
+}
+
 
 interface Props {
   minW: string
 }
 
 const CardsByCategory: FC<Props> = ({ minW }) => {
-  const [ids, setIds] = useState<string[]>(Items.map((i) => i.id));
+  const [ids, setIds] = useState<string[]>([...Array(6)].map((_, i) => getUniqueStr(i)));
 
   return (
     <Card variant={'outline'} p={2} w="full"
@@ -70,7 +67,7 @@ export const Cards = () => {
       </ButtonGroup>
       <VStack align={"start"} gap={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}>
         <Flex w="full"><Button>TEST</Button> </Flex>
-        <CardsByCategory minW="20vw" />
+        <CardsByCategory minW="25vw" />
         <CardsByCategory minW="10vw" />
         <CardsByCategory minW="5vw" />
       </VStack>

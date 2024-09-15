@@ -18,6 +18,7 @@ import { Indicator } from "./Indicator";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDragSortableItemWithHandle } from "./useDragSortableItemWithHandle";
 import { MdDragIndicator } from "react-icons/md";
+import { useIdSearchParam } from "./userIdSearchParam";
 
 interface CardTemplateProps {
   id: string;
@@ -47,8 +48,8 @@ const CardTemplate: FC<CardTemplateProps> = ({
   isTile = false,
   isDisabled = false,
 }) => {
+  const { selected: isSelected, onToggle: onToggleSelect } = useIdSearchParam(id);
   const { isOpen: isHover, onOpen: onHoverStart, onClose: onHoverEnd } = useDisclosure();
-  const { isOpen: isSelected, onToggle: onToggleSelect } = useDisclosure();
   const { itemProps, handleProps } = useDragSortableItemWithHandle(id);
 
   return (
@@ -57,27 +58,28 @@ const CardTemplate: FC<CardTemplateProps> = ({
       borderRadius={isTile ? 16 : 4}
       variant={isTile ? "elevated" : "filled"}
       filter={isDisabled ? "blur(3px)" : undefined}
-      {...(isSelected && {
+      {...((isSelected || isHover) && {
         borderWidth: 2,
         borderColor: "blue.300",
       })}
       {...cardProps}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
-      onClick={onToggleSelect}
     >
-      <Box as={MdDragIndicator}
+      <Box
         {...handleProps}
         m={2}
-        color="GrayText"
-      />
+      >
+        <Icon as={MdDragIndicator}
+          color="GrayText" />
+      </Box>
       <AnimatePresence>
-        {(isHover || isSelected) &&
+        {isSelected &&
           <Avatar
             position="absolute"
             top={-3}
             left={-3}
-            bgColor={isSelected ? "blue.300" : 'gray.300'}
+            bgColor={"blue.300"}
             rounded="full"
             boxSize={6}
             icon={<TbCheck size={12} />}
@@ -96,7 +98,8 @@ const CardTemplate: FC<CardTemplateProps> = ({
           right={2}
         />
       )}
-      <Stack gap={2} direction={isTile ? "column" : "row"} align={"center"}>
+      <Stack gap={2} direction={isTile ? "column" : "row"} align={"center"}
+        onClick={onToggleSelect}>
         {!isTile && <Avatar size="sm"></Avatar>}
         <VStack
           gap={0}

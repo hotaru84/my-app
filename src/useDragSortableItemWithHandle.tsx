@@ -41,7 +41,6 @@ export function useDragSortableItemWithHandle(id: string): ItemProps {
       ref: setDraggableNodeRef,
       ...attributes,
       ...listeners,
-      focusBorderWidth: 0,
       cursor: isDragging ? "grabbing" : "grab",
     }),
     [attributes, isDragging, listeners, setDraggableNodeRef]
