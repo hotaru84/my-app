@@ -1,10 +1,13 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Card,
+  CardProps,
   Flex,
   HStack,
   IconButton,
+  SimpleGrid,
   VStack,
   Wrap,
 } from "@chakra-ui/react";
@@ -15,6 +18,7 @@ import CardTemplate from "./cardTemplate";
 import { useIdsSearchParam } from "./userIdsSearchParam";
 import { TbTrash } from "react-icons/tb";
 import { motion } from "framer-motion";
+import { MdClose } from "react-icons/md";
 
 function getUniqueStr(id: number) {
   var strong = 100;
@@ -23,21 +27,22 @@ function getUniqueStr(id: number) {
 
 
 interface Props {
-  minW: string
+  num: number;
+  props: CardProps;
 }
 
-const CardsByCategory: FC<Props> = ({ minW }) => {
-  const [ids, setIds] = useState<string[]>([...Array(6)].map((_, i) => getUniqueStr(i)));
+const CardsByCategory: FC<Props> = ({ num, props }) => {
+  const [ids, setIds] = useState<string[]>([...Array(num)].map((_, i) => getUniqueStr(i)));
 
   return (
-    <Card variant={'outline'} p={2} w="full"
-      sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}>
+    <Box
+      sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}
+    >
       <Flex p={0} pb={2}>Category</Flex>
       <DragSortableContext ids={ids} setIds={setIds}>
         <Wrap
-          spacing={4}
-          justify={"center"}
           shouldWrapChildren
+          gap={4}
         >
           {ids.map((id) =>
             <CardTemplate
@@ -45,11 +50,10 @@ const CardsByCategory: FC<Props> = ({ minW }) => {
               id={id}
               isTile
               cardProps={{
-                minW,
-                aspectRatio: 2,
+                ...props,
                 sx: { scrollSnapAlign: "start", scrollMargin: 2 }
               }}
-              header={`${id} is the tile of this card`}
+              header={`${id}`}
               indicator="green.300"
               actionL={
                 <ButtonGroup m={2}>
@@ -59,7 +63,7 @@ const CardsByCategory: FC<Props> = ({ minW }) => {
             />)}
         </Wrap>
       </DragSortableContext>
-    </Card>
+    </Box>
   );
 };
 export const Cards = () => {
@@ -72,18 +76,18 @@ export const Cards = () => {
         <ColorModeSwitcher />
         {selected.length > 0 && <IconButton
           aria-label={"clearall"}
-          icon={<TbTrash />}
+          icon={<MdClose />}
           onClick={clearAll}
           as={motion.div}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           exit={{ scale: 0 }} />}
       </ButtonGroup>
-      <VStack align={"start"} gap={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}>
+      <VStack align={"start"} gap={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
         <Flex w="full"><Button>TEST</Button> </Flex>
-        <CardsByCategory minW="25vw" />
-        <CardsByCategory minW="10vw" />
-        <CardsByCategory minW="5vw" />
+        <CardsByCategory num={6} props={{ w: { base: 'full', sm: 'calc(50vw - 64px)', md: 'calc(30vw - 8px)' } }} />
+        <CardsByCategory num={3} props={{ w: { base: '15vw', } }} />
+        <CardsByCategory num={4} props={{ minW: "10vw" }} />
       </VStack>
     </HStack>
   );

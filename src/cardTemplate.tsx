@@ -63,8 +63,6 @@ const CardTemplate: FC<CardTemplateProps> = ({
         borderColor: "blue.300",
       })}
       {...cardProps}
-      onMouseEnter={onHoverStart}
-      onMouseLeave={onHoverEnd}
     >
       <AnimatePresence>
         {(isSelected || isHover) &&
@@ -97,8 +95,12 @@ const CardTemplate: FC<CardTemplateProps> = ({
           />
         )}
       </HStack>
-      <Stack gap={2} direction={isTile ? "column" : "row"} align={"center"}
-        onClick={onToggleSelect}>
+      <Stack gap={2}
+        direction={isTile ? "column" : "row"} align={"center"}
+        onClick={onToggleSelect}
+        onMouseEnter={onHoverStart}
+        onMouseLeave={onHoverEnd}
+      >
         {!isTile && <Avatar size="sm"></Avatar>}
         <VStack
           gap={0}
@@ -107,8 +109,8 @@ const CardTemplate: FC<CardTemplateProps> = ({
           fontSize={isTile ? "md" : "xs"}
           align={isTile ? "center" : "start"}
         >
-          <Text textColor="gray">{header}</Text>
-          <Heading fontSize={isTile ? "3xl" : "md"}>{title}</Heading>
+          <Text textColor="gray" isTruncated>{header}</Text>
+          <Heading fontSize={isTile ? "3xl" : "md"} isTruncated>{title}</Heading>
           <Text textColor="gray">{footer}</Text>
         </VStack>
         {isTile && <Avatar size="lg" mx="auto"></Avatar>}
