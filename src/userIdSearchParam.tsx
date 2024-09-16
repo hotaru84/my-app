@@ -19,7 +19,9 @@ export const useIdSearchParam = (id: string): IdSearchParamAction => {
   }, [id, param, setParam]);
 
   const onDeselect = useCallback(() => {
-    param.set('id', param.getAll('id').filter((p) => p !== id).join('&'));
+    const ids = param.getAll('id').filter((p) => p !== id);
+    param.delete('id');
+    ids.forEach((i) => param.append('id', i));
     setParam(param);
   }, [id, param, setParam]);
 

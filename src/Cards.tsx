@@ -4,6 +4,7 @@ import {
   Card,
   Flex,
   HStack,
+  IconButton,
   VStack,
   Wrap,
 } from "@chakra-ui/react";
@@ -11,6 +12,9 @@ import { DragSortableContext } from "./dragSortableContext";
 import { FC, useState } from "react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import CardTemplate from "./cardTemplate";
+import { useIdsSearchParam } from "./userIdsSearchParam";
+import { TbTrash } from "react-icons/tb";
+import { motion } from "framer-motion";
 
 function getUniqueStr(id: number) {
   var strong = 100;
@@ -59,11 +63,21 @@ const CardsByCategory: FC<Props> = ({ minW }) => {
   );
 };
 export const Cards = () => {
+  const { selected, clearAll } = useIdsSearchParam();
+
   return (
 
     <HStack w="full" h="full" align={"start"} p={2} sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
       <ButtonGroup orientation="vertical">
         <ColorModeSwitcher />
+        {selected.length > 0 && <IconButton
+          aria-label={"clearall"}
+          icon={<TbTrash />}
+          onClick={clearAll}
+          as={motion.div}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0 }} />}
       </ButtonGroup>
       <VStack align={"start"} gap={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }}>
         <Flex w="full"><Button>TEST</Button> </Flex>

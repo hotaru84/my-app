@@ -58,7 +58,7 @@ const CardTemplate: FC<CardTemplateProps> = ({
       borderRadius={isTile ? 16 : 4}
       variant={isTile ? "elevated" : "filled"}
       filter={isDisabled ? "blur(3px)" : undefined}
-      {...((isSelected || isHover) && {
+      {...(isSelected && {
         borderWidth: 2,
         borderColor: "blue.300",
       })}
@@ -66,20 +66,13 @@ const CardTemplate: FC<CardTemplateProps> = ({
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
     >
-      <Box
-        {...handleProps}
-        m={2}
-      >
-        <Icon as={MdDragIndicator}
-          color="GrayText" />
-      </Box>
       <AnimatePresence>
-        {isSelected &&
+        {(isSelected || isHover) &&
           <Avatar
             position="absolute"
             top={-3}
             left={-3}
-            bgColor={"blue.300"}
+            bgColor={isSelected ? "blue.300" : 'gray.300'}
             rounded="full"
             boxSize={6}
             icon={<TbCheck size={12} />}
@@ -89,15 +82,21 @@ const CardTemplate: FC<CardTemplateProps> = ({
             exit={{ scale: 0 }}
           />}
       </AnimatePresence>
-      {indicator && (
-        <Indicator
-          status={indicator}
-          boxSize={4}
-          position="absolute"
-          top={2}
-          right={2}
-        />
-      )}
+      <HStack m={2}>
+        <Box
+          {...handleProps}
+        >
+          <Icon as={MdDragIndicator}
+            color="GrayText" />
+        </Box>
+        <Spacer />
+        {indicator && (
+          <Indicator
+            status={indicator}
+            boxSize={4}
+          />
+        )}
+      </HStack>
       <Stack gap={2} direction={isTile ? "column" : "row"} align={"center"}
         onClick={onToggleSelect}>
         {!isTile && <Avatar size="sm"></Avatar>}
