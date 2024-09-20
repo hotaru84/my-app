@@ -13,12 +13,7 @@ import {
   SliderTrack,
   Tag,
   VStack,
-  Wrap,
   SimpleGrid,
-  Flex,
-  IconButton,
-  Spacer,
-  Button,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -26,13 +21,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Tooltip,
 } from "@chakra-ui/react";
-import { NavLink, useSearchParams } from "react-router-dom";
-import { TbEdit, TbPackage } from "react-icons/tb";
+import { useSearchParams } from "react-router-dom";
+import { TbPackage } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { addHours, differenceInHours, format, startOfHour } from "date-fns";
 import { Navigation } from "./Navigation";
+import TrendlineChart from "./TrendlineChart";
 
 interface IdSearchReturn {
   isSelected: (id: string) => boolean;
@@ -190,8 +185,11 @@ const Gallery: FC = () => {
   }, [] as CardLists[]).sort((a, b) => differenceInHours(b.label, a.label));
 
   return <VStack w="full" gap={0}>
-    <Navigation />
-    <PosSlider />
+    <Navigation>
+      <Box w="50%" h="30px">
+        <TrendlineChart moving={false} />
+      </Box>
+    </Navigation>
     <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
       {cardlist.map((list, j) => (
         <VStack key={"list" + j} my={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">

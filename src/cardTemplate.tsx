@@ -10,6 +10,7 @@ import {
   Spacer,
   Icon,
   Box,
+  Image,
   CardProps,
 } from "@chakra-ui/react";
 import { FC, ReactElement } from "react";
@@ -108,12 +109,13 @@ const CardTemplate: FC<CardTemplateProps> = ({
           w="full"
           fontSize={isTile ? "md" : "xs"}
           align={isTile ? "center" : "start"}
+          overflowX={'hidden'}
         >
           <Text textColor="gray" isTruncated>{header}</Text>
           <Heading fontSize={isTile ? "3xl" : "md"} isTruncated>{title}</Heading>
           <Text textColor="gray">{footer}</Text>
         </VStack>
-        {isTile && <Avatar size="lg" mx="auto"></Avatar>}
+        {isTile && <Image objectFit={'contain'} mx="auto" src="sample.svg" />}
       </Stack>
       <HStack>
         {actionL}

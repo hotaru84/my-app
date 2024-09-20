@@ -1,23 +1,18 @@
 import { FC } from "react";
 import {
-  AspectRatio,
   Card,
   VStack,
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
-import TreemapChart from "./TreemapChart";
-import TrendlineChart from "./TrendlineChart";
+import HeatmapChart from "./HeatmapChart";
 
 
 const Analytics: FC = () => {
 
   return <VStack w="full" gap={0}>
     <Navigation />
-    <Card w="90%" h="90%" borderRadius={16}>
-      <AspectRatio>
-        <TrendlineChart />
-      </AspectRatio>
-      <TreemapChart />
+    <Card w="90%" borderRadius={16}>
+      <HeatmapChart ratio={2} />
       {/**
        * type of visualization
        * tree-map

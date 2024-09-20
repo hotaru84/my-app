@@ -70,9 +70,8 @@ export const Cards = () => {
   const { selected, clearAll } = useIdsSearchParam();
 
   return (
-
     <HStack w="full" h="full" align={"start"} p={2} sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
-      <ButtonGroup orientation="vertical">
+      <ButtonGroup orientation="vertical" position={'sticky'} top={0} left={0}>
         <ColorModeSwitcher />
         {selected.length > 0 && <IconButton
           aria-label={"clearall"}
@@ -81,13 +80,19 @@ export const Cards = () => {
           as={motion.div}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          exit={{ scale: 0 }} />}
+          exit={{ scale: 0 }}
+          _after={{
+            display: 'block',
+            bgSize: 8,
+            bgColor: 'green.300'
+          }}
+        />}
       </ButtonGroup>
       <VStack align={"start"} gap={4} sx={{ scrollSnapAlign: "start", scrollMargin: 2 }} w="full">
         <Flex w="full"><Button>TEST</Button> </Flex>
         <CardsByCategory num={6} props={{ w: { base: 'full', sm: 'calc(50vw - 64px)', md: 'calc(30vw - 8px)' } }} />
-        <CardsByCategory num={3} props={{ w: { base: '15vw', } }} />
-        <CardsByCategory num={4} props={{ minW: "10vw" }} />
+        <CardsByCategory num={3} props={{ w: '200px' }} />
+        <CardsByCategory num={4} props={{ w: "100px" }} />
       </VStack>
     </HStack>
   );
