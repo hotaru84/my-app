@@ -4,15 +4,15 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
-import HeatmapChart from "./HeatmapChart";
+import BubbleChart from "./BubbleChart";
 
 
 const Analytics: FC = () => {
 
   return <VStack w="full" gap={0}>
     <Navigation />
-    <Card w="90%" borderRadius={16}>
-      <HeatmapChart ratio={2} />
+    <Card w="50%" borderRadius={16}>
+      <BubbleChart ratio={2} />
       {/**
        * type of visualization
        * tree-map

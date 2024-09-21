@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
+import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
@@ -22,13 +23,14 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  ZoomPlugin
 );
 
-interface BarLineTimeChartProps {
+interface BubbleChartProps {
   ratio?: ResponsiveValue<number>;
 }
 
-const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
+const BubbleChart: FC<BubbleChartProps> = ({ ratio }) => {
   const image = new Image();
   image.src = './sample.svg';
 
@@ -36,18 +38,20 @@ const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
     datasets: [
       {
         type: "bubble",
-        data: [...Array(1024)].map((_, i) => ({
-          x: Math.random() * 128,
-          y: Math.random() * 128,
-          r: Math.random() * 20
+        data: [...Array(256)].map((_, i) => ({
+          x: Math.floor(Math.random() * 100),
+          y: Math.floor(Math.random() * 100),
+          r: Math.random() * 24
         })),
         borderWidth: 0,
         pointStyle: 'rectRounded',
         backgroundColor: (ctx) => {
           const i = ctx.dataIndex;
           const p = ctx.dataset?.data[i] as BubbleDataPoint;
+          const v = (p.r ? p.r : 0) / 24;
+          const h = (v) * 200
 
-          return `rgba(0,200,24,${p.r ? p.r / 40 : 0})`;
+          return `hsl(${h}, 100%, 50%,50%)`;
         },
         datalabels: {
           display: false,
@@ -59,20 +63,16 @@ const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
   const bgImage: Plugin = {
     id: 'imageBackground',
     beforeDraw: (chart) => {
-
       if (image.complete) {
         const ctx = chart.ctx;
         ctx.save();
-
         const {
           top,
           left,
           width,
           height
         } = chart.chartArea;
-        console.log(chart.scales)
-
-        ctx.drawImage(image, top + 14, left - 14, width, height);
+        ctx.drawImage(image, left, top, width, height);
         ctx.restore();
       }
     }
@@ -89,12 +89,14 @@ const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
           grid: {
             display: true,
           },
+          max: 100,
         },
         y: {
           type: "linear",
           grid: {
             display: true,
           },
+          max: 100
         },
       },
       onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
@@ -105,7 +107,7 @@ const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
       plugins: {
         legend: {
           display: false
-        }
+        },
       }
     }), []);
 
@@ -116,4 +118,4 @@ const HeatmapChart: FC<BarLineTimeChartProps> = ({ ratio }) => {
   </motion.div >;
 };
 
-export default HeatmapChart;
+export default BubbleChart;
