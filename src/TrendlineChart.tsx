@@ -34,8 +34,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   TimeScale,
-  TimeSeriesScale,
-  ChartDataLabels
+  TimeSeriesScale
 );
 
 export const options: ChartOptions<"bar"> = {

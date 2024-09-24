@@ -32,7 +32,6 @@ ChartJS.register(
   Tooltip,
   Legend,
   TimeScale,
-  ChartDataLabels
 );
 const plugin = {
   id: "customCanvasBackgroundColor",

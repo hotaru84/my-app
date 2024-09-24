@@ -43,7 +43,6 @@ ChartJS.register(
   Legend,
   TimeScale,
   TimeSeriesScale,
-  ChartDataLabels,
   ZoomPlugin
 );
 
