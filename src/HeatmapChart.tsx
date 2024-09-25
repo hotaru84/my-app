@@ -21,14 +21,14 @@ ChartJS.register(
   ZoomPlugin
 );
 
-interface BubbleChartProps {
+interface ChartProps {
   ratio?: ResponsiveValue<number>;
   hists: number[][];
   rowstep: number;
   colstep: number;
 }
 
-const HeatmapChart: FC<BubbleChartProps> = ({ ratio, hists, rowstep, colstep }) => {
+const HeatmapChart: FC<ChartProps> = ({ ratio, hists, rowstep, colstep }) => {
 
   const data: ChartData<"bar"> = useMemo(() => ({
     datasets: hists.map((row) => ({
