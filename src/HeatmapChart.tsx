@@ -6,10 +6,6 @@ import {
   Legend,
   ChartOptions,
   ChartData,
-  ChartDataset,
-  ChartEvent,
-  ActiveElement,
-  BubbleDataPoint,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
@@ -27,30 +23,22 @@ ChartJS.register(
 
 interface BubbleChartProps {
   ratio?: ResponsiveValue<number>;
+  hists: number[][];
+  rowstep: number;
+  colstep: number;
 }
 
-const HeatmapChart: FC<BubbleChartProps> = ({ ratio }) => {
-  const w = 50;
-  const h = 50;
-  const wstep = 10;
-  const hstep = 10;
+const HeatmapChart: FC<BubbleChartProps> = ({ ratio, hists, rowstep, colstep }) => {
 
   const data: ChartData<"bar"> = useMemo(() => ({
-    datasets: [...Array(h)].map((_, i): ChartDataset<'bar'> => (
-      {
-        label: `${wstep * i}`,
-        data: [...Array(w).fill(hstep)],
-        backgroundColor(ctx) {
-          const j = ctx.dataIndex;
-          const v = 240 - (Math.random() + j * 10);
-          return `hsl(${v}, 100%, 50%,50%)`;
-        },
-        barPercentage: 0.999,
-        categoryPercentage: 0.999,
-      }
-    )),
-    labels: [...Array(w * h)].map((_, i) => Math.floor(i / w) * wstep + (i % w) * wstep)
-  }), []);
+    datasets: hists.map((row) => ({
+      data: new Array(row.length).fill(rowstep),
+      backgroundColor: row.map((c) => `hsl(${240 - (c * 10)}, 100%, 50%,50%)`),
+      barPercentage: 0.999,
+      categoryPercentage: 0.999,
+    })),
+    labels: hists.map((_, j) => j * colstep)
+  }), [colstep, hists, rowstep]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -63,7 +51,7 @@ const HeatmapChart: FC<BubbleChartProps> = ({ ratio }) => {
             display: false,
           },
           ticks: {
-            stepSize: wstep,
+            stepSize: colstep,
           },
           beginAtZero: true,
           stacked: true,
@@ -74,7 +62,7 @@ const HeatmapChart: FC<BubbleChartProps> = ({ ratio }) => {
             display: false,
           },
           ticks: {
-            stepSize: hstep
+            stepSize: rowstep
           },
           stacked: true,
         },
@@ -86,7 +74,7 @@ const HeatmapChart: FC<BubbleChartProps> = ({ ratio }) => {
         tooltip: {
           callbacks: {
             label(ctx) {
-              return `${ctx.datasetIndex} ${ctx.dataIndex}`
+              return `${ctx.datasetIndex} ${ctx.dataIndex} ${hists[ctx.datasetIndex][ctx.dataIndex]}`
             },
           }
         },
