@@ -36,29 +36,15 @@ const Analytics: FC = () => {
 
   const numOfRows = Math.floor((range.maxr - range.minr) / step) + 1;
   const numOfColumns = Math.floor((range.maxc - range.minc) / step) + 1;
-  //console.log(numOfRows, numOfColumns, range);
-
-
-  var tbl = new Array(3);
-  for (let y = 0; y < 3; y++) {
-    tbl[y] = new Array(3).fill(0);
-  }
+  
+  const hists = new Array(numOfRows).map(_ => new Array(numOfColumns).fill(0));
 
   useEffect(() => {
-
-    for (let j = 0; j < numOfRows; j++) {
-      hists.push(number[]);
-      for (let i = 0; i < numOfColumns; i++) {
-        hists[j].push(i);
-      }
-    }
-
     data.forEach((b) => {
       const r = Math.floor(b.r / step);
       const c = Math.floor(b.c / step);
-      hists[0][1] = 1;
+      hists[r][c]++;
     });
-    console.log(hists[1][1]);
 
   }, [data, hists, numOfColumns, numOfRows]);
 
