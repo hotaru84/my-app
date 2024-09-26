@@ -20,38 +20,46 @@ type binRange = {
 
 
 const Analytics: FC = () => {
-  const step = 100;
-  const data_max = 1000;
-  const data = useMemo(() => [...Array(100)].map((_, i): Bins => ({
-    r: data_max * Math.random(),
-    c: data_max * Math.random(),
-  })), []);
+  const step = 50;
+  const data_max = step * 50;
+  const data = useMemo(() => [...Array(1000)].map((_, i): Bins => ({
+    r: data_max * Math.random() + step,
+    c: data_max * Math.random() + step,
+  })), [data_max]);
 
-  const range = data.reduce<binRange>((range, obj) => ({
-    minr: Math.min(range.minr, obj.r),
-    maxr: Math.max(range.maxr, obj.r),
-    minc: Math.min(range.minc, obj.c),
-    maxc: Math.max(range.maxc, obj.c),
-  }), { minr: Infinity, maxr: 0, minc: Infinity, maxc: 0 });
 
-  const numOfRows = Math.floor((range.maxr - range.minr) / step) + 1;
-  const numOfColumns = Math.floor((range.maxc - range.minc) / step) + 1;
-  
-  const hists = new Array(numOfRows).map(_ => new Array(numOfColumns).fill(0));
+  const hists = useMemo(() => {
+    const range = data.reduce<binRange>((range, obj) => ({
+      minr: Math.min(range.minr, obj.r),
+      maxr: Math.max(range.maxr, obj.r),
+      minc: Math.min(range.minc, obj.c),
+      maxc: Math.max(range.maxc, obj.c),
+    }), { minr: Infinity, maxr: 0, minc: Infinity, maxc: 0 });
 
-  useEffect(() => {
+    const numOfRows = Math.floor((range.maxr - range.minr) / step) + 1;
+    const numOfColumns = Math.floor((range.maxc - range.minc) / step) + 1;
+    const bins = [...Array<number>(numOfRows)].map(_ => [...Array<number>(numOfColumns)].fill(0));
+
     data.forEach((b) => {
-      const r = Math.floor(b.r / step);
-      const c = Math.floor(b.c / step);
-      hists[r][c]++;
+      const r = Math.floor((b.r - range.minr) / step);
+      const c = Math.floor((b.c - range.minc) / step);
+      if (r < numOfRows && c < numOfColumns) bins[r][c]++;
     });
 
-  }, [data, hists, numOfColumns, numOfRows]);
+    return {
+      bins,
+      rstep: step,
+      cstep: step,
+      rmin: Math.floor(range.minr / step) * step,
+      cmin: Math.floor(range.minc / step) * step
+    };
+  }, [data]);
+
 
   return < VStack w="full" gap={0} >
     <Navigation />
-    <Card w="50%" borderRadius={16}>
-      <HeatmapChart ratio={2} rowstep={step} colstep={step} hists={hists} />
+    <Card w="50%" borderRadius={16} p={4}>
+      <HeatmapChart ratio={1.6} {...hists} />
     </Card>
   </VStack >;
 };

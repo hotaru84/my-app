@@ -23,22 +23,28 @@ ChartJS.register(
 
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
-  hists: number[][];
-  rowstep: number;
-  colstep: number;
+  bins: number[][];
+  rmin: number;
+  cmin: number;
+  rstep: number;
+  cstep: number;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, hists, rowstep, colstep }) => {
+const HeatmapChart: FC<ChartProps> = ({ ratio, bins, rmin, cmin, rstep, cstep, }) => {
 
-  const data: ChartData<"bar"> = useMemo(() => ({
-    datasets: hists.map((row) => ({
-      data: new Array(row.length).fill(rowstep),
-      backgroundColor: row.map((c) => `hsl(${240 - (c * 10)}, 100%, 50%,50%)`),
-      barPercentage: 0.999,
-      categoryPercentage: 0.999,
-    })),
-    labels: hists.map((_, j) => j * colstep)
-  }), [colstep, hists, rowstep]);
+  const data: ChartData<"bar"> = useMemo(() => {
+    const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
+
+    return {
+      datasets: bins.map((row) => ({
+        data: new Array(row.length).fill(rstep),
+        backgroundColor: row.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
+        barPercentage: 0.999,
+        categoryPercentage: 0.999,
+      })),
+      labels: bins.map((_, j) => j * cstep + cmin)
+    }
+  }, [bins, rstep, cstep, cmin]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -51,10 +57,10 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, hists, rowstep, colstep }) => {
             display: false,
           },
           ticks: {
-            stepSize: colstep,
+            stepSize: cstep,
           },
-          beginAtZero: true,
-          stacked: true,
+          min: cmin,
+          stacked: true
         },
         y: {
           type: "linear",
@@ -62,7 +68,10 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, hists, rowstep, colstep }) => {
             display: false,
           },
           ticks: {
-            stepSize: rowstep
+            stepSize: rstep,
+            callback(_, index) {
+              return (index * rstep) + rmin;
+            },
           },
           stacked: true,
         },
@@ -73,13 +82,20 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, hists, rowstep, colstep }) => {
         },
         tooltip: {
           callbacks: {
+            title(items) {
+              if (items.length > 0) {
+                const r = items[0].datasetIndex;
+                const c = items[0].dataIndex;
+                return `${bins[r][c]} count`;
+              }
+            },
             label(ctx) {
-              return `${ctx.datasetIndex} ${ctx.dataIndex} ${hists[ctx.datasetIndex][ctx.dataIndex]}`
+              return (`r ${ctx.datasetIndex * rstep + rmin}mm c ${ctx.dataIndex * cstep + cmin}mm`)
             },
           }
         },
       }
-    }), []);
+    }), [bins, cmin, cstep, rmin, rstep]);
 
   return <motion.div layout>
     <AspectRatio ratio={ratio}>
