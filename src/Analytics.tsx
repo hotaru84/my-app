@@ -8,6 +8,7 @@ import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
 import { useHistgram, useHistgram2d } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
+import BubbleChart from "./BubbleChart";
 
 type Bin = {
   a: number;

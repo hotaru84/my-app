@@ -18,6 +18,7 @@ import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { Histgram2d } from "./useHistgram";
 
 ChartJS.register(
   Title,
@@ -28,37 +29,40 @@ ChartJS.register(
 
 interface BubbleChartProps {
   ratio?: ResponsiveValue<number>;
+  data: Histgram2d;
 }
 
-const BubbleChart: FC<BubbleChartProps> = ({ ratio }) => {
+const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist }) => {
   const image = new Image();
   image.src = './sample.svg';
+  const bins = hist.bins;
+  const histmax = bins.flat().reduce((a, b) => Math.max(a, b));
 
   const data: ChartData<"bubble"> = useMemo(() => ({
     datasets: [
       {
         type: "bubble",
-        data: [...Array(256)].map((_, i) => ({
-          x: Math.floor(Math.random() * 100),
-          y: Math.floor(Math.random() * 100),
-          r: Math.random() * 24
-        })),
+        data: bins.flatMap((row, r) => row.map<BubbleDataPoint>((col, c) => ({
+          x: c * hist.col.step + hist.col.min,
+          y: r * hist.row.step + hist.row.min,
+          r: col / histmax * 30
+        }))),
         borderWidth: 0,
         pointStyle: 'rectRounded',
         backgroundColor: (ctx) => {
           const i = ctx.dataIndex;
           const p = ctx.dataset?.data[i] as BubbleDataPoint;
-          const v = (p.r ? p.r : 0) / 24;
+          const v = (p.r ? p.r : 0);
           const h = (v) * 200
 
-          return `hsl(${h}, 100%, 50%,50%)`;
+          return `hsl(185, 100%, 50%,${v}%)`;
         },
         datalabels: {
           display: false,
         }
       },
     ] as ChartDataset<"bubble">[],
-  }), []);
+  }), [bins, hist.col.min, hist.col.step, hist.row.min, hist.row.step]);
 
   const bgImage: Plugin = {
     id: 'imageBackground',
@@ -89,14 +93,12 @@ const BubbleChart: FC<BubbleChartProps> = ({ ratio }) => {
           grid: {
             display: true,
           },
-          max: 100,
         },
         y: {
           type: "linear",
           grid: {
             display: true,
           },
-          max: 100
         },
       },
       onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
