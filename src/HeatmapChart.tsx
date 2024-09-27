@@ -13,6 +13,7 @@ import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { Histgram } from "./useHistgram";
 
 ChartJS.register(
   Title,
@@ -23,28 +24,24 @@ ChartJS.register(
 
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
-  bins: number[][];
-  rmin: number;
-  cmin: number;
-  rstep: number;
-  cstep: number;
+  histgram: Histgram;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, bins, rmin, cmin, rstep, cstep, }) => {
-
+const HeatmapChart: FC<ChartProps> = ({ ratio, histgram }) => {
+  const bins = histgram.bins;
   const data: ChartData<"bar"> = useMemo(() => {
     const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
 
     return {
       datasets: bins.map((row) => ({
-        data: new Array(row.length).fill(rstep),
+        data: new Array(row.length).fill(histgram.row.step),
         backgroundColor: row.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
         barPercentage: 0.999,
         categoryPercentage: 0.999,
       })),
-      labels: bins.map((_, j) => j * cstep + cmin)
+      labels: bins.map((_, j) => j * histgram.col.step + histgram.col.min)
     }
-  }, [bins, rstep, cstep, cmin]);
+  }, [bins, histgram.row.step, histgram.col.step, histgram.col.min]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -57,9 +54,9 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, bins, rmin, cmin, rstep, cstep, }
             display: false,
           },
           ticks: {
-            stepSize: cstep,
+            stepSize: histgram.col.step,
           },
-          min: cmin,
+          min: histgram.col.min,
           stacked: true
         },
         y: {
@@ -68,9 +65,9 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, bins, rmin, cmin, rstep, cstep, }
             display: false,
           },
           ticks: {
-            stepSize: rstep,
+            stepSize: histgram.row.step,
             callback(_, index) {
-              return (index * rstep) + rmin;
+              return (index * histgram.row.step) + histgram.row.min;
             },
           },
           stacked: true,
@@ -90,12 +87,12 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, bins, rmin, cmin, rstep, cstep, }
               }
             },
             label(ctx) {
-              return (`r ${ctx.datasetIndex * rstep + rmin}mm c ${ctx.dataIndex * cstep + cmin}mm`)
+              return (`r ${ctx.datasetIndex * histgram.row.step + histgram.row.min}mm c ${ctx.dataIndex * histgram.col.step + histgram.col.min}mm`)
             },
           }
         },
       }
-    }), [bins, cmin, cstep, rmin, rstep]);
+    }), [bins, histgram.col.min, histgram.col.step, histgram.row.min, histgram.row.step]);
 
   return <motion.div layout>
     <AspectRatio ratio={ratio}>
