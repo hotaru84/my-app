@@ -16,18 +16,26 @@ type Bin = {
   d: number;
 };
 
+function gaussianRandom(mean = 0, stdev = 1) {
+  const u = 1 - Math.random(); // Converting [0,1) to (0,1]
+  const v = Math.random();
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  // Transform to the desired mean and standard deviation:
+  return z * stdev + mean;
+}
+
 const Analytics: FC = () => {
   const step = 50;
   const data_max = step * 20;
   const data = useMemo(() => [...Array(1000)].map((_, i): Bin => ({
-    a: data_max * Math.random() + step,
-    b: data_max * Math.random() + step,
-    c: data_max * Math.random() + step,
+    a: gaussianRandom(data_max, 1) * step,
+    b: gaussianRandom(data_max, 1.2) * step,
+    c: gaussianRandom(data_max, 1.4) * step,
     d: data_max * Math.random() + step,
   })), [data_max]);
 
-  const heatmap = useHistgram2d(data, 'a', 50, 'c', 50);
-  const hist = useHistgram(data, 'c', 50);
+  const heatmap = useHistgram2d(data, 'a', step, 'b', step);
+  const hist = useHistgram(data, 'c', step);
 
   return < VStack w="full" gap={0} >
     <Navigation />

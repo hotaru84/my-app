@@ -33,6 +33,8 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
     datasets: [{
       borderColor: "#68D391",
       backgroundColor: "#68D391",
+      barPercentage: 0.99,
+      categoryPercentage: 0.99,
       data: bins,
     }],
     labels: bins.map((_, i) => i * histgram.row.step + histgram.row.min)
@@ -59,8 +61,6 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
           grid: {
             display: true,
           },
-          min: 0,
-          max: Math.max(...bins)
         },
       },
       plugins: {
