@@ -13,7 +13,7 @@ import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { Histgram2d } from "./useHistgram";
+import { Histgram } from "./useHistgram";
 
 ChartJS.register(
   Title,
@@ -24,24 +24,19 @@ ChartJS.register(
 
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
-  data: Histgram2d;
+  data: Histgram;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
+const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
   const bins = histgram.bins;
-  const data: ChartData<"bar"> = useMemo(() => {
-    const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
-
-    return {
-      datasets: bins.map((row) => ({
-        data: new Array(row.length).fill(histgram.row.step),
-        backgroundColor: row.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
-        barPercentage: 0.999,
-        categoryPercentage: 0.999,
-      })),
-      labels: bins.map((_, j) => j * histgram.col.step + histgram.col.min)
-    }
-  }, [bins, histgram.row.step, histgram.col.step, histgram.col.min]);
+  const data: ChartData<"bar"> = useMemo(() => ({
+    datasets: [{
+      borderColor: "#68D391",
+      backgroundColor: "#68D391",
+      data: bins,
+    }],
+    labels: bins.map((_, i) => i * histgram.row.step + histgram.row.min)
+  }), [bins, histgram.row.min, histgram.row.step]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -54,23 +49,18 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
             display: false,
           },
           ticks: {
-            stepSize: histgram.col.step,
+            stepSize: histgram.row.step,
           },
-          min: histgram.col.min,
-          stacked: true
+          min: histgram.row.min,
+          max: histgram.row.max
         },
         y: {
           type: "linear",
           grid: {
-            display: false,
+            display: true,
           },
-          ticks: {
-            stepSize: histgram.row.step,
-            callback(_, index) {
-              return (index * histgram.row.step) + histgram.row.min;
-            },
-          },
-          stacked: true,
+          min: 0,
+          max: Math.max(...bins)
         },
       },
       plugins: {
@@ -81,18 +71,17 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
           callbacks: {
             title(items) {
               if (items.length > 0) {
-                const r = items[0].datasetIndex;
                 const c = items[0].dataIndex;
-                return `${bins[r][c]} count`;
+                return `${bins[c]} count`;
               }
             },
             label(ctx) {
-              return (`r ${ctx.datasetIndex * histgram.row.step + histgram.row.min}mm c ${ctx.dataIndex * histgram.col.step + histgram.col.min}mm`)
+              return (`r ${ctx.dataIndex * histgram.row.step + histgram.row.min}`)
             },
           }
         },
       }
-    }), [bins, histgram.col.min, histgram.col.step, histgram.row.min, histgram.row.step]);
+    }), [bins, histgram.row.max, histgram.row.min, histgram.row.step]);
 
   return <motion.div layout>
     <AspectRatio ratio={ratio}>
@@ -101,4 +90,4 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
   </motion.div >;
 };
 
-export default HeatmapChart;
+export default HistgramChart;
