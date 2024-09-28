@@ -25,23 +25,25 @@ ChartJS.register(
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
   data: Histgram2d;
+  rstep: number;
+  cstep: number;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
+const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram, rstep, cstep }) => {
   const bins = histgram.bins;
   const data: ChartData<"bar"> = useMemo(() => {
     const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
 
     return {
       datasets: bins.map((row) => ({
-        data: new Array(row.length).fill(histgram.row.step),
+        data: new Array(row.length).fill(rstep),
         backgroundColor: row.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
         barPercentage: 0.999,
         categoryPercentage: 0.999,
       })),
-      labels: bins.map((_, j) => j * histgram.col.step + histgram.col.min)
+      labels: bins.map((_, j) => j * cstep + histgram.col.min)
     }
-  }, [bins, histgram.row.step, histgram.col.step, histgram.col.min]);
+  }, [bins, cstep, histgram.col.min, rstep]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -54,7 +56,7 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
             display: false,
           },
           ticks: {
-            stepSize: histgram.col.step,
+            stepSize: cstep,
           },
           min: histgram.col.min,
           stacked: true
@@ -65,9 +67,9 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
             display: false,
           },
           ticks: {
-            stepSize: histgram.row.step,
+            stepSize: rstep,
             callback(_, index) {
-              return (index * histgram.row.step) + histgram.row.min;
+              return (index * rstep) + histgram.row.min;
             },
           },
           stacked: true,
@@ -87,12 +89,12 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
               }
             },
             label(ctx) {
-              return (`r ${ctx.datasetIndex * histgram.row.step + histgram.row.min}mm c ${ctx.dataIndex * histgram.col.step + histgram.col.min}mm`)
+              return (`r ${ctx.datasetIndex * rstep + histgram.row.min}mm c ${ctx.dataIndex * cstep + histgram.col.min}mm`)
             },
           }
         },
       }
-    }), [bins, histgram.col.min, histgram.col.step, histgram.row.min, histgram.row.step]);
+    }), [bins, cstep, histgram.col.min, histgram.row.min, rstep]);
 
   return <motion.div layout>
     <AspectRatio ratio={ratio}>

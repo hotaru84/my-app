@@ -30,9 +30,11 @@ ChartJS.register(
 interface BubbleChartProps {
   ratio?: ResponsiveValue<number>;
   data: Histgram2d;
+  rstep: number;
+  cstep: number;
 }
 
-const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist }) => {
+const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist, rstep, cstep }) => {
   const image = new Image();
   image.src = './sample.svg';
   const bins = hist.bins;
@@ -43,8 +45,8 @@ const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist }) => {
       {
         type: "bubble",
         data: bins.flatMap((row, r) => row.map<BubbleDataPoint>((col, c) => ({
-          x: c * hist.col.step + hist.col.min,
-          y: r * hist.row.step + hist.row.min,
+          x: c * cstep + hist.col.min,
+          y: r * rstep + hist.row.min,
           r: col / histmax * 30
         }))),
         borderWidth: 0,
@@ -53,7 +55,6 @@ const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist }) => {
           const i = ctx.dataIndex;
           const p = ctx.dataset?.data[i] as BubbleDataPoint;
           const v = (p.r ? p.r : 0);
-          const h = (v) * 200
 
           return `hsl(185, 100%, 50%,${v}%)`;
         },
@@ -62,7 +63,7 @@ const BubbleChart: FC<BubbleChartProps> = ({ ratio, data: hist }) => {
         }
       },
     ] as ChartDataset<"bubble">[],
-  }), [bins, hist.col.min, hist.col.step, hist.row.min, hist.row.step]);
+  }), [bins, cstep, hist.col.min, hist.row.min, histmax, rstep]);
 
   const bgImage: Plugin = {
     id: 'imageBackground',

@@ -25,9 +25,10 @@ ChartJS.register(
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
   data: Histgram;
+  step: number;
 }
 
-const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
+const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram, step }) => {
   const bins = histgram.bins;
   const data: ChartData<"bar"> = useMemo(() => ({
     datasets: [{
@@ -37,8 +38,8 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
       categoryPercentage: 0.99,
       data: bins,
     }],
-    labels: bins.map((_, i) => i * histgram.row.step + histgram.row.min)
-  }), [bins, histgram.row.min, histgram.row.step]);
+    labels: bins.map((_, i) => i * step + histgram.row.min)
+  }), [bins, histgram.row.min, step]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -51,7 +52,7 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
             display: false,
           },
           ticks: {
-            stepSize: histgram.row.step,
+            stepSize: step,
           },
           min: histgram.row.min,
           max: histgram.row.max
@@ -76,12 +77,12 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
               }
             },
             label(ctx) {
-              return (`r ${ctx.dataIndex * histgram.row.step + histgram.row.min}`)
+              return (`r ${ctx.dataIndex * step + histgram.row.min}`)
             },
           }
         },
       }
-    }), [bins, histgram.row.max, histgram.row.min, histgram.row.step]);
+    }), [bins, histgram.row.max, histgram.row.min, step]);
 
   return <motion.div layout>
     <AspectRatio ratio={ratio}>
