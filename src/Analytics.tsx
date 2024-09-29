@@ -21,7 +21,8 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
-  Icon
+  Icon,
+  Center
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
@@ -94,7 +95,7 @@ const useKeySelect = (defaultIndex: number) => {
   }
 };
 
-const useStepSlider = (defaultStep: number) => {
+const useStepSlider = (defaultStep: number, isVertical?: boolean) => {
   const [step, setStep] = useState(defaultStep);
 
   return {
@@ -103,13 +104,16 @@ const useStepSlider = (defaultStep: number) => {
       value={step}
       onChange={setStep}
       step={5} min={2} max={50}
-      w="30%"
-      colorScheme="cyan">
+      w={isVertical ? 4 : 32}
+      h={isVertical ? 32 : 4}
+      colorScheme="cyan"
+      orientation={isVertical ? "vertical" : "horizontal"}
+    >
       <SliderTrack>
         <SliderFilledTrack />
       </SliderTrack>
       <SliderThumb />
-    </Slider>, [step])
+    </Slider>, [isVertical, step])
   }
 }
 
@@ -125,7 +129,7 @@ const Analytics: FC = () => {
   const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
   const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
   const { selectedKey: histKey, render: histKeySelect } = useKeySelect(1);
-  const { step: rstep, render: rowStepSlider } = useStepSlider(10);
+  const { step: rstep, render: rowStepSlider } = useStepSlider(10, true);
   const { step: cstep, render: colStepSlider } = useStepSlider(10);
   const { step, render: stepSlider } = useStepSlider(10);
 
@@ -135,30 +139,34 @@ const Analytics: FC = () => {
   return <VStack w="full" gap={0} >
     <Navigation />
     <HStack w="full" p={4} gap={4}>
-      <Card borderRadius={16} p={4} w="full">
-        <HStack w="full" mb={4}>
+      <Card borderRadius={16} p={4} w="full" gap={2}>
+        <HStack w="full">
           <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
           <Spacer />
           {rowKeySelect}
           <Icon as={MdClose} textColor={"GrayText"} />
           {colKeySelect}
         </HStack>
-        <HeatmapChart ratio={1.6} data={heatmap} />
-        <HStack justifyContent={"center"} m={4} align={"center"} gap={4}>
+        <HStack justifyContent={"center"} align={"center"} w="full">
           {rowStepSlider}
-          {colStepSlider}
+          <Box w="full">
+            <HeatmapChart ratio={1.6} data={heatmap} />
+            <Center>
+              {colStepSlider}
+            </Center>
+          </Box>
         </HStack>
       </Card>
-      <Card borderRadius={16} p={4} w="full">
-        <HStack w="full" mb={4}>
+      <Card borderRadius={16} p={4} w="full" gap={2}>
+        <HStack w="full">
           <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
           <Spacer />
           {histKeySelect}
         </HStack>
         <HistgramChart ratio={1.6} data={hist} />
-        <HStack justifyContent={"center"} m={2} align={"center"}>
+        <Center>
           {stepSlider}
-        </HStack>
+        </Center>
       </Card>
     </HStack>
   </VStack >;
