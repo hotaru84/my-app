@@ -7,7 +7,6 @@ import {
   ChartOptions,
   ChartData,
 } from "chart.js";
-import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
@@ -25,25 +24,26 @@ ChartJS.register(
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
   data: Histgram2d;
-  rstep: number;
-  cstep: number;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram, rstep, cstep }) => {
+const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
   const bins = histgram.bins;
+  const rstep = Math.ceil((histgram.row.max - histgram.row.min) / bins.length);
+  const cstep = Math.ceil((histgram.col.max - histgram.col.min) / bins[0].length);
   const data: ChartData<"bar"> = useMemo(() => {
     const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
-
     return {
-      datasets: bins.map((row) => ({
-        data: new Array(row.length).fill(rstep),
-        backgroundColor: row.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
-        barPercentage: 0.999,
-        categoryPercentage: 0.999,
-      })),
-      labels: bins.map((_, j) => j * cstep + histgram.col.min)
+      datasets: bins.map((col) => {
+        return {
+          data: col.map(_ => rstep),
+          backgroundColor: col.map(c => `hsl(185, 100%, 50%,${c / histsMax * 100}%)`),
+          barPercentage: 0.999,
+          categoryPercentage: 0.999,
+        }
+      }),
+      labels: bins[0].map((_, j) => j * cstep + histgram.col.min)
     }
-  }, [bins, cstep, histgram.col.min, rstep]);
+  }, [bins, rstep, cstep, histgram.col.min]);
 
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
@@ -56,9 +56,10 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram, rstep, cstep }) =
             display: false,
           },
           ticks: {
-            stepSize: cstep,
+            callback(_, index) {
+              return (index * cstep) + histgram.col.min;
+            },
           },
-          min: histgram.col.min,
           stacked: true
         },
         y: {
@@ -89,7 +90,7 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram, rstep, cstep }) =
               }
             },
             label(ctx) {
-              return (`r ${ctx.datasetIndex * rstep + histgram.row.min}mm c ${ctx.dataIndex * cstep + histgram.col.min}mm`)
+              return (`r ${ctx.datasetIndex} c ${ctx.dataIndex}`)
             },
           }
         },
@@ -100,7 +101,7 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram, rstep, cstep }) =
     <AspectRatio ratio={ratio}>
       <Chart type={"bar"} options={options} data={data} />
     </AspectRatio>
-  </motion.div >;
+  </motion.div>;
 };
 
 export default HeatmapChart;

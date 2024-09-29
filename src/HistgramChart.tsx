@@ -25,11 +25,12 @@ ChartJS.register(
 interface ChartProps {
   ratio?: ResponsiveValue<number>;
   data: Histgram;
-  step: number;
 }
 
-const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram, step }) => {
+const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
   const bins = histgram.bins;
+  const step = Math.floor((histgram.row.max - histgram.row.min) / bins.length);
+
   const data: ChartData<"bar"> = useMemo(() => ({
     datasets: [{
       borderColor: "#68D391",
@@ -50,9 +51,6 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram, step }) => {
           type: 'linear',
           grid: {
             display: false,
-          },
-          ticks: {
-            stepSize: step,
           },
           min: histgram.row.min,
           max: histgram.row.max
