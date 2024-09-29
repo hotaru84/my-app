@@ -27,9 +27,10 @@ interface ChartProps {
 }
 
 const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
-  const bins = histgram.bins;
-  const rstep = Math.ceil((histgram.row.max - histgram.row.min) / bins.length);
-  const cstep = Math.ceil((histgram.col.max - histgram.col.min) / bins[0].length);
+  const bins = useMemo(() => histgram.bins, [histgram.bins]);
+  const rstep = useMemo(() => Math.ceil((histgram.row.max - histgram.row.min) / bins.length), [bins, histgram.row]);
+  const cstep = useMemo(() => bins.length > 0 ? Math.ceil((histgram.col.max - histgram.col.min) / bins[0].length) : 0, [bins, histgram.col]);
+
   const data: ChartData<"bar"> = useMemo(() => {
     const histsMax = bins.flat().reduce((a, b) => Math.max(a, b));
     return {
@@ -41,7 +42,7 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
           categoryPercentage: 0.999,
         }
       }),
-      labels: bins[0].map((_, j) => j * cstep + histgram.col.min)
+      labels: bins.length > 0 ? bins[0].map((_, j) => j * cstep + histgram.col.min) : [],
     }
   }, [bins, rstep, cstep, histgram.col.min]);
 

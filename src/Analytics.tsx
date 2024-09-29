@@ -128,11 +128,11 @@ const Analytics: FC = () => {
           />
         </HStack>
         <HeatmapChart ratio={1.6} data={heatmap} />
-        <HStack justifyContent={"center"} m={2} align={"center"}>
+        <HStack justifyContent={"center"} m={4} align={"center"} gap={4}>
           <Slider
             value={rstep} onChange={setRstep}
             step={5} min={2} max={50}
-            w="50%"
+            w="30%"
             colorScheme="cyan">
             <SliderTrack>
               <SliderFilledTrack />
@@ -142,7 +142,7 @@ const Analytics: FC = () => {
           <Slider
             value={cstep} onChange={setCstep}
             step={5} min={2} max={50}
-            w="50%"
+            w="30%"
             colorScheme="cyan">
             <SliderTrack>
               <SliderFilledTrack />
