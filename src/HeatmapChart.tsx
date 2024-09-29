@@ -10,7 +10,7 @@ import {
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
+import { AspectRatio, HStack, ResponsiveValue, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { Histgram2d } from "./useHistgram";
 

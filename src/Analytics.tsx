@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import {
   Card,
   HStack,
@@ -76,6 +76,42 @@ const BinValues: BinValue<Bin>[] = [
   }
 ];
 
+const useKeySelect = (defaultIndex: number) => {
+  const [selectedKey, selectKey] = useState(BinValues[defaultIndex]);
+  return {
+    selectedKey,
+    render: useMemo(() => <Select
+      menuPortalTarget={document.body}
+      styles={{ menuPortal: (base) => ({ ...base, zIndex: "auto" }) }}
+      useBasicStyles
+      variant="filled"
+      focusBorderColor="cyan.400"
+      size="sm"
+      value={selectedKey}
+      options={BinValues}
+      onChange={(v) => v !== null && selectKey(v)}
+    />, [selectedKey]),
+  }
+};
+
+const useStepSlider = (defaultStep: number) => {
+  const [step, setStep] = useState(defaultStep);
+
+  return {
+    step: step,
+    render: useMemo(() => <Slider
+      value={step}
+      onChange={setStep}
+      step={5} min={2} max={50}
+      w="30%"
+      colorScheme="cyan">
+      <SliderTrack>
+        <SliderFilledTrack />
+      </SliderTrack>
+      <SliderThumb />
+    </Slider>, [step])
+  }
+}
 
 const Analytics: FC = () => {
   const data_max = 500;
@@ -86,15 +122,15 @@ const Analytics: FC = () => {
     d: Math.round(data_max * Math.random() + 50),
   })), []);
 
-  const [rowValue, setRowValue] = useState(BinValues[0]);
-  const [colValue, setColValue] = useState(BinValues[1]);
-  const [histValue, setHistValue] = useState(BinValues[3]);
-  const [rstep, setRstep] = useState(10);
-  const [cstep, setCstep] = useState(15);
-  const [step, setStep] = useState(50);
+  const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
+  const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
+  const { selectedKey: histKey, render: histKeySelect } = useKeySelect(1);
+  const { step: rstep, render: rowStepSlider } = useStepSlider(10);
+  const { step: cstep, render: colStepSlider } = useStepSlider(10);
+  const { step, render: stepSlider } = useStepSlider(10);
 
-  const heatmap = useHistgram2d(data, rowValue.value, rstep, colValue.value, cstep);
-  const hist = useHistgram(data, histValue.value, step);
+  const heatmap = useHistgram2d(data, rowKey.value, rstep, colKey.value, cstep);
+  const hist = useHistgram(data, histKey.value, step);
 
   return <VStack w="full" gap={0} >
     <Navigation />
@@ -103,80 +139,25 @@ const Analytics: FC = () => {
         <HStack w="full" mb={4}>
           <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
           <Spacer />
-          <Select
-            menuPortalTarget={document.body}
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: "auto" }) }}
-            useBasicStyles
-            variant="filled"
-            focusBorderColor="cyan.400"
-            size="sm"
-            value={rowValue}
-            options={BinValues}
-            onChange={(v) => v !== null && setRowValue(v)}
-          />
+          {rowKeySelect}
           <Icon as={MdClose} textColor={"GrayText"} />
-          <Select
-            menuPortalTarget={document.body}
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: "auto" }) }}
-            useBasicStyles
-            variant="filled"
-            focusBorderColor="cyan.400"
-            size="sm"
-            value={colValue}
-            options={BinValues}
-            onChange={(v) => v !== null && setColValue(v)}
-          />
+          {colKeySelect}
         </HStack>
         <HeatmapChart ratio={1.6} data={heatmap} />
         <HStack justifyContent={"center"} m={4} align={"center"} gap={4}>
-          <Slider
-            value={rstep} onChange={setRstep}
-            step={5} min={2} max={50}
-            w="30%"
-            colorScheme="cyan">
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
-          <Slider
-            value={cstep} onChange={setCstep}
-            step={5} min={2} max={50}
-            w="30%"
-            colorScheme="cyan">
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
+          {rowStepSlider}
+          {colStepSlider}
         </HStack>
       </Card>
       <Card borderRadius={16} p={4} w="full">
         <HStack w="full" mb={4}>
           <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
           <Spacer />
-          <Select
-            useBasicStyles
-            variant="filled"
-            focusBorderColor="cyan.400"
-            size="sm"
-            value={histValue}
-            options={BinValues}
-            onChange={(v) => v !== null && setHistValue(v)}
-          />
+          {histKeySelect}
         </HStack>
         <HistgramChart ratio={1.6} data={hist} />
         <HStack justifyContent={"center"} m={2} align={"center"}>
-          <Slider
-            value={step} onChange={setStep}
-            step={5} min={5} max={100}
-            w="50%"
-            colorScheme="cyan">
-            <SliderTrack>
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb />
-          </Slider>
+          {stepSlider}
         </HStack>
       </Card>
     </HStack>
