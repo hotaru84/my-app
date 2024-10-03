@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Card,
   HStack,
@@ -22,7 +22,9 @@ import {
   AccordionPanel,
   Box,
   Icon,
-  Center
+  Center,
+  Stack,
+  Button
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
@@ -30,8 +32,10 @@ import { useHistgram, useHistgram2d } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import BubbleChart from "./BubbleChart";
 import { ReactSelectBaseProps, Select } from "chakra-react-select";
-import { TbSettings, TbSettings2 } from "react-icons/tb";
+import { TbMinus, TbPlus, TbSettings, TbSettings2 } from "react-icons/tb";
 import { MdClose } from "react-icons/md";
+import { useAudio } from "react-use";
+import { useBeep } from "./useBeep";
 
 type Bin = {
   a: number;
@@ -100,20 +104,24 @@ const useStepSlider = (defaultStep: number, isVertical?: boolean) => {
 
   return {
     step: step,
-    render: useMemo(() => <Slider
-      value={step}
-      onChange={setStep}
-      step={5} min={2} max={50}
-      w={isVertical ? 4 : 32}
-      h={isVertical ? 32 : 4}
-      colorScheme="cyan"
-      orientation={isVertical ? "vertical" : "horizontal"}
-    >
-      <SliderTrack>
-        <SliderFilledTrack />
-      </SliderTrack>
-      <SliderThumb />
-    </Slider>, [isVertical, step])
+    render: useMemo(() =>
+      <Stack direction={isVertical ? 'column' : 'row'}>
+        <Icon as={TbMinus} />
+        <Slider
+          value={step}
+          onChange={setStep}
+          step={5} min={2} max={50}
+          w={isVertical ? 4 : 32}
+          h={isVertical ? 32 : 4}
+          colorScheme="cyan"
+          orientation={isVertical ? "vertical" : "horizontal"}
+        >
+          <SliderTrack>
+          </SliderTrack>
+          <SliderThumb />
+        </Slider>
+        <Icon as={TbPlus} />
+      </Stack>, [isVertical, step])
   }
 }
 
@@ -136,8 +144,14 @@ const Analytics: FC = () => {
   const heatmap = useHistgram2d(data, rowKey.value, rstep, colKey.value, cstep);
   const hist = useHistgram(data, histKey.value, step);
 
+  const { beep } = useBeep();
+
   return <VStack w="full" gap={0} >
-    <Navigation />
+    <Navigation >
+      <>
+        <Button onClick={beep}>btn</Button>
+      </>
+    </Navigation>
     <HStack w="full" p={4} gap={4}>
       <Card borderRadius={16} p={4} w="full" gap={2}>
         <HStack w="full">
