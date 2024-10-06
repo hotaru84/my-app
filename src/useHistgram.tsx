@@ -48,7 +48,7 @@ export const useHistgram = <T, R extends keyof T>(
   return h;
 }
 
-export const useHistgram2d = <T, R extends keyof T, C extends keyof T>(
+export const useCorrelation = <T, R extends keyof T, C extends keyof T>(
   data: T[],
   rowKey: R,
   numOfRows: number,

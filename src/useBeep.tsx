@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
-type Beep = {
+export type Beep = {
   beep: () => void;
+  open: () => void;
+  close: () => void;
+  isOpen: boolean;
 }
 
 export const useBeep = (
@@ -10,25 +13,23 @@ export const useBeep = (
   rest = 0.025,
 ): Beep => {
   const audioCtxRef = useRef<AudioContext>();
+  const isOpen = useMemo(() => audioCtxRef.current !== undefined, []);
 
-  const on = () => {
-    audioCtxRef.current = new AudioContext();
-  };
-  const off = () => {
-    audioCtxRef.current?.close();
-    audioCtxRef.current = undefined;
-  };
-  useEffect(() => {
-    on();
-    return off;
-  });
+  const open = useCallback(() => {
+    if (!isOpen) {
+      audioCtxRef.current = new AudioContext();
+    }
+  }, [isOpen]);
+  const close = useCallback(() => {
+    if (isOpen) {
+      audioCtxRef.current?.close();
+      audioCtxRef.current = undefined;
+    }
+  }, [isOpen]);
 
   const beep = useCallback(() => {
-    if (!audioCtxRef.current) {
-      return;
-    }
     const audioCtx = audioCtxRef?.current;
-    if (audioCtx !== undefined) {
+    if (isOpen && audioCtx !== undefined) {
       const n = audioCtx.createOscillator();
       n.type = 'sine';
       n.frequency.setValueAtTime(hz, audioCtx.currentTime);
@@ -39,7 +40,12 @@ export const useBeep = (
         n.disconnect();
       };
     }
-  }, [hz, length, rest]);
+  }, [hz, isOpen, length, rest]);
 
-  return { beep }
+  return {
+    open,
+    close,
+    isOpen,
+    beep
+  }
 }

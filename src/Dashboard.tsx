@@ -10,6 +10,13 @@ import {
   Box,
   chakra,
   TagLeftIcon,
+  Avatar,
+  TagLabel,
+  Spinner,
+  Spacer,
+  Progress,
+  CircularProgress,
+  CircularProgressLabel,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -20,6 +27,7 @@ import { addDays, startOfToday } from "date-fns";
 import TrendlineChart from "./TrendlineChart";
 import { useTimelineStats } from "./useTimelineStats";
 import Datacard from "./Datacard";
+import { Sparklines } from "react-sparklines";
 
 const stats: StatData[] = [
   {
@@ -52,21 +60,18 @@ const Dashboad: FC = () => {
   return (
     <VStack w="full" gap={0}>
       <Navigation >
-        <HStack gap={2} borderWidth={1} p={2} borderRadius={8} mx="auto">
-          <Tag colorScheme={"green"} w="fit-content">
-            <TagLeftIcon as={TbCheck} />
-            Ready
-          </Tag>
-          <Box w="30vw" h="20px">
-            <TrendlineChart moving={false} />
-          </Box>
-          <Tag colorScheme={"gray"}>
-            123
-            <chakra.span textColor={"gray"} fontSize={"0.5rem"} ml={1}>
-              pkg/min
-            </chakra.span>
-          </Tag>
-        </HStack>
+        <>
+          <HStack gap={1} >
+            {[...Array(5)].map((_, j) => (
+              <Tag colorScheme={"green"} w="fit-content" key={j} gap={2}>
+                <CircularProgress size={4} value={100 * Math.random()} color="green.400" thickness={8}>
+                </CircularProgress>
+                <TagLabel>unit </TagLabel>
+              </Tag>
+            ))}
+          </HStack>
+          <Spacer />
+        </>
       </Navigation>
       <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0} overflow={"auto"}>
         <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4} >

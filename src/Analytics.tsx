@@ -1,40 +1,25 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   Card,
   HStack,
   VStack,
-  Text,
-  Flex,
-  CardFooter,
-  FormLabel,
-  Heading,
   Spacer,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
-  SimpleGrid,
   IconButton,
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Icon,
-  Center,
-  Stack,
-  Button
+  Button,
+  ButtonGroup,
+  TabList,
+  Tabs,
+  Tab,
+  TabPanel,
+  TabPanels
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
-import { useHistgram, useHistgram2d } from "./useHistgram";
+import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
-import BubbleChart from "./BubbleChart";
-import { ReactSelectBaseProps, Select } from "chakra-react-select";
-import { TbMinus, TbPlus, TbSettings, TbSettings2 } from "react-icons/tb";
-import { MdClose } from "react-icons/md";
-import { useAudio } from "react-use";
+import { Select } from "chakra-react-select";
+import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
+import { useCounter } from "react-use";
 import { useBeep } from "./useBeep";
 
 type Bin = {
@@ -48,7 +33,6 @@ function gaussianRandom(mean = 0, stdev = 1) {
   const u = 1 - Math.random(); // Converting [0,1) to (0,1]
   const v = Math.random();
   const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-  // Transform to the desired mean and standard deviation:
   return z * stdev + mean;
 }
 
@@ -99,35 +83,28 @@ const useKeySelect = (defaultIndex: number) => {
   }
 };
 
-const useStepSlider = (defaultStep: number, isVertical?: boolean) => {
-  const [step, setStep] = useState(defaultStep);
+const useStepSlider = (count: number) => {
+  const [step, { inc, dec, reset }] = useCounter(
+    Math.ceil(Math.log2(count) + 1),
+    Math.ceil(Math.log2(count) + 1) * 2,
+    1);
 
   return {
     step: step,
     render: useMemo(() =>
-      <Stack direction={isVertical ? 'column' : 'row'}>
-        <Icon as={TbMinus} />
-        <Slider
-          value={step}
-          onChange={setStep}
-          step={5} min={2} max={50}
-          w={isVertical ? 4 : 32}
-          h={isVertical ? 32 : 4}
-          colorScheme="cyan"
-          orientation={isVertical ? "vertical" : "horizontal"}
-        >
-          <SliderTrack>
-          </SliderTrack>
-          <SliderThumb />
-        </Slider>
-        <Icon as={TbPlus} />
-      </Stack>, [isVertical, step])
+      <ButtonGroup size={"sm"} variant={"ghost"} isAttached colorScheme="cyan">
+        <IconButton aria-label={""} onClick={() => dec()} icon={<TbMinus />} />
+        <IconButton aria-label={""} onClick={() => inc()} icon={<TbPlus />} />
+        <IconButton aria-label={""} onClick={() => reset()} icon={<TbArrowBack />} />
+      </ButtonGroup>, [dec, inc, reset])
   }
 }
 
+
 const Analytics: FC = () => {
   const data_max = 500;
-  const data = useMemo(() => [...Array(1000)].map((_, i): Bin => ({
+  const data_count = 1000;
+  const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
     a: Math.round(gaussianRandom(data_max, 1) * 50),
     b: Math.round(gaussianRandom(data_max, 1.2) * 50),
     c: Math.round(gaussianRandom(data_max, 1.4) * 50),
@@ -136,51 +113,47 @@ const Analytics: FC = () => {
 
   const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
   const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
-  const { selectedKey: histKey, render: histKeySelect } = useKeySelect(1);
-  const { step: rstep, render: rowStepSlider } = useStepSlider(10, true);
-  const { step: cstep, render: colStepSlider } = useStepSlider(10);
-  const { step, render: stepSlider } = useStepSlider(10);
+  const { step, render: stepSlider } = useStepSlider(data_count);
 
-  const heatmap = useHistgram2d(data, rowKey.value, rstep, colKey.value, cstep);
-  const hist = useHistgram(data, histKey.value, step);
+  const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
+  const hist = useHistgram(data, rowKey.value, step);
 
   const { beep } = useBeep();
 
   return <VStack w="full" gap={0} >
-    <Navigation >
+    <Navigation>
       <>
         <Button onClick={beep}>btn</Button>
       </>
     </Navigation>
     <HStack w="full" p={4} gap={4}>
-      <Card borderRadius={16} p={4} w="full" gap={2}>
-        <HStack w="full">
-          <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
-          <Spacer />
-          {rowKeySelect}
-          <Icon as={MdClose} textColor={"GrayText"} />
-          {colKeySelect}
-        </HStack>
-        <HStack justifyContent={"center"} align={"center"} w="full">
-          {rowStepSlider}
-          <Box w="full">
-            <HeatmapChart ratio={1.6} data={heatmap} />
-            <Center>
-              {colStepSlider}
-            </Center>
-          </Box>
-        </HStack>
-      </Card>
-      <Card borderRadius={16} p={4} w="full" gap={2}>
-        <HStack w="full">
-          <Heading textColor={'GrayText'} fontSize={"lg"} ml={4}>Data</Heading>
-          <Spacer />
-          {histKeySelect}
-        </HStack>
-        <HistgramChart ratio={1.6} data={hist} />
-        <Center>
-          {stepSlider}
-        </Center>
+      <Card borderRadius={16} p={4} gap={2} w="xl">
+        <Tabs variant='enclosed' colorScheme='cyan'>
+          <TabList>
+            <Tab>Heatmap</Tab>
+            <Tab>Histgram</Tab>
+            <Spacer />
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <HeatmapChart ratio={1.6} data={corr} />
+              <HStack mt={4}>
+                <Spacer />
+                {rowKeySelect}
+                {colKeySelect}
+                {stepSlider}
+              </HStack>
+            </TabPanel>
+            <TabPanel>
+              <HistgramChart ratio={1.6} data={hist} />
+              <HStack mt={4}>
+                <Spacer />
+                {rowKeySelect}
+                {stepSlider}
+              </HStack>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Card>
     </HStack>
   </VStack >;
