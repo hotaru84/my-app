@@ -4,8 +4,6 @@ import { PanelResizeHandle } from "react-resizable-panels";
 
 export const PanelResizeHandler: FC<BoxProps> = (props) => {
   return (
-    <PanelResizeHandle>
-      <Center {...props}>{props.children}</Center>
-    </PanelResizeHandle>
+    <PanelResizeHandle style={{ borderColor: 'blue.400', borderWidth: 1 }} />
   );
 };

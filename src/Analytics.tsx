@@ -11,7 +11,8 @@ import {
   Tabs,
   Tab,
   TabPanel,
-  TabPanels
+  TabPanels,
+  Flex
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
@@ -21,6 +22,9 @@ import { Select } from "chakra-react-select";
 import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter } from "react-use";
 import { useBeep } from "./useBeep";
+import GridLayoutTemplate from "./gridLayoutTemplate";
+import { DragSortableContext } from "./dragSortableContext";
+import { useDragSortableItem } from "./useDragSortableItem";
 
 type Bin = {
   a: number;
@@ -100,6 +104,38 @@ const useStepSlider = (count: number) => {
   }
 }
 
+interface Props {
+  id: string;
+}
+
+const SortableCard: FC<Props> = ({ id }) => {
+  const { itemProps } = useDragSortableItem(id);
+  return (
+    <Card
+      {...itemProps}
+      borderRadius={8}
+      colorScheme="cyan"
+      aspectRatio={1}
+      h="full"
+    >{id}</Card>
+  );
+}
+
+const SortableBox: FC = () => {
+
+  function getUniqueStr(id: number) {
+    var strong = 100;
+    return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16) + id;
+  }
+
+  const [ids, setIds] = useState<string[]>([...Array(4)].map((_, i) => getUniqueStr(i)));
+
+  return <Flex>
+    <DragSortableContext ids={ids} setIds={setIds}>
+      {ids.map(id => (<SortableCard key={id} id={id} />))}
+    </DragSortableContext>
+  </Flex>
+}
 
 const Analytics: FC = () => {
   const data_max = 500;
@@ -119,6 +155,14 @@ const Analytics: FC = () => {
   const hist = useHistgram(data, rowKey.value, step);
 
   const { beep } = useBeep();
+
+  return <Flex bgColor={'gray.100'} p={2} w="full" h="full">
+    <GridLayoutTemplate
+      vertical
+      childrens={[...Array(5)].map((_, key) => (
+        <SortableBox key={key} />
+      ))} />
+  </Flex>;
 
   return <VStack w="full" gap={0} >
     <Navigation>

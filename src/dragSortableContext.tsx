@@ -24,7 +24,6 @@ interface Props {
   setIds: (ids: string[]) => void;
 }
 export const DragSortableContext: FC<Props> = ({ children, ids, setIds }) => {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -32,10 +31,6 @@ export const DragSortableContext: FC<Props> = ({ children, ids, setIds }) => {
     }),
     useSensor(TouchSensor)
   );
-
-  function handleDragStart(event: DragStartEvent) {
-    setActiveId(String(event.active.id));
-  }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -45,13 +40,10 @@ export const DragSortableContext: FC<Props> = ({ children, ids, setIds }) => {
       const newIndex = ids.findIndex((i) => over?.id === i);
       setIds(arrayMove(ids, oldIndex, newIndex));
     }
-    setActiveId(null);
   }
 
   return (
     <DndContext
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       sensors={sensors}
     >

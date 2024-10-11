@@ -25,12 +25,6 @@ export function useDragSortableItem(id: string): ItemProps {
       style: {
         transform: CSS.Transform.toString(transform),
         transition,
-        scale: isDragging ? 1.05 : 1,
-        zIndex: isDragging ? 1 : 0,
-        boxShadow: isDragging
-          ? '0 0 0 1px rgba(63, 63, 68, 0.05), 0px 15px 15px 0 rgba(34, 33, 81, 0.25)'
-          : undefined,
-        touchAction: "none",
       },
     }),
     [attributes, id, isDragging, listeners, setNodeRef, transform, transition]

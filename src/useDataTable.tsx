@@ -63,10 +63,10 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
   const renderTable = useCallback(() => <ChakraTable variant='simple' width={table.getCenterTotalSize()}>
     <Thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <Tr key={headerGroup.id} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
+        <Tr key={'tbl-' + headerGroup.id} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
           {headerGroup.headers.map(header => (
             <Th
-              key={header.id}
+              key={'th-' + header.id + headerGroup.id}
               colSpan={header.colSpan}
               width={header.getSize()}
               position={"relative"}
@@ -100,9 +100,8 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
         <Tr key={row.id}>
           {row.getVisibleCells().map((cell) => {
             const meta: any = cell.column.columnDef.meta;
-            console.log(meta)
             return (
-              <Td key={cell.id} isNumeric={meta?.isNumeric} isTruncated w={meta?.mw ?? 'fit-content'}>
+              <Td key={row.id} isNumeric={meta?.isNumeric} isTruncated w={meta?.mw ?? 'fit-content'}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Td>
             );

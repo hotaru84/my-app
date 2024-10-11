@@ -13,6 +13,7 @@ import {
   Spacer,
   IconButton,
 } from "@chakra-ui/react";
+import { useDraggable } from "@dnd-kit/core";
 import { motion } from "framer-motion";
 import { FC } from "react";
 import { IconType } from "react-icons";
@@ -27,6 +28,7 @@ export interface StatData {
   icon: IconType;
   isup?: boolean;
   emphasize?: true;
+  id: string;
 }
 
 const StatCard: FC<StatData> = ({
@@ -37,7 +39,9 @@ const StatCard: FC<StatData> = ({
   icon,
   isup,
   emphasize,
+  id
 }) => {
+
   return (
     <Card
       rounded={16}
