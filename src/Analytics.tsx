@@ -7,24 +7,26 @@ import {
   IconButton,
   Button,
   ButtonGroup,
-  TabList,
-  Tabs,
-  Tab,
-  TabPanel,
-  TabPanels,
-  Flex
+  Text,
+  Box,
+  CardHeader,
+  Switch,
+  useDisclosure,
+  Icon
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
 import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
-import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
-import { useCounter } from "react-use";
+import { TbArrowBack, TbDragDrop, TbMinus, TbPlus } from "react-icons/tb";
+import { useCounter, useLocalStorage } from "react-use";
 import { useBeep } from "./useBeep";
-import GridLayoutTemplate from "./gridLayoutTemplate";
-import { DragSortableContext } from "./dragSortableContext";
-import { useDragSortableItem } from "./useDragSortableItem";
+import { Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
+
+import './react-grid-layout.css'
+import { MdOutlineDragIndicator } from "react-icons/md";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Bin = {
   a: number;
@@ -104,40 +106,15 @@ const useStepSlider = (count: number) => {
   }
 }
 
-interface Props {
-  id: string;
-}
-
-const SortableCard: FC<Props> = ({ id }) => {
-  const { itemProps } = useDragSortableItem(id);
-  return (
-    <Card
-      {...itemProps}
-      borderRadius={8}
-      colorScheme="cyan"
-      aspectRatio={1}
-      h="full"
-    >{id}</Card>
-  );
-}
-
-const SortableBox: FC = () => {
-
-  function getUniqueStr(id: number) {
-    var strong = 100;
-    return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16) + id;
-  }
-
-  const [ids, setIds] = useState<string[]>([...Array(4)].map((_, i) => getUniqueStr(i)));
-
-  return <Flex>
-    <DragSortableContext ids={ids} setIds={setIds}>
-      {ids.map(id => (<SortableCard key={id} id={id} />))}
-    </DragSortableContext>
-  </Flex>
-}
-
 const Analytics: FC = () => {
+  const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
+  const { isOpen, onToggle } = useDisclosure();
+  const [layouts, setLayouts, removeLayout] = useLocalStorage<Layouts>('analytics-layout', {
+    sm: [
+      { i: 'heatmap', x: 0, y: 0, w: 2, h: 2 },
+      { i: 'histgram', x: 3, y: 0, w: 2, h: 2 }
+    ]
+  });
   const data_max = 500;
   const data_count = 1000;
   const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
@@ -156,51 +133,65 @@ const Analytics: FC = () => {
 
   const { beep } = useBeep();
 
-  return <Flex bgColor={'gray.100'} p={2} w="full" h="full">
-    <GridLayoutTemplate
-      vertical
-      childrens={[...Array(5)].map((_, key) => (
-        <SortableBox key={key} />
-      ))} />
-  </Flex>;
+  const onLayoutChange = (l: Layout[], layouts: Layouts) => {
+    setLayouts(layouts);
+  };
+  const cardStyle = () => {
+    if (isOpen) return {
+      boxShadow: 'lg',
+      rounded: 4,
+      cursor: 'grab'
+    }
+    return {}
+  };
 
   return <VStack w="full" gap={0} >
     <Navigation>
-      <>
-        <Button onClick={beep}>btn</Button>
-      </>
+      <Spacer />
+      <Button onClick={beep}>btn</Button>
+      <Switch onChange={onToggle} isChecked={isOpen}>Lock</Switch>
+      <Button onClick={removeLayout}>reset</Button>
     </Navigation>
-    <HStack w="full" p={4} gap={4}>
-      <Card borderRadius={16} p={4} gap={2} w="xl">
-        <Tabs variant='enclosed' colorScheme='cyan'>
-          <TabList>
-            <Tab>Heatmap</Tab>
-            <Tab>Histgram</Tab>
+    <Box w="full">
+      <ResponsiveGridLayout
+        className="layout"
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        containerPadding={[16, 16]}
+        margin={[16, 16]}
+        isDraggable={isOpen}
+        isResizable={isOpen}
+        layouts={layouts}
+        onLayoutChange={onLayoutChange}
+      >
+        <Card key={'heatmap'} rounded={16} {...cardStyle()}>
+          <CardHeader p={2} gap={2} justifyContent={"center"}>
+            title
+          </CardHeader>
+          <Box flex={1} maxH={"calc(100% - 100px)"} pb={2}>
+            <HeatmapChart data={corr} />
+          </Box>
+          <HStack>
             <Spacer />
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <HeatmapChart ratio={1.6} data={corr} />
-              <HStack mt={4}>
-                <Spacer />
-                {rowKeySelect}
-                {colKeySelect}
-                {stepSlider}
-              </HStack>
-            </TabPanel>
-            <TabPanel>
-              <HistgramChart ratio={1.6} data={hist} />
-              <HStack mt={4}>
-                <Spacer />
-                {rowKeySelect}
-                {stepSlider}
-              </HStack>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Card>
-    </HStack>
-  </VStack >;
+            {rowKeySelect}
+            {colKeySelect}
+            {stepSlider}
+          </HStack>
+        </Card>
+        <Card key={'histgram'} rounded={16}  {...cardStyle()}>
+          <CardHeader p={2}>title</CardHeader>
+          <Box flex={1} maxH={"calc(100% - 100px)"} pb={2}>
+            <HistgramChart data={hist} />
+          </Box>
+          <HStack>
+            <Spacer />
+            {rowKeySelect}
+            {stepSlider}
+          </HStack>
+        </Card>
+      </ResponsiveGridLayout>
+    </Box>
+  </VStack >
 };
 
 export default Analytics;

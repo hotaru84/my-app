@@ -10,8 +10,6 @@ import {
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, HStack, ResponsiveValue, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { Histgram2d } from "./useHistgram";
 
 ChartJS.register(
@@ -22,11 +20,10 @@ ChartJS.register(
 );
 
 interface ChartProps {
-  ratio?: ResponsiveValue<number>;
   data: Histgram2d;
 }
 
-const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
+const HeatmapChart: FC<ChartProps> = ({ data: histgram }) => {
   const bins = useMemo(() => histgram.bins, [histgram.bins]);
   const rstep = useMemo(() => Math.ceil((histgram.row.max - histgram.row.min) / bins.length), [bins, histgram.row]);
   const cstep = useMemo(() => bins.length > 0 ? Math.ceil((histgram.col.max - histgram.col.min) / bins[0].length) : 0, [bins, histgram.col]);
@@ -50,6 +47,9 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
     {
       maintainAspectRatio: false,
       responsive: true,
+      title: {
+        label: 'test'
+      },
       scales: {
         x: {
           type: 'linear',
@@ -98,11 +98,7 @@ const HeatmapChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
       }
     }), [bins, cstep, histgram.col.min, histgram.row.min, rstep]);
 
-  return <motion.div layout>
-    <AspectRatio ratio={ratio}>
-      <Chart type={"bar"} options={options} data={data} />
-    </AspectRatio>
-  </motion.div>;
+  return <Chart type={"bar"} options={options} data={data} />
 };
 
 export default HeatmapChart;

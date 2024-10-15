@@ -11,8 +11,6 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ResponsiveValue } from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { Histgram } from "./useHistgram";
 
 ChartJS.register(
@@ -23,11 +21,10 @@ ChartJS.register(
 );
 
 interface ChartProps {
-  ratio?: ResponsiveValue<number>;
   data: Histgram;
 }
 
-const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
+const HistgramChart: FC<ChartProps> = ({ data: histgram }) => {
   const bins = histgram.bins;
   const step = Math.floor((histgram.row.max - histgram.row.min) / bins.length);
 
@@ -82,11 +79,7 @@ const HistgramChart: FC<ChartProps> = ({ ratio, data: histgram }) => {
       }
     }), [bins, histgram.row.max, histgram.row.min, step]);
 
-  return <motion.div layout>
-    <AspectRatio ratio={ratio}>
-      <Chart type={"bar"} options={options} data={data} />
-    </AspectRatio>
-  </motion.div >;
+  return <Chart type={"bar"} options={options} data={data} />;
 };
 
 export default HistgramChart;

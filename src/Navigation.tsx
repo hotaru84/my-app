@@ -12,10 +12,10 @@ import { DetailDrawer } from "./DetailDrawer";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import { CustomFilter } from "./CustomFilter";
 import { FilterActions } from "./FilterActions";
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, ReactNode } from "react";
 
 type NavigationProps = {
-  children?: ReactElement;
+  children?: ReactNode;
 }
 
 export const Navigation: FC<NavigationProps> = ({ children }) => {
