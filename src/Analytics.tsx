@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, ReactNode, useMemo, useState } from "react";
 import {
   Card,
   HStack,
@@ -7,12 +7,30 @@ import {
   IconButton,
   Button,
   ButtonGroup,
-  Text,
+  Image,
   Box,
   CardHeader,
   Switch,
   useDisclosure,
-  Icon
+  Icon,
+  CardBody,
+  CardFooter,
+  Stack,
+  Input,
+  Hide,
+  CardProps,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Avatar,
+  Center,
+  Portal,
+  PopoverFooter,
+  Tooltip
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
@@ -20,13 +38,14 @@ import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
 import { TbArrowBack, TbDragDrop, TbMinus, TbPlus } from "react-icons/tb";
-import { useCounter, useLocalStorage } from "react-use";
+import { useCounter, useLocalStorage, useMeasure } from "react-use";
 import { useBeep } from "./useBeep";
-import { Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
+import { Layout, Layouts, ReactGridLayoutProps, Responsive, WidthProvider } from "react-grid-layout";
 
 import './react-grid-layout.css'
 import { MdOutlineDragIndicator } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
+import { title } from "process";
 
 type Bin = {
   a: number;
@@ -106,6 +125,57 @@ const useStepSlider = (count: number) => {
   }
 }
 
+interface Props {
+  isEditable: boolean;
+  header: ReactNode;
+  body: ReactNode;
+  footer: ReactNode;
+}
+const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
+  const [ref, { width }] = useMeasure<HTMLDivElement>();
+  const { isOpen, onToggle, onClose } = useDisclosure();
+
+  const cardStyle = () => {
+    if (isEditable) return {
+      boxShadow: 'lg',
+      rounded: 4,
+      cursor: 'grab'
+    }
+    return {}
+  };
+
+  return <>
+    <Card rounded={16} {...cardStyle()} h="full" ref={ref}>
+      {width > 200 ? <>
+        <CardHeader p={2}>
+          {header}
+        </CardHeader>
+        <CardBody p={2} maxH={"full"} overflow={'auto'}>
+          {body}
+        </CardBody><CardFooter p={2}>
+          {footer}
+        </CardFooter>
+      </> : <Center h="full">
+        <Popover>
+          <PopoverTrigger>
+            <Avatar cursor={'pointer'} />
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader>{header}</PopoverHeader>
+              <PopoverBody>{body}</PopoverBody>
+              <PopoverFooter>{footer}</PopoverFooter>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+      </Center>
+      }
+    </Card>
+  </>
+}
+
 const Analytics: FC = () => {
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
   const { isOpen, onToggle } = useDisclosure();
@@ -136,21 +206,18 @@ const Analytics: FC = () => {
   const onLayoutChange = (l: Layout[], layouts: Layouts) => {
     setLayouts(layouts);
   };
-  const cardStyle = () => {
-    if (isOpen) return {
-      boxShadow: 'lg',
-      rounded: 4,
-      cursor: 'grab'
-    }
-    return {}
-  };
 
-  return <VStack w="full" gap={0} >
+  return <VStack w="full"
+    gap={0}
+    backgroundSize={"cover"}
+    backgroundColor="rgba(255,255,255,0.5)"
+    backgroundBlendMode={"lighten"}>
     <Navigation>
       <Spacer />
       <Button onClick={beep}>btn</Button>
       <Switch onChange={onToggle} isChecked={isOpen}>Lock</Switch>
       <Button onClick={removeLayout}>reset</Button>
+      <Input size='md' type='file' />
     </Navigation>
     <Box w="full">
       <ResponsiveGridLayout
@@ -162,33 +229,49 @@ const Analytics: FC = () => {
         isDraggable={isOpen}
         isResizable={isOpen}
         layouts={layouts}
+        compactType={null}
         onLayoutChange={onLayoutChange}
       >
-        <Card key={'heatmap'} rounded={16} {...cardStyle()}>
-          <CardHeader p={2} gap={2} justifyContent={"center"}>
-            title
-          </CardHeader>
-          <Box flex={1} maxH={"calc(100% - 100px)"} pb={2}>
-            <HeatmapChart data={corr} />
-          </Box>
-          <HStack>
-            <Spacer />
-            {rowKeySelect}
-            {colKeySelect}
-            {stepSlider}
-          </HStack>
-        </Card>
-        <Card key={'histgram'} rounded={16}  {...cardStyle()}>
-          <CardHeader p={2}>title</CardHeader>
-          <Box flex={1} maxH={"calc(100% - 100px)"} pb={2}>
-            <HistgramChart data={hist} />
-          </Box>
-          <HStack>
-            <Spacer />
-            {rowKeySelect}
-            {stepSlider}
-          </HStack>
-        </Card>
+        <motion.div key={"heatmap"}>
+          <ResizableCard
+            isEditable={isOpen}
+            header={"title"}
+            body={<HeatmapChart data={corr} />}
+            footer={
+              <>
+                <Spacer />
+                {rowKeySelect}
+                {colKeySelect}
+                {stepSlider}
+              </>
+            }
+          />
+        </motion.div>
+        <motion.div key={"histgram"}>
+          <ResizableCard
+            isEditable={isOpen}
+            header={"title"}
+            body={<HistgramChart data={hist} />}
+            footer={
+              <>
+                <Spacer />
+                {rowKeySelect}
+                {stepSlider}
+              </>
+            }
+          />
+        </motion.div>
+        <motion.div key={"image"}>
+          <ResizableCard
+            isEditable={isOpen}
+            header={"title"}
+            body={<Image
+              src="sample.svg"
+              fit="contain"
+            />}
+            footer={<></>}
+          />
+        </motion.div>
       </ResponsiveGridLayout>
     </Box>
   </VStack >
