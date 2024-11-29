@@ -1,24 +1,17 @@
-import { FC, ReactNode, useMemo, useState } from "react";
+import { Children, FC, ReactElement, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   Card,
-  HStack,
   VStack,
   Spacer,
   IconButton,
-  Button,
   ButtonGroup,
   Image,
-  Box,
   CardHeader,
   Switch,
   useDisclosure,
-  Icon,
   CardBody,
   CardFooter,
-  Stack,
   Input,
-  Hide,
-  CardProps,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -30,22 +23,20 @@ import {
   Center,
   Portal,
   PopoverFooter,
-  Tooltip
+  Box,
+  SimpleGrid
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
 import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
-import { TbArrowBack, TbDragDrop, TbMinus, TbPlus } from "react-icons/tb";
+import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter, useLocalStorage, useMeasure } from "react-use";
-import { useBeep } from "./useBeep";
-import { Layout, Layouts, ReactGridLayoutProps, Responsive, WidthProvider } from "react-grid-layout";
+import ReactGridLayout, { Layout, Layouts } from "react-grid-layout";
 
 import './react-grid-layout.css'
-import { MdOutlineDragIndicator } from "react-icons/md";
-import { AnimatePresence, motion } from "framer-motion";
-import { title } from "process";
+import { motion } from "framer-motion";
 
 type Bin = {
   a: number;
@@ -176,15 +167,91 @@ const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
   </>
 }
 
-const Analytics: FC = () => {
-  const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
-  const { isOpen, onToggle } = useDisclosure();
-  const [layouts, setLayouts, removeLayout] = useLocalStorage<Layouts>('analytics-layout', {
-    sm: [
-      { i: 'heatmap', x: 0, y: 0, w: 2, h: 2 },
-      { i: 'histgram', x: 3, y: 0, w: 2, h: 2 }
-    ]
+const DetailCard: FC = () => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const tmo = setInterval(() => {
+      setCount(count + 1);
+    }, 10);
+    return () => {
+      clearInterval(tmo);
+    }
   });
+
+  return <Card>
+    {count}
+  </Card>
+}
+
+interface LayoutProps {
+  children: ReactElement[];
+  isEditable?: boolean;
+  width?: number;
+  rowHeight?: number;
+}
+
+const FixedLayout: FC<LayoutProps> = ({ children }) => {
+  return <SimpleGrid columns={4} gap={4} p={4}>
+    {children}
+  </SimpleGrid>;
+}
+
+const EditableFreeLayout: FC<LayoutProps> = ({ children, isEditable = false, width, rowHeight }) => {
+  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-free-layouts', []);
+
+  const onLayoutChange = (l: Layout[] | undefined) => {
+    if (l === undefined) return;
+
+    setLayout(l);
+  };
+
+  return <ReactGridLayout
+    className="layout"
+    containerPadding={[16, 16]}
+    margin={[16, 16]}
+    isDraggable={isEditable}
+    isResizable={isEditable}
+    layout={layout}
+    onLayoutChange={onLayoutChange}
+    compactType={null}
+    allowOverlap={true}
+    width={width}
+    rowHeight={60}
+  >
+    {children}
+  </ReactGridLayout>;
+}
+
+const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, width, rowHeight }) => {
+  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-align-layouts', []);
+
+  const onLayoutChange = (l: Layout[] | undefined) => {
+    if (l === undefined) return;
+
+    setLayout(l);
+  };
+
+  return <ReactGridLayout
+    className="layout"
+    containerPadding={[16, 16]}
+    margin={[16, 16]}
+    isDraggable={isEditable}
+    isResizable={isEditable}
+    layout={layout}
+    onLayoutChange={onLayoutChange}
+    width={width}
+    rowHeight={rowHeight}
+  >
+    {children}
+  </ReactGridLayout>;
+}
+
+interface ListCardsProps {
+  isOpen: boolean;
+}
+const ListCards: FC<ListCardsProps> = ({ isOpen }) => {
+
   const data_max = 500;
   const data_count = 1000;
   const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
@@ -197,82 +264,72 @@ const Analytics: FC = () => {
   const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
   const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
   const { step, render: stepSlider } = useStepSlider(data_count);
+  const [ref, { width }] = useMeasure<HTMLDivElement>();
 
   const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
   const hist = useHistgram(data, rowKey.value, step);
+  const CardLayouts = useMemo(() => isOpen && width > 600 ? EditableFreeLayout : FixedLayout, [isOpen, width]);
 
-  const { beep } = useBeep();
+  return <Box ref={ref} w="full" h="full">
+    <CardLayouts isEditable={isOpen} width={width}>
+      <motion.div key={"a"}>
+        <ResizableCard
+          isEditable={isOpen}
+          header={"title"}
+          body={<HeatmapChart data={corr} />}
+          footer={
+            <>
+              <Spacer />
+              {rowKeySelect}
+              {colKeySelect}
+              {stepSlider}
+            </>
+          }
+        />
+      </motion.div>
+      <motion.div key={"b"}>
+        <ResizableCard
+          isEditable={isOpen}
+          header={"title"}
+          body={<HistgramChart data={hist} />}
+          footer={
+            <>
+              <Spacer />
+              {rowKeySelect}
+              {stepSlider}
+            </>
+          }
+        />
+      </motion.div>
+      <motion.div key={"c"}>
+        <ResizableCard
+          isEditable={isOpen}
+          header={"title"}
+          body={<Image
+            src="sample.svg"
+            fit="contain"
+          />}
+          footer={<></>}
+        />
+      </motion.div>
+    </CardLayouts></Box>;
+}
 
-  const onLayoutChange = (l: Layout[], layouts: Layouts) => {
-    setLayouts(layouts);
-  };
+const Analytics: FC = () => {
+  const { isOpen, onToggle } = useDisclosure();
 
-  return <VStack w="full"
+  return <VStack w="full" h="full"
     gap={0}
     backgroundSize={"cover"}
     backgroundColor="rgba(255,255,255,0.5)"
     backgroundBlendMode={"lighten"}>
     <Navigation>
       <Spacer />
-      <Button onClick={beep}>btn</Button>
       <Switch onChange={onToggle} isChecked={isOpen}>Lock</Switch>
-      <Button onClick={removeLayout}>reset</Button>
       <Input size='md' type='file' />
     </Navigation>
-    <Box w="full">
-      <ResponsiveGridLayout
-        className="layout"
-        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        containerPadding={[16, 16]}
-        margin={[16, 16]}
-        isDraggable={isOpen}
-        isResizable={isOpen}
-        layouts={layouts}
-        compactType={null}
-        onLayoutChange={onLayoutChange}
-      >
-        <motion.div key={"heatmap"}>
-          <ResizableCard
-            isEditable={isOpen}
-            header={"title"}
-            body={<HeatmapChart data={corr} />}
-            footer={
-              <>
-                <Spacer />
-                {rowKeySelect}
-                {colKeySelect}
-                {stepSlider}
-              </>
-            }
-          />
-        </motion.div>
-        <motion.div key={"histgram"}>
-          <ResizableCard
-            isEditable={isOpen}
-            header={"title"}
-            body={<HistgramChart data={hist} />}
-            footer={
-              <>
-                <Spacer />
-                {rowKeySelect}
-                {stepSlider}
-              </>
-            }
-          />
-        </motion.div>
-        <motion.div key={"image"}>
-          <ResizableCard
-            isEditable={isOpen}
-            header={"title"}
-            body={<Image
-              src="sample.svg"
-              fit="contain"
-            />}
-            footer={<></>}
-          />
-        </motion.div>
-      </ResponsiveGridLayout>
+    <Box w="full" h="full">
+      <ListCards isOpen={isOpen} />
     </Box>
   </VStack >
 };

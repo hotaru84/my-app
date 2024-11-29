@@ -19,6 +19,7 @@ import { useIdsSearchParam } from "./userIdsSearchParam";
 import { TbTrash } from "react-icons/tb";
 import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
+import { Navigation } from "./Navigation";
 
 function getUniqueStr(id: number) {
   var strong = 100;
@@ -69,7 +70,8 @@ const CardsByCategory: FC<Props> = ({ num, props }) => {
 export const Cards = () => {
   const { selected, clearAll } = useIdsSearchParam();
 
-  return (
+  return (<VStack>
+    <Navigation />
     <HStack w="full" h="full" align={"start"} p={2} sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
       <ButtonGroup orientation="vertical" position={'sticky'} top={0} left={0}>
         <ColorModeSwitcher />
@@ -95,5 +97,6 @@ export const Cards = () => {
         <CardsByCategory num={4} props={{ w: "100px" }} />
       </VStack>
     </HStack>
+  </VStack>
   );
 }

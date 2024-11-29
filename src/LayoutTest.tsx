@@ -6,10 +6,13 @@ import { Cards } from "./Cards";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import TreemapChart from "./TreemapChart";
 import { Box, Fade } from "@chakra-ui/react";
+import { Navigation } from "./Navigation";
 
 const LayoutTest: FC = () => {
   return (
     <Fade in>
+      <Navigation>
+      </Navigation>
       <PanelGroup direction="horizontal" autoSaveId={"app-layout"}>
         <Panel defaultSize={5}>
           <ColorModeSwitcher />

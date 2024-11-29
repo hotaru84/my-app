@@ -18,6 +18,7 @@ export const useBeep = (
   const open = useCallback(() => {
     if (!isOpen) {
       audioCtxRef.current = new AudioContext();
+      console.log("open")
     }
   }, [isOpen]);
   const close = useCallback(() => {
@@ -36,9 +37,7 @@ export const useBeep = (
       n.connect(audioCtx.destination);
       n.start(audioCtx.currentTime + rest);
       n.stop(audioCtx.currentTime + length + rest);
-      n.onended = () => {
-        n.disconnect();
-      };
+      console.log('beep');
     }
   }, [hz, isOpen, length, rest]);
 

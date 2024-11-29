@@ -1,8 +1,12 @@
-import { VStack, Flex, Fade } from "@chakra-ui/react";
+import { VStack, Flex, Fade, HStack, Spacer, Box } from "@chakra-ui/react";
 import { FC, ReactElement, useMemo } from "react";
 import { PanelGroup, Panel } from "react-resizable-panels";
 import { PanelResizeHandler } from "./PanelResizeHandler";
 import { motion } from "framer-motion";
+import ReactGridLayout from "react-grid-layout";
+
+import './react-grid-layout.css'
+import { useMeasure } from "react-use";
 
 interface ListDetailTemplateProps {
   header?: ReactElement;
@@ -15,50 +19,26 @@ const ListDetailTemplate: FC<ListDetailTemplateProps> = ({
   list,
   detail,
 }) => {
-  const resizable = useMemo(
-    () => list !== undefined && detail !== undefined,
-    [detail, list]
-  );
-
+  const [ref, { width, height }] = useMeasure<HTMLDivElement>();
   return (
-    <VStack w="full" h="full" gap={0} as={Fade} in>
+    <VStack w="full" h="full" gap={0}>
       {header}
-      <PanelGroup direction={"horizontal"}>
-        {list && (
-          <Panel
-            minSize={10}
-            collapsible
-            defaultSize={detail ? 30 : 100}
-            style={{
-              overflow: "auto",
-            }}
-          >
+      <Box w="full" h="full" ref={ref}>
+        <ReactGridLayout
+          className="layout"
+          compactType={'vertical'}
+          resizeHandles={['e']}
+          width={width / 10}
+          rowHeight={height}
+          isBounded={true}
+          preventCollision
+        >
+          <Box key='list-panel' data-grid={{ x: 0, y: 0, w: 3, h: 1 }}>
             {list}
-          </Panel>
-        )}
-        {resizable && (
-          <PanelResizeHandler
-            h="full"
-            w={2}
-            transitionDelay=".25s"
-            _hover={{
-              bgColor: "blue.400",
-              opacity: 0.8,
-              transition: ".25s",
-            }}
-          />
-        )}
-        {detail && (
-          <Panel
-            defaultSize={list ? 70 : 100}
-            style={{
-              overflow: "auto",
-            }}
-          >
-            {detail}
-          </Panel>
-        )}
-      </PanelGroup>
+          </Box>
+        </ReactGridLayout>
+        {detail}
+      </Box>
     </VStack>
   );
 };
