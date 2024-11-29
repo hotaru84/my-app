@@ -1,4 +1,4 @@
-import { Children, FC, ReactElement, ReactNode, useEffect, useMemo, useState } from "react";
+import { FC, ReactElement, ReactNode, useMemo, useState } from "react";
 import {
   Card,
   VStack,
@@ -7,22 +7,10 @@ import {
   ButtonGroup,
   Image,
   CardHeader,
-  Switch,
   useDisclosure,
   CardBody,
   CardFooter,
   Input,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  Avatar,
-  Center,
-  Portal,
-  PopoverFooter,
   Box,
   SimpleGrid,
   Button,
@@ -35,7 +23,7 @@ import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
 import { TbArrowBack, TbCheck, TbEdit, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter, useLocalStorage, useMeasure } from "react-use";
-import ReactGridLayout, { Layout, Layouts } from "react-grid-layout";
+import ReactGridLayout, { Layout } from "react-grid-layout";
 
 import './react-grid-layout.css'
 import { motion } from "framer-motion";
@@ -119,13 +107,35 @@ const useStepSlider = (count: number) => {
   }
 }
 
-interface Props {
-  isEditable: boolean;
-  header: ReactNode;
-  body: ReactNode;
-  footer: ReactNode;
+
+type PanelType = 'stats' | 'heatmap' | 'histgram' | 'gallery' | 'datatable';
+
+type PanelInfo = {
+  title: string;
+  desc?: string;
+  type: PanelType;
 }
-const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
+interface PanelProps {
+  isEditable: boolean;
+  info: PanelInfo;
+}
+
+const ResizableCard: FC<PanelProps> = ({ isEditable, info }) => {
+  const data_max = 500;
+  const data_count = 1000;
+  const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
+    a: Math.round(gaussianRandom(data_max, 1) * 50),
+    b: Math.round(gaussianRandom(data_max, 1.2) * 50),
+    c: Math.round(gaussianRandom(data_max, 1.4) * 50),
+    d: Math.round(data_max * Math.random() + 50),
+  })), []);
+
+  const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
+  const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
+  const { step, render: stepSlider } = useStepSlider(data_count);
+
+  const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
+  const hist = useHistgram(data, rowKey.value, step);
 
   const cardStyle = () => {
     if (isEditable) return {
@@ -135,19 +145,46 @@ const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
     }
     return {}
   };
+  const body = () => {
+    switch (info.type) {
+      case 'gallery':
+        return <Image
+          src="sample.svg"
+          fit="contain"
+        />;
+      case 'histgram':
+        return <HistgramChart data={hist} />;
+      case 'heatmap':
+        return <HeatmapChart data={corr} />;
+      default:
+        return <></>;
+    }
+  };
+  const footer = () => {
+    switch (info.type) {
+      case 'histgram':
+        return <>{rowKeySelect}
+          {stepSlider}</>;
+      case 'heatmap':
+        return <>{rowKeySelect}
+          {colKeySelect}
+          {stepSlider}</>;
+      default:
+        return <></>;
+    }
+  }
 
-  return <>
-    <Card rounded={16} {...cardStyle()} h="full">
-      <CardHeader p={2}>
-        {header}
-      </CardHeader>
-      <CardBody p={2} maxH={"full"} overflow={'auto'}>
-        {body}
-      </CardBody><CardFooter p={2}>
-        {footer}
-      </CardFooter>
-    </Card>
-  </>
+
+  return <Card rounded={16} {...cardStyle()} h="full">
+    <CardHeader p={2}>
+      {info.title}
+    </CardHeader>
+    <CardBody p={2} maxH={"full"} overflow={'auto'}>
+      {body()}
+    </CardBody><CardFooter p={2}>
+      {footer()}
+    </CardFooter>
+  </Card>;
 }
 
 interface LayoutProps {
@@ -198,15 +235,6 @@ const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, 
   </ReactGridLayout>;
 }
 
-type CardType = 'stats' | 'heatmap' | 'histgram' | 'gallery' | 'datatable';
-
-type CardInfo = {
-  id: string;
-  title: string;
-  desc: string;
-  type: CardType;
-}
-
 interface EditToolbarProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -249,21 +277,7 @@ const EditToolbar: FC<EditToolbarProps> = ({ isOpen, onToggle }) => {
 }
 
 const ListCards: FC = () => {
-  const data_max = 500;
-  const data_count = 1000;
-  const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
-    a: Math.round(gaussianRandom(data_max, 1) * 50),
-    b: Math.round(gaussianRandom(data_max, 1.2) * 50),
-    c: Math.round(gaussianRandom(data_max, 1.4) * 50),
-    d: Math.round(data_max * Math.random() + 50),
-  })), []);
 
-  const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
-  const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
-  const { step, render: stepSlider } = useStepSlider(data_count);
-
-  const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
-  const hist = useHistgram(data, rowKey.value, step);
 
   const { isOpen, onToggle } = useDisclosure();
   const [ref, { width }] = useMeasure<HTMLDivElement>();
@@ -273,44 +287,23 @@ const ListCards: FC = () => {
 
   return <Box ref={ref} w="full" h="full">
     <CardLayouts isEditable={isOpen} width={width} layout={layout} onLayoutChange={onLayoutChange}>
-      <motion.div key={"b"}>
-        <ResizableCard
-          isEditable={isOpen}
-          header={"title"}
-          body={<HeatmapChart data={corr} />}
-          footer={
-            <>
-              <Spacer />
-              {rowKeySelect}
-              {colKeySelect}
-              {stepSlider}
-            </>
-          }
-        />
-      </motion.div>
       <motion.div key={"a"}>
         <ResizableCard
           isEditable={isOpen}
-          header={"title"}
-          body={<HistgramChart data={hist} />}
-          footer={
-            <>
-              <Spacer />
-              {rowKeySelect}
-              {stepSlider}
-            </>
-          }
+          info={{ title: 'b', type: 'gallery' }}
         />
       </motion.div>
+      <motion.div key={"b"}>
+        <ResizableCard
+          isEditable={isOpen}
+          key={"heatmap"}
+          info={{ title: 'b', type: 'heatmap' }}
+        /></motion.div>
       <motion.div key={"c"}>
         <ResizableCard
           isEditable={isOpen}
-          header={"title"}
-          body={<Image
-            src="sample.svg"
-            fit="contain"
-          />}
-          footer={<></>}
+          key={"histgram"}
+          info={{ title: 'b', type: 'histgram' }}
         />
       </motion.div>
     </CardLayouts>
