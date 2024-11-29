@@ -12,6 +12,7 @@ import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { Histgram } from "./useHistgram";
+import { Box } from "@chakra-ui/react";
 
 ChartJS.register(
   Title,
@@ -79,7 +80,7 @@ const HistgramChart: FC<ChartProps> = ({ data: histgram }) => {
       }
     }), [bins, histgram.row.max, histgram.row.min, step]);
 
-  return <Chart type={"bar"} options={options} data={data} />;
+  return <Box w="full" h="full"><Chart type={"bar"} options={options} data={data} /></Box>;
 };
 
 export default HistgramChart;

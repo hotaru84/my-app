@@ -10,6 +10,7 @@ import {
   TagLabel,
   Spacer,
   CircularProgress,
+  Box,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -69,7 +70,7 @@ const Dashboad: FC = () => {
           <Spacer />
         </>
       </Navigation>
-      <DndContext>
+      <Box w="full" h="full">
         <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0} overflow={"auto"}>
           <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4} >
             {stats.map((s, i) => (
@@ -107,7 +108,7 @@ const Dashboad: FC = () => {
             <Datacard />
           </SimpleGrid>
         </VStack>
-      </DndContext>
+      </Box>
     </VStack>
   );
 };

@@ -1,11 +1,7 @@
-import { VStack, Flex, Fade, HStack, Spacer, Box } from "@chakra-ui/react";
-import { FC, ReactElement, useMemo } from "react";
-import { PanelGroup, Panel } from "react-resizable-panels";
-import { PanelResizeHandler } from "./PanelResizeHandler";
-import { motion } from "framer-motion";
+import { VStack, Box } from "@chakra-ui/react";
+import { FC, ReactElement } from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import './react-grid-layout.css'
 import { useMeasure } from "react-use";
 
 interface ListDetailTemplateProps {

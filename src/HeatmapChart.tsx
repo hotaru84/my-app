@@ -11,6 +11,7 @@ import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
 import { Histgram2d } from "./useHistgram";
+import { Box } from "@chakra-ui/react";
 
 ChartJS.register(
   Title,
@@ -46,7 +47,6 @@ const HeatmapChart: FC<ChartProps> = ({ data: histgram }) => {
   const options: ChartOptions<"bar"> = useMemo(() => (
     {
       maintainAspectRatio: false,
-      responsive: true,
       title: {
         label: 'test'
       },
@@ -98,7 +98,7 @@ const HeatmapChart: FC<ChartProps> = ({ data: histgram }) => {
       }
     }), [bins, cstep, histgram.col.min, histgram.row.min, rstep]);
 
-  return <Chart type={"bar"} options={options} data={data} />
+  return <Box w="full" h="full"><Chart type={"bar"} options={options} data={data} /></Box>;
 };
 
 export default HeatmapChart;

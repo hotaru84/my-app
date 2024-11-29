@@ -1,20 +1,17 @@
-import { FC, ReactElement, ReactNode, useMemo, useState } from "react";
+import { FC, ReactNode, useMemo, useState } from "react";
 import {
-  Card,
   VStack,
   Spacer,
   IconButton,
   ButtonGroup,
   Image,
-  CardHeader,
   useDisclosure,
-  CardBody,
-  CardFooter,
   Input,
   Box,
-  SimpleGrid,
   Button,
-  ScaleFade
+  ScaleFade,
+  HStack,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
@@ -23,11 +20,11 @@ import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
 import { TbArrowBack, TbCheck, TbEdit, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter, useLocalStorage, useMeasure } from "react-use";
-import ReactGridLayout, { Layout } from "react-grid-layout";
 
-import './react-grid-layout.css'
-import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
+import EditableLayout, { EditableLayoutProps } from "./EditableLayout/EditableLayout";
+import { Layout } from "react-grid-layout";
+import EditableCard from "./EditableLayout/EditableCard";
 
 type Bin = {
   a: number;
@@ -80,7 +77,6 @@ const useKeySelect = (defaultIndex: number) => {
       menuPortalTarget={document.body}
       styles={{ menuPortal: (base) => ({ ...base, zIndex: "auto" }) }}
       useBasicStyles
-      variant="filled"
       focusBorderColor="cyan.400"
       size="sm"
       value={selectedKey}
@@ -99,7 +95,7 @@ const useStepSlider = (count: number) => {
   return {
     step: step,
     render: useMemo(() =>
-      <ButtonGroup size={"sm"} variant={"ghost"} isAttached colorScheme="cyan">
+      <ButtonGroup size={"sm"} isAttached>
         <IconButton aria-label={""} onClick={() => dec()} icon={<TbMinus />} />
         <IconButton aria-label={""} onClick={() => inc()} icon={<TbPlus />} />
         <IconButton aria-label={""} onClick={() => reset()} icon={<TbArrowBack />} />
@@ -108,131 +104,11 @@ const useStepSlider = (count: number) => {
 }
 
 
-type PanelType = 'stats' | 'heatmap' | 'histgram' | 'gallery' | 'datatable';
 
-type PanelInfo = {
-  title: string;
-  desc?: string;
-  type: PanelType;
-}
-interface PanelProps {
-  isEditable: boolean;
-  info: PanelInfo;
-}
-
-const ResizableCard: FC<PanelProps> = ({ isEditable, info }) => {
-  const data_max = 500;
-  const data_count = 1000;
-  const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
-    a: Math.round(gaussianRandom(data_max, 1) * 50),
-    b: Math.round(gaussianRandom(data_max, 1.2) * 50),
-    c: Math.round(gaussianRandom(data_max, 1.4) * 50),
-    d: Math.round(data_max * Math.random() + 50),
-  })), []);
-
-  const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
-  const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
-  const { step, render: stepSlider } = useStepSlider(data_count);
-
-  const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
-  const hist = useHistgram(data, rowKey.value, step);
-
-  const cardStyle = () => {
-    if (isEditable) return {
-      boxShadow: 'lg',
-      rounded: 4,
-      cursor: 'grab'
-    }
-    return {}
-  };
-  const body = () => {
-    switch (info.type) {
-      case 'gallery':
-        return <Image
-          src="sample.svg"
-          fit="contain"
-        />;
-      case 'histgram':
-        return <HistgramChart data={hist} />;
-      case 'heatmap':
-        return <HeatmapChart data={corr} />;
-      default:
-        return <></>;
-    }
-  };
-  const footer = () => {
-    switch (info.type) {
-      case 'histgram':
-        return <>{rowKeySelect}
-          {stepSlider}</>;
-      case 'heatmap':
-        return <>{rowKeySelect}
-          {colKeySelect}
-          {stepSlider}</>;
-      default:
-        return <></>;
-    }
-  }
-
-
-  return <Card rounded={16} {...cardStyle()} h="full">
-    <CardHeader p={2}>
-      {info.title}
-    </CardHeader>
-    <CardBody p={2} maxH={"full"} overflow={'auto'}>
-      {body()}
-    </CardBody><CardFooter p={2}>
-      {footer()}
-    </CardFooter>
-  </Card>;
-}
-
-interface LayoutProps {
-  children: ReactElement[];
-  isEditable?: boolean;
-  width?: number;
-  layout?: Layout[];
-  onLayoutChange?: (l: Layout[] | undefined) => void;
-}
-
-const FixedLayout: FC<LayoutProps> = ({ children }) => {
-  return <SimpleGrid columns={4} gap={4} p={4}>
+const FixedLayout: FC<EditableLayoutProps> = ({ children }) => {
+  return <VStack w="full">
     {children}
-  </SimpleGrid>;
-}
-
-const EditableFreeLayout: FC<LayoutProps> = ({ children, isEditable = false, width, layout, onLayoutChange }) => {
-
-  return <ReactGridLayout
-    className="layout"
-    containerPadding={[16, 16]}
-    margin={[16, 16]}
-    isDraggable={isEditable}
-    isResizable={isEditable}
-    layout={layout}
-    onLayoutChange={onLayoutChange}
-    compactType={null}
-    allowOverlap={true}
-    width={width}
-    rowHeight={60}
-  >
-    {children}
-  </ReactGridLayout>;
-}
-
-const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, width, layout, onLayoutChange }) => {
-  return <ReactGridLayout
-    className="layout"
-    containerPadding={[16, 16]}
-    margin={[16, 16]}
-    isDraggable={isEditable}
-    isResizable={isEditable}
-    layout={layout}
-    onLayoutChange={onLayoutChange}
-    width={width}
-  >
-    {children}
-  </ReactGridLayout>;
+  </VStack>;
 }
 
 interface EditToolbarProps {
@@ -275,40 +151,81 @@ const EditToolbar: FC<EditToolbarProps> = ({ isOpen, onToggle }) => {
     </Button>
   </ButtonGroup>;
 }
+const data_max = 500;
+const data_count = 1000;
 
 const ListCards: FC = () => {
-
-
   const { isOpen, onToggle } = useDisclosure();
-  const [ref, { width }] = useMeasure<HTMLDivElement>();
   const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-align-layouts', []);
   const onLayoutChange = (l: Layout[] | undefined) => { if (l !== undefined) setLayout(l) };
-  const CardLayouts = useMemo(() => width > 600 ? EditableAlignedLayout : FixedLayout, [width]);
+  const CardLayouts = useBreakpointValue<FC<EditableLayoutProps>>({ base: FixedLayout, md: EditableLayout }) ?? FixedLayout;
 
-  return <Box ref={ref} w="full" h="full">
-    <CardLayouts isEditable={isOpen} width={width} layout={layout} onLayoutChange={onLayoutChange}>
-      <motion.div key={"a"}>
-        <ResizableCard
+  const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
+    a: Math.round(gaussianRandom(data_max, 1) * 50),
+    b: Math.round(gaussianRandom(data_max, 1.2) * 50),
+    c: Math.round(gaussianRandom(data_max, 1.4) * 50),
+    d: Math.round(data_max * Math.random() + 50),
+  })), []);
+
+  const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
+  const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
+  const { step, render: stepSlider } = useStepSlider(data_count);
+
+  const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
+  const hist = useHistgram(data, rowKey.value, step);
+
+  const cards = [
+    {
+      key: "img",
+      body: <Box
+        w="full"
+        h="full">
+        <Image
+          src="sample.svg"
+          fit="contain"
+          h="full"
+        /></Box>
+    },
+    {
+      key: 'hist',
+      body: [
+        <HistgramChart data={hist} />,
+        <ButtonGroup bgColor={'bg'} position={"sticky"} bottom={0}>
+          {rowKeySelect}
+          {stepSlider}
+        </ButtonGroup>
+      ]
+    }, {
+      key: 'heat',
+      body: [
+        <HeatmapChart data={corr} />,
+        <HStack position={"sticky"} bottom={0}>
+          <ButtonGroup bgColor={'bg'}>
+            {rowKeySelect}
+            {colKeySelect}
+            {stepSlider}
+          </ButtonGroup>
+        </HStack>
+      ]
+    }
+  ]
+
+  return <>
+    <CardLayouts
+      isEditable={isOpen}
+      layout={layout}
+      numOfRows={12}
+      onLayoutChange={onLayoutChange}>
+      {cards.map((c, i) => <Box key={c.key}>
+        <EditableCard
           isEditable={isOpen}
-          info={{ title: 'b', type: 'gallery' }}
-        />
-      </motion.div>
-      <motion.div key={"b"}>
-        <ResizableCard
-          isEditable={isOpen}
-          key={"heatmap"}
-          info={{ title: 'b', type: 'heatmap' }}
-        /></motion.div>
-      <motion.div key={"c"}>
-        <ResizableCard
-          isEditable={isOpen}
-          key={"histgram"}
-          info={{ title: 'b', type: 'histgram' }}
-        />
-      </motion.div>
+        >
+          {c.body}
+        </EditableCard>
+      </Box>)}
     </CardLayouts>
     <EditToolbar isOpen={isOpen} onToggle={onToggle} />
-  </Box>;
+  </>;
 }
 
 const Analytics: FC = () => {

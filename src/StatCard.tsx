@@ -46,7 +46,6 @@ const StatCard: FC<StatData> = ({
     <Card
       rounded={16}
       p={4}
-      flex="1"
       h="fit-content"
       as={motion.div}
       whileHover={{ filter: "brightness(0.9)" }}
