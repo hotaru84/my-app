@@ -24,19 +24,22 @@ import {
   Portal,
   PopoverFooter,
   Box,
-  SimpleGrid
+  SimpleGrid,
+  Button,
+  ScaleFade
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
 import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
-import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
+import { TbArrowBack, TbCheck, TbEdit, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter, useLocalStorage, useMeasure } from "react-use";
 import ReactGridLayout, { Layout, Layouts } from "react-grid-layout";
 
 import './react-grid-layout.css'
 import { motion } from "framer-motion";
+import { MdClose } from "react-icons/md";
 
 type Bin = {
   a: number;
@@ -123,8 +126,6 @@ interface Props {
   footer: ReactNode;
 }
 const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
-  const [ref, { width }] = useMeasure<HTMLDivElement>();
-  const { isOpen, onToggle, onClose } = useDisclosure();
 
   const cardStyle = () => {
     if (isEditable) return {
@@ -136,59 +137,25 @@ const ResizableCard: FC<Props> = ({ isEditable, header, body, footer }) => {
   };
 
   return <>
-    <Card rounded={16} {...cardStyle()} h="full" ref={ref}>
-      {width > 200 ? <>
-        <CardHeader p={2}>
-          {header}
-        </CardHeader>
-        <CardBody p={2} maxH={"full"} overflow={'auto'}>
-          {body}
-        </CardBody><CardFooter p={2}>
-          {footer}
-        </CardFooter>
-      </> : <Center h="full">
-        <Popover>
-          <PopoverTrigger>
-            <Avatar cursor={'pointer'} />
-          </PopoverTrigger>
-          <Portal>
-            <PopoverContent>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverHeader>{header}</PopoverHeader>
-              <PopoverBody>{body}</PopoverBody>
-              <PopoverFooter>{footer}</PopoverFooter>
-            </PopoverContent>
-          </Portal>
-        </Popover>
-      </Center>
-      }
+    <Card rounded={16} {...cardStyle()} h="full">
+      <CardHeader p={2}>
+        {header}
+      </CardHeader>
+      <CardBody p={2} maxH={"full"} overflow={'auto'}>
+        {body}
+      </CardBody><CardFooter p={2}>
+        {footer}
+      </CardFooter>
     </Card>
   </>
-}
-
-const DetailCard: FC = () => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const tmo = setInterval(() => {
-      setCount(count + 1);
-    }, 10);
-    return () => {
-      clearInterval(tmo);
-    }
-  });
-
-  return <Card>
-    {count}
-  </Card>
 }
 
 interface LayoutProps {
   children: ReactElement[];
   isEditable?: boolean;
   width?: number;
-  rowHeight?: number;
+  layout?: Layout[];
+  onLayoutChange?: (l: Layout[] | undefined) => void;
 }
 
 const FixedLayout: FC<LayoutProps> = ({ children }) => {
@@ -197,14 +164,7 @@ const FixedLayout: FC<LayoutProps> = ({ children }) => {
   </SimpleGrid>;
 }
 
-const EditableFreeLayout: FC<LayoutProps> = ({ children, isEditable = false, width, rowHeight }) => {
-  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-free-layouts', []);
-
-  const onLayoutChange = (l: Layout[] | undefined) => {
-    if (l === undefined) return;
-
-    setLayout(l);
-  };
+const EditableFreeLayout: FC<LayoutProps> = ({ children, isEditable = false, width, layout, onLayoutChange }) => {
 
   return <ReactGridLayout
     className="layout"
@@ -223,15 +183,7 @@ const EditableFreeLayout: FC<LayoutProps> = ({ children, isEditable = false, wid
   </ReactGridLayout>;
 }
 
-const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, width, rowHeight }) => {
-  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-align-layouts', []);
-
-  const onLayoutChange = (l: Layout[] | undefined) => {
-    if (l === undefined) return;
-
-    setLayout(l);
-  };
-
+const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, width, layout, onLayoutChange }) => {
   return <ReactGridLayout
     className="layout"
     containerPadding={[16, 16]}
@@ -241,17 +193,62 @@ const EditableAlignedLayout: FC<LayoutProps> = ({ children, isEditable = false, 
     layout={layout}
     onLayoutChange={onLayoutChange}
     width={width}
-    rowHeight={rowHeight}
   >
     {children}
   </ReactGridLayout>;
 }
 
-interface ListCardsProps {
-  isOpen: boolean;
-}
-const ListCards: FC<ListCardsProps> = ({ isOpen }) => {
+type CardType = 'stats' | 'heatmap' | 'histgram' | 'gallery' | 'datatable';
 
+type CardInfo = {
+  id: string;
+  title: string;
+  desc: string;
+  type: CardType;
+}
+
+interface EditToolbarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+const EditToolbar: FC<EditToolbarProps> = ({ isOpen, onToggle }) => {
+
+  return <ButtonGroup
+    position={"absolute"}
+    bottom={4}
+    right={4}
+    rounded={'md'}
+    size="lg"
+    boxShadow={'lg'}
+    colorScheme="cyan"
+    gap={2}
+  >
+    <ScaleFade in={isOpen} unmountOnExit><>
+      <Button
+        leftIcon={<TbPlus />}
+        variant={'ghost'}
+      >
+        Add
+      </Button>
+      <Button
+        onClick={onToggle}
+        leftIcon={<MdClose />}
+        variant={'ghost'}
+      >
+        Cancel
+      </Button>
+    </>
+    </ScaleFade>
+    <Button
+      onClick={onToggle}
+      leftIcon={isOpen ? <TbCheck /> : <TbEdit />}
+    >
+      {isOpen ? "Apply" : "Edit"}
+    </Button>
+  </ButtonGroup>;
+}
+
+const ListCards: FC = () => {
   const data_max = 500;
   const data_count = 1000;
   const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
@@ -264,15 +261,19 @@ const ListCards: FC<ListCardsProps> = ({ isOpen }) => {
   const { selectedKey: rowKey, render: rowKeySelect } = useKeySelect(0);
   const { selectedKey: colKey, render: colKeySelect } = useKeySelect(1);
   const { step, render: stepSlider } = useStepSlider(data_count);
-  const [ref, { width }] = useMeasure<HTMLDivElement>();
 
   const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
   const hist = useHistgram(data, rowKey.value, step);
-  const CardLayouts = useMemo(() => isOpen && width > 600 ? EditableFreeLayout : FixedLayout, [isOpen, width]);
+
+  const { isOpen, onToggle } = useDisclosure();
+  const [ref, { width }] = useMeasure<HTMLDivElement>();
+  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-align-layouts', []);
+  const onLayoutChange = (l: Layout[] | undefined) => { if (l !== undefined) setLayout(l) };
+  const CardLayouts = useMemo(() => width > 600 ? EditableAlignedLayout : FixedLayout, [width]);
 
   return <Box ref={ref} w="full" h="full">
-    <CardLayouts isEditable={isOpen} width={width}>
-      <motion.div key={"a"}>
+    <CardLayouts isEditable={isOpen} width={width} layout={layout} onLayoutChange={onLayoutChange}>
+      <motion.div key={"b"}>
         <ResizableCard
           isEditable={isOpen}
           header={"title"}
@@ -287,7 +288,7 @@ const ListCards: FC<ListCardsProps> = ({ isOpen }) => {
           }
         />
       </motion.div>
-      <motion.div key={"b"}>
+      <motion.div key={"a"}>
         <ResizableCard
           isEditable={isOpen}
           header={"title"}
@@ -312,11 +313,12 @@ const ListCards: FC<ListCardsProps> = ({ isOpen }) => {
           footer={<></>}
         />
       </motion.div>
-    </CardLayouts></Box>;
+    </CardLayouts>
+    <EditToolbar isOpen={isOpen} onToggle={onToggle} />
+  </Box>;
 }
 
 const Analytics: FC = () => {
-  const { isOpen, onToggle } = useDisclosure();
 
   return <VStack w="full" h="full"
     gap={0}
@@ -325,11 +327,10 @@ const Analytics: FC = () => {
     backgroundBlendMode={"lighten"}>
     <Navigation>
       <Spacer />
-      <Switch onChange={onToggle} isChecked={isOpen}>Lock</Switch>
       <Input size='md' type='file' />
     </Navigation>
     <Box w="full" h="full">
-      <ListCards isOpen={isOpen} />
+      <ListCards />
     </Box>
   </VStack >
 };
