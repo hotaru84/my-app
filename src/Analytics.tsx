@@ -1,30 +1,22 @@
-import { FC, ReactNode, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   VStack,
   Spacer,
   IconButton,
   ButtonGroup,
   Image,
-  useDisclosure,
   Input,
   Box,
-  Button,
-  ScaleFade,
-  HStack,
-  useBreakpointValue
+  HStack
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import HeatmapChart from "./HeatmapChart";
 import { useHistgram, useCorrelation } from "./useHistgram";
 import HistgramChart from "./HistgramChart";
 import { Select } from "chakra-react-select";
-import { TbArrowBack, TbCheck, TbEdit, TbMinus, TbPlus } from "react-icons/tb";
-import { useCounter, useLocalStorage, useMeasure } from "react-use";
+import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
+import { useCounter } from "react-use";
 
-import { MdClose } from "react-icons/md";
-import EditableLayout, { EditableLayoutProps } from "./EditableLayout/EditableLayout";
-import { Layout } from "react-grid-layout";
-import EditableCard from "./EditableLayout/EditableCard";
 import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
 
 type Bin = {
@@ -125,8 +117,8 @@ const Analytics: FC = () => {
   const cards: EditableCardInfo[] = [
     {
       key: "img",
-      w: 2,
-      h: 1,
+      w: 3,
+      h: 3,
       body: <Box
         w="full"
         h="full">
@@ -138,8 +130,8 @@ const Analytics: FC = () => {
     },
     {
       key: 'hist',
-      w: 2,
-      h: 1,
+      w: 3,
+      h: 3,
       body: <VStack w="full" h="full">
         <HistgramChart data={hist} />
         <ButtonGroup bgColor={'bg'} position={"sticky"} bottom={0}>
@@ -149,11 +141,11 @@ const Analytics: FC = () => {
       </VStack>
     }, {
       key: 'heat',
-      w: 2,
-      h: 1,
+      w: 3,
+      h: 3,
       body: <VStack w="full" h="full">
-        <HeatmapChart key={1} data={corr} />
-        <HStack key={2} position={"sticky"} bottom={0}>
+        <HeatmapChart data={corr} />
+        <HStack position={"sticky"} bottom={0}>
           <ButtonGroup bgColor={'bg'}>
             {rowKeySelect}
             {colKeySelect}

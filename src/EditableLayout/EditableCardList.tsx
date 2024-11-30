@@ -1,12 +1,13 @@
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, useMemo } from "react";
 
 import './react-grid-layout.css'
-import { Box, Button, ButtonGroup, ScaleFade, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, IconButton, ScaleFade, useDisclosure } from "@chakra-ui/react";
 import EditableLayout from "./EditableLayout";
 import EditableCard from "./EditableCard";
-import { MdClose } from "react-icons/md";
-import { TbCheck, TbEdit } from "react-icons/tb";
-import { useEditableLayoutEditor } from "./useEditableLayoutEditor";
+import { TbEdit, TbTrash } from "react-icons/tb";
+import { useLocalStorage } from "react-use";
+import { Layout } from "react-grid-layout";
+import { MdClose, MdUndo } from "react-icons/md";
 
 export type EditableCardInfo = {
 	key: string;
@@ -21,57 +22,52 @@ interface EditableCardListProps {
 }
 
 const EditableCardList: FC<EditableCardListProps> = ({ listId, cards }) => {
-	const { isOpen, onToggle, onOpen, onClose } = useDisclosure();
-	const {
-		layout,
-		onLayoutChange,
-		onUndo,
-		onRedo,
-		onInitialize,
-		isUndoDisable,
-		isRedoDisable,
-		isInitialized
-	} = useEditableLayoutEditor(
-		listId,
-		cards.map((c, i) => ({ i: c.key, w: c.w, h: c.h, x: i, y: 0 }))
-	);
+	const initLayout = useMemo(() => cards.map((c, i) => ({
+		i: c.key,
+		w: c.w,
+		minW: c.w,
+		h: c.h,
+		minH: c.h,
+		x: i * c.w,
+		y: 0
+	})), [cards]);
+	const { isOpen, onToggle } = useDisclosure();
+	const [layout, onLayoutChange] = useLocalStorage<Layout[]>(listId, initLayout);
 
-	return <><EditableLayout
-		isEditable={isOpen}
-		layout={layout}
-		numOfRows={12}
-		onLayoutChange={onLayoutChange}>
-		{cards.map((c) =>
-			<Box key={c.key}>
-				<EditableCard isEditable={isOpen}>
-					{c.body}
-				</EditableCard>
-			</Box>
-		)}
-	</EditableLayout>
-
+	return <>
+		<EditableLayout
+			isEditable={isOpen}
+			layout={layout}
+			numOfRows={12}
+			onLayoutChange={onLayoutChange}>
+			{cards.map((c) =>
+				<Box key={c.key}>
+					<EditableCard isEditable={isOpen}>
+						{c.body}
+					</EditableCard>
+				</Box>
+			)}
+		</EditableLayout>
 		<ButtonGroup
-			position={'absolute'}
-			bottom={4}
-			left={4}
-			rounded={'md'}
-			size="lg"
-			boxShadow={'lg'}
+			position={"absolute"} bottom={4} left={4}
 			colorScheme="cyan"
+			boxShadow={"lg"}
+			rounded={"md"}
+			variant={'ghost'}
 			isAttached
 		>
-			<ScaleFade in={isOpen} unmountOnExit><>
-				<Button onClick={onInitialize} isDisabled={isInitialized}>Init</Button>
-				<Button onClick={onRedo} isDisabled={isRedoDisable}>Redo</Button>
-				<Button onClick={onUndo} isDisabled={isUndoDisable}>Undo</Button>
-			</>
-			</ScaleFade>
-			<Button
+			<IconButton
 				onClick={onToggle}
-				leftIcon={isOpen ? <MdClose /> : <TbEdit />}
-			>
-				{isOpen ? "Cancel" : "Edit"}
-			</Button>
+				icon={isOpen ? <MdClose /> : <TbEdit />} aria-label={""} />
+
+			<ScaleFade in={isOpen} unmountOnExit>
+				<Button
+					onClick={() => onLayoutChange(initLayout)}
+					leftIcon={<MdUndo />}
+				>
+					Reset
+				</Button>
+			</ScaleFade>
 		</ButtonGroup>
 	</>;
 }
