@@ -23,7 +23,7 @@ const EditableLayout: FC<EditableLayoutProps> = ({
 	isFree = false
 }) => {
 
-	const [ref, { width, height }] = useMeasure<HTMLDivElement>();
+	const [ref, { width }] = useMeasure<HTMLDivElement>();
 
 	return <Box w="full" h="full" ref={ref}>
 		<ReactGridLayout
@@ -35,7 +35,7 @@ const EditableLayout: FC<EditableLayoutProps> = ({
 			layout={layout}
 			onLayoutChange={onLayoutChange}
 			width={width}
-			rowHeight={numOfRows > 0 ? Math.round(height / numOfRows) : 40}
+			rowHeight={38}
 			compactType={isFree ? null : 'vertical'}
 			allowOverlap={isFree}
 		>

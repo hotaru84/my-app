@@ -116,9 +116,6 @@ const Analytics: FC = () => {
 
   const cards: EditableCardInfo[] = [
     {
-      key: "img",
-      w: 3,
-      h: 3,
       body: <Box
         w="full"
         h="full">
@@ -126,23 +123,31 @@ const Analytics: FC = () => {
           src="sample.svg"
           fit="contain"
           h="full"
-        /></Box>
+        /></Box>,
+      layout: {
+        i: "image",
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3
+      }
     },
     {
-      key: 'hist',
-      w: 3,
-      h: 3,
       body: <VStack w="full" h="full">
         <HistgramChart data={hist} />
         <ButtonGroup bgColor={'bg'} position={"sticky"} bottom={0}>
           {rowKeySelect}
           {stepSlider}
         </ButtonGroup>
-      </VStack>
+      </VStack>,
+      layout: {
+        i: "histgram",
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3
+      }
     }, {
-      key: 'heat',
-      w: 3,
-      h: 3,
       body: <VStack w="full" h="full">
         <HeatmapChart data={corr} />
         <HStack position={"sticky"} bottom={0}>
@@ -152,7 +157,14 @@ const Analytics: FC = () => {
             {stepSlider}
           </ButtonGroup>
         </HStack>
-      </VStack>
+      </VStack>,
+      layout: {
+        i: "heatmap",
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3
+      }
     }
   ];
 

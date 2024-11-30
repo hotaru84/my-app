@@ -62,11 +62,11 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
 
   const renderTable = useCallback(() => <ChakraTable variant='simple' width={table.getCenterTotalSize()}>
     <Thead>
-      {table.getHeaderGroups().map((headerGroup) => (
-        <Tr key={'tbl-' + headerGroup.id} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
-          {headerGroup.headers.map(header => (
+      {table.getHeaderGroups().map((headerGroup, hgid) => (
+        <Tr key={'tbl-' + hgid} position={'sticky'} top={0} boxShadow={'sm'} bgColor={'white'} _dark={{ bgColor: 'gray.700' }}>
+          {headerGroup.headers.map((header, hid) => (
             <Th
-              key={'th-' + header.id + headerGroup.id}
+              key={'th-' + hgid + "-" + hid}
               colSpan={header.colSpan}
               width={header.getSize()}
               position={"relative"}
@@ -96,12 +96,12 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
       ))}
     </Thead>
     <Tbody>
-      {table.getRowModel().rows.map((row) => (
-        <Tr key={row.id}>
-          {row.getVisibleCells().map((cell) => {
+      {table.getRowModel().rows.map((row, rid) => (
+        <Tr key={"r-" + rid}>
+          {row.getVisibleCells().map((cell, cid) => {
             const meta: any = cell.column.columnDef.meta;
             return (
-              <Td key={row.id} isNumeric={meta?.isNumeric} isTruncated w={meta?.mw ?? 'fit-content'}>
+              <Td key={"r-" + rid + "-" + cid} isNumeric={meta?.isNumeric} isTruncated w={meta?.mw ?? 'fit-content'}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Td>
             );

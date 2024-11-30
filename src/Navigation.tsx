@@ -1,9 +1,9 @@
 import {
   IconButton,
-  Spacer,
   useDisclosure,
   Flex,
   ButtonGroup,
+  Spacer,
 } from "@chakra-ui/react";
 import {
   TbMenu2,
@@ -11,8 +11,7 @@ import {
 import { DetailDrawer } from "./DetailDrawer";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import { CustomFilter } from "./CustomFilter";
-import { FilterActions } from "./FilterActions";
-import { FC, ReactElement, ReactNode } from "react";
+import { FC, ReactNode } from "react";
 
 type NavigationProps = {
   children?: ReactNode;
@@ -37,7 +36,6 @@ export const Navigation: FC<NavigationProps> = ({ children }) => {
       <ButtonGroup isAttached colorScheme="cyan" variant={'ghost'}>
         <CustomFilter />
         <DateTimeRangePicker />
-        <FilterActions />
       </ButtonGroup>
       {DetailDrawer(isOpen, onClose)}
     </Flex>

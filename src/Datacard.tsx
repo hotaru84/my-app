@@ -90,7 +90,7 @@ const Datacard: FC = () => {
   } = useDataTable<DataSample>(columns, sample, 10);
 
 
-  return <VStack p={2} h="full">
+  return <VStack p={2} w="full" h="full">
     <TableContainer overflowX={'auto'} overflowY={"auto"}>
       {renderTable()}
     </TableContainer>
