@@ -14,31 +14,33 @@ export type EditableCardInfo = {
 	body: ReactElement;
 	w: number;
 	h: number;
+	minW?: number;
+	minH?: number;
 }
 
 interface EditableCardListProps {
-	listId: string;
+	lsId: string;
 	cards: EditableCardInfo[];
 }
 
-const EditableCardList: FC<EditableCardListProps> = ({ listId, cards }) => {
+const EditableCardList: FC<EditableCardListProps> = ({ lsId, cards }) => {
 	const initLayout = useMemo(() => cards.map((c, i) => ({
 		i: c.key,
 		w: c.w,
-		minW: c.w,
+		minW: c.minW,
 		h: c.h,
-		minH: c.h,
+		minH: c.minH,
 		x: i * c.w,
 		y: 0
 	})), [cards]);
 	const { isOpen, onToggle } = useDisclosure();
-	const [layout, onLayoutChange] = useLocalStorage<Layout[]>(listId, initLayout);
+	const [layout, onLayoutChange] = useLocalStorage<Layout[]>(lsId, initLayout);
 
 	return <>
 		<EditableLayout
 			isEditable={isOpen}
 			layout={layout}
-			numOfRows={12}
+			numOfRows={18}
 			onLayoutChange={onLayoutChange}>
 			{cards.map((c) =>
 				<Box key={c.key}>
@@ -53,6 +55,7 @@ const EditableCardList: FC<EditableCardListProps> = ({ listId, cards }) => {
 			colorScheme="cyan"
 			boxShadow={"lg"}
 			rounded={"md"}
+			bgColor={'Background'}
 			variant={'ghost'}
 			isAttached
 		>

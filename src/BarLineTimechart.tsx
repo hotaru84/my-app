@@ -21,16 +21,13 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, Box, ButtonGroup, IconButton, ResponsiveValue, Switch } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import { TimeRangeTag } from "./TimeRangeTag";
+import { Box } from "@chakra-ui/react";
 import { makeTimescale, TimelineStats } from "./useTimelineStats";
-import { TbClockEdit } from "react-icons/tb";
 import { ja } from "date-fns/locale";
 import { format } from "date-fns";
+import { useMeasure } from "react-use";
 
 ChartJS.register(
   CategoryScale,
@@ -53,11 +50,6 @@ interface BarLineTimeChartProps {
 const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ timeline }) => {
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
-
-  const resetTimescale = useCallback(() => {
-    chartRef?.current?.resetZoom();
-    timeline.resetScale();
-  }, [timeline]);
 
   const onChangeTimescale = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
@@ -212,19 +204,9 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ timeline }) => {
       },
     }), [hidden, onChangeTimescale]);
 
-  return <motion.div layout>
-    <ButtonGroup colorScheme="orange" variant={'ghost'}>
-      <TimeRangeTag
-        min={timeline.scale.start}
-        max={timeline.scale.end}
-        isZoom={timeline.isZoomed}
-        onClick={resetTimescale}
-      />
-    </ButtonGroup>
-    <Box w="full" h="full">
-      <Chart type={"bar"} options={options} data={data} ref={chartRef} />
-    </Box>
-  </motion.div >;
+  return <Box w="full" h="full">
+    <Chart type={"bar"} options={options} data={data} ref={chartRef} />
+  </Box>;
 };
 
 export default BarLineTimeChart;

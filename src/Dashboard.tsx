@@ -11,6 +11,8 @@ import {
   Spacer,
   CircularProgress,
   Box,
+  ButtonGroup,
+  Wrap,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -22,6 +24,8 @@ import { useTimelineStats } from "./useTimelineStats";
 import Datacard from "./Datacard";
 import { Droppable } from "./Droppable";
 import { DndContext } from "@dnd-kit/core";
+import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
+import { TimeRangeTag } from "./TimeRangeTag";
 
 const stats: StatData[] = [
   {
@@ -52,7 +56,47 @@ const stats: StatData[] = [
 
 const Dashboad: FC = () => {
   const timeline = useTimelineStats({ start: startOfToday(), end: addDays(startOfToday(), 7), slot: 7 });
-  const ratio = { base: 1, sm: 1.6, md: 3, lg: 3.5 };
+
+  const cards: EditableCardInfo[] = [
+    ...stats.map((s, i) => ({
+      key: 'stats' + i.toString(),
+      w: 4,
+      h: 1,
+      body: <StatCard {...s} />
+    })),
+    {
+      key: 'timeline',
+      w: 12,
+      h: 2,
+      body: <VStack w="full" h="full" p={4} gap={0} align={"start"}>
+        <ButtonGroup colorScheme="orange" variant={'ghost'}>
+          <TimeRangeTag
+            min={timeline.scale.start}
+            max={timeline.scale.end}
+            isZoom={timeline.isZoomed}
+            onClick={timeline.resetScale}
+          />
+        </ButtonGroup>
+        <BarLineTimeChart timeline={timeline} />
+      </VStack>
+    },
+    {
+      key: 'gallery',
+      w: 6,
+      h: 1,
+      body: <SimpleGrid w="full" p={4} columns={3} gap={2}>{[1, 2, 3].map((i) => (
+        <Card variant={"outline"} key={'dqel' + i} boxShadow={0} w="full">
+          <Skeleton aspectRatio={2} speed={3} w="full" />
+          <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../gallery" />
+        </Card>))}</SimpleGrid>
+    },
+    {
+      key: 'datatable',
+      w: 6,
+      h: 3,
+      body: <Datacard />
+    }
+  ];
 
   return (
     <VStack w="full" gap={0}>
@@ -71,42 +115,7 @@ const Dashboad: FC = () => {
         </>
       </Navigation>
       <Box w="full" h="full">
-        <VStack w="full" overflowY={"auto"} gap={4} p={4} pt={0} overflow={"auto"}>
-          <SimpleGrid columns={3} w="full" justifyContent={"space-around"} gap={4} >
-            {stats.map((s, i) => (
-              <StatCard key={'stats' + i} {...s} />
-            ))}
-          </SimpleGrid>
-          <SimpleGrid columns={1} w="full" justifyContent={"space-around"} gap={4} >
-            <Card
-              rounded={16}
-              p={4}
-            >
-              <BarLineTimeChart timeline={timeline} />
-            </Card>
-          </SimpleGrid>
-          <SimpleGrid
-            columns={2}
-            w="full"
-            justifyContent={"space-around"}
-            gap={4}
-          >
-            <Card
-              rounded={16}
-              p={4}
-              gap={2}
-            >
-              {[1, 2, 3].map((i) => (
-                <Card variant={"outline"} key={'dqel' + i} boxShadow={0}>
-                  <HStack gap={2} m={2}>
-                    <Skeleton aspectRatio={2} speed={3} />
-                    <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../gallery" />
-                  </HStack>
-                </Card>))}
-            </Card>
-            <Datacard />
-          </SimpleGrid>
-        </VStack>
+        <EditableCardList lsId={"dashboard"} cards={cards} />
       </Box>
     </VStack>
   );

@@ -165,8 +165,8 @@ const Analytics: FC = () => {
       <Spacer />
       <Input size='md' type='file' />
     </Navigation>
-    <Box w="full" h="full">
-      <EditableCardList listId={"editable-layout"} cards={cards} />
+    <Box w="full">
+      <EditableCardList lsId={"editable-layout"} cards={cards} />
     </Box>
   </VStack >
 };

@@ -90,11 +90,7 @@ const Datacard: FC = () => {
   } = useDataTable<DataSample>(columns, sample, 10);
 
 
-  return <Card
-    rounded={16}
-    p={4}
-    h={"30vh"}
-  >
+  return <VStack p={2} h="full">
     <TableContainer overflowX={'auto'} overflowY={"auto"}>
       {renderTable()}
     </TableContainer>
@@ -110,7 +106,7 @@ const Datacard: FC = () => {
         onClick={nextPage}
         isDisabled={!canNextPage()} />
     </ButtonGroup>
-  </Card>;
+  </VStack>;
 };
 
 export default Datacard;

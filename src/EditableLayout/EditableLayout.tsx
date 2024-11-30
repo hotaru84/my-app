@@ -28,14 +28,14 @@ const EditableLayout: FC<EditableLayoutProps> = ({
 	return <Box w="full" h="full" ref={ref}>
 		<ReactGridLayout
 			className="layout"
-			containerPadding={[16, 16]}
+			containerPadding={[16, 0]}
 			margin={[16, 16]}
 			isDraggable={isEditable}
 			isResizable={isEditable}
 			layout={layout}
 			onLayoutChange={onLayoutChange}
 			width={width}
-			rowHeight={numOfRows > 0 ? Math.round(height / numOfRows) : 120}
+			rowHeight={numOfRows > 0 ? Math.round(height / numOfRows) : 40}
 			compactType={isFree ? null : 'vertical'}
 			allowOverlap={isFree}
 		>

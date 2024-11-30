@@ -19,7 +19,6 @@ const EditableCard: FC<EditableCardProps> = ({ isEditable, children }) => {
 
 	return <Card
 		rounded={16}
-		p={2}
 		{...cardStyle}
 		w="full"
 		h="full"
