@@ -25,6 +25,7 @@ import { MdClose } from "react-icons/md";
 import EditableLayout, { EditableLayoutProps } from "./EditableLayout/EditableLayout";
 import { Layout } from "react-grid-layout";
 import EditableCard from "./EditableLayout/EditableCard";
+import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
 
 type Bin = {
   a: number;
@@ -103,63 +104,10 @@ const useStepSlider = (count: number) => {
   }
 }
 
-
-
-const FixedLayout: FC<EditableLayoutProps> = ({ children }) => {
-  return <VStack w="full">
-    {children}
-  </VStack>;
-}
-
-interface EditToolbarProps {
-  isOpen: boolean;
-  onToggle: () => void;
-}
-const EditToolbar: FC<EditToolbarProps> = ({ isOpen, onToggle }) => {
-
-  return <ButtonGroup
-    position={"absolute"}
-    bottom={4}
-    right={4}
-    rounded={'md'}
-    size="lg"
-    boxShadow={'lg'}
-    colorScheme="cyan"
-    gap={2}
-  >
-    <ScaleFade in={isOpen} unmountOnExit><>
-      <Button
-        leftIcon={<TbPlus />}
-        variant={'ghost'}
-      >
-        Add
-      </Button>
-      <Button
-        onClick={onToggle}
-        leftIcon={<MdClose />}
-        variant={'ghost'}
-      >
-        Cancel
-      </Button>
-    </>
-    </ScaleFade>
-    <Button
-      onClick={onToggle}
-      leftIcon={isOpen ? <TbCheck /> : <TbEdit />}
-    >
-      {isOpen ? "Apply" : "Edit"}
-    </Button>
-  </ButtonGroup>;
-}
 const data_max = 500;
 const data_count = 1000;
 
-const ListCards: FC = () => {
-  const { isOpen, onToggle } = useDisclosure();
-  const [layout, setLayout] = useLocalStorage<Layout[]>('analytics-align-layouts', []);
-  const onLayoutChange = (l: Layout[] | undefined) => { if (l !== undefined) setLayout(l) };
-  const CardLayouts = useBreakpointValue<FC<EditableLayoutProps>>({ base: FixedLayout, md: EditableLayout }) ?? FixedLayout;
-
+const Analytics: FC = () => {
   const data = useMemo(() => [...Array(data_count)].map((_, i): Bin => ({
     a: Math.round(gaussianRandom(data_max, 1) * 50),
     b: Math.round(gaussianRandom(data_max, 1.2) * 50),
@@ -174,9 +122,11 @@ const ListCards: FC = () => {
   const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
   const hist = useHistgram(data, rowKey.value, step);
 
-  const cards = [
+  const cards: EditableCardInfo[] = [
     {
       key: "img",
+      w: 2,
+      h: 1,
       body: <Box
         w="full"
         h="full">
@@ -188,47 +138,31 @@ const ListCards: FC = () => {
     },
     {
       key: 'hist',
-      body: [
-        <HistgramChart data={hist} />,
+      w: 2,
+      h: 1,
+      body: <VStack w="full" h="full">
+        <HistgramChart data={hist} />
         <ButtonGroup bgColor={'bg'} position={"sticky"} bottom={0}>
           {rowKeySelect}
           {stepSlider}
         </ButtonGroup>
-      ]
+      </VStack>
     }, {
       key: 'heat',
-      body: [
-        <HeatmapChart data={corr} />,
-        <HStack position={"sticky"} bottom={0}>
+      w: 2,
+      h: 1,
+      body: <VStack w="full" h="full">
+        <HeatmapChart key={1} data={corr} />
+        <HStack key={2} position={"sticky"} bottom={0}>
           <ButtonGroup bgColor={'bg'}>
             {rowKeySelect}
             {colKeySelect}
             {stepSlider}
           </ButtonGroup>
         </HStack>
-      ]
+      </VStack>
     }
-  ]
-
-  return <>
-    <CardLayouts
-      isEditable={isOpen}
-      layout={layout}
-      numOfRows={12}
-      onLayoutChange={onLayoutChange}>
-      {cards.map((c, i) => <Box key={c.key}>
-        <EditableCard
-          isEditable={isOpen}
-        >
-          {c.body}
-        </EditableCard>
-      </Box>)}
-    </CardLayouts>
-    <EditToolbar isOpen={isOpen} onToggle={onToggle} />
-  </>;
-}
-
-const Analytics: FC = () => {
+  ];
 
   return <VStack w="full" h="full"
     gap={0}
@@ -240,7 +174,7 @@ const Analytics: FC = () => {
       <Input size='md' type='file' />
     </Navigation>
     <Box w="full" h="full">
-      <ListCards />
+      <EditableCardList listId={"editable-layout"} cards={cards} />
     </Box>
   </VStack >
 };

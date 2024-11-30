@@ -81,9 +81,8 @@ const Dashboad: FC = () => {
             <Card
               rounded={16}
               p={4}
-              aspectRatio={ratio}
             >
-              <BarLineTimeChart ratio={ratio} timeline={timeline} />
+              <BarLineTimeChart timeline={timeline} />
             </Card>
           </SimpleGrid>
           <SimpleGrid

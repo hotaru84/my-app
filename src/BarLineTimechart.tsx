@@ -24,7 +24,7 @@ import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { AspectRatio, ButtonGroup, IconButton, ResponsiveValue, Switch } from "@chakra-ui/react";
+import { AspectRatio, Box, ButtonGroup, IconButton, ResponsiveValue, Switch } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { TimeRangeTag } from "./TimeRangeTag";
 import { makeTimescale, TimelineStats } from "./useTimelineStats";
@@ -47,11 +47,10 @@ ChartJS.register(
 );
 
 interface BarLineTimeChartProps {
-  ratio?: ResponsiveValue<number>;
   timeline: TimelineStats
 }
 
-const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
+const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ timeline }) => {
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
 
@@ -222,9 +221,9 @@ const BarLineTimeChart: FC<BarLineTimeChartProps> = ({ ratio, timeline }) => {
         onClick={resetTimescale}
       />
     </ButtonGroup>
-    <AspectRatio ratio={ratio}>
+    <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={data} ref={chartRef} />
-    </AspectRatio>
+    </Box>
   </motion.div >;
 };
 
