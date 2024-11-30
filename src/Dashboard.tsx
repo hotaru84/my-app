@@ -10,7 +10,6 @@ import {
   TagLabel,
   Spacer,
   CircularProgress,
-  Box,
   ButtonGroup,
   useDisclosure,
   Button,
@@ -19,10 +18,8 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
-  layout,
 } from "@chakra-ui/react";
 import { TbArrowRight, TbCheck, TbEdit, TbExclamationCircle, TbPackage, TbPlus } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
@@ -34,8 +31,6 @@ import { useTimelineStats } from "./useTimelineStats";
 import Datacard from "./Datacard";
 import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
 import { TimeRangeTag } from "./TimeRangeTag";
-import { MdClose, MdUndo } from "react-icons/md";
-import { useLocalStorage } from "react-use";
 
 const stats: StatData[] = [
   {
@@ -148,17 +143,23 @@ const Dashboad: FC = () => {
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Modal Title</ModalHeader>
+              <ModalHeader>Add New Card</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
+                {/** 
+                 * select type -> stats/heatmap/histgram/datatable
+                 * filter
+                 * kpi
+                */}
               </ModalBody>
 
-              <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={onClose}>
+              <ButtonGroup colorScheme="cyan" p={4}>
+                <Spacer />
+                <Button variant='ghost' onClick={onClose}>
                   Close
                 </Button>
-                <Button variant='ghost'>Secondary Action</Button>
-              </ModalFooter>
+                <Button >Add</Button>
+              </ButtonGroup>
             </ModalContent>
           </Modal>
         </ScaleFade>
