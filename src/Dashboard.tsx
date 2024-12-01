@@ -31,10 +31,10 @@ import { useTimelineStats } from "./useTimelineStats";
 import Datacard from "./Datacard";
 import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
 import { TimeRangeTag } from "./TimeRangeTag";
+import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
 
 const stats: StatData[] = [
   {
-    id: 'a',
     label: "Throughput",
     score: 12345,
     icon: TbPackage,
@@ -42,7 +42,6 @@ const stats: StatData[] = [
     unit: "num",
   },
   {
-    id: 'b',
     label: "Success",
     score: 92.4,
     icon: TbCheck,
@@ -50,7 +49,6 @@ const stats: StatData[] = [
     unit: "%",
   },
   {
-    id: 'c',
     label: "Error",
     score: 0,
     icon: TbExclamationCircle,
@@ -135,33 +133,7 @@ const Dashboad: FC = () => {
         </HStack>
         <Spacer />
         <ScaleFade in={isEditable} unmountOnExit>
-          <IconButton
-            colorScheme="cyan"
-            variant={"ghost"}
-            onClick={onOpen}
-            icon={<TbPlus />} aria-label={""} />
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Add New Card</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                {/** 
-                 * select type -> stats/heatmap/histgram/datatable
-                 * filter
-                 * kpi
-                */}
-              </ModalBody>
-
-              <ButtonGroup colorScheme="cyan" p={4}>
-                <Spacer />
-                <Button variant='ghost' onClick={onClose}>
-                  Close
-                </Button>
-                <Button >Add</Button>
-              </ButtonGroup>
-            </ModalContent>
-          </Modal>
+          <DashboardAddCard />
         </ScaleFade>
         <IconButton
           colorScheme="cyan"
