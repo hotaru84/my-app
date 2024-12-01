@@ -12,16 +12,9 @@ import {
   CircularProgress,
   ButtonGroup,
   useDisclosure,
-  Button,
   ScaleFade,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
 } from "@chakra-ui/react";
-import { TbArrowRight, TbCheck, TbEdit, TbExclamationCircle, TbPackage, TbPlus } from "react-icons/tb";
+import { TbArrowRight, TbCheck, TbEdit, TbExclamationCircle, TbPackage } from "react-icons/tb";
 import StatCard, { StatData } from "./StatCard";
 import BarLineTimeChart from "./BarLineTimeChart";
 import { NavLink } from "react-router-dom";

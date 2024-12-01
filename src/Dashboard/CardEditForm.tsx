@@ -25,6 +25,16 @@ const CardEditForm: FC = () => {
       `${label} ${type}, ${filter}`
     );
   };
+  /**
+   * label
+   * type=total/success-rate/timeline/errimages/table stats/hist/heatmap/timeline
+   * filter
+   * value
+   *  countstats : filtered count
+   *  ratestats : filtered rate
+   *  histgram : number[]
+   *  heatmap : range values x range values
+   */
 
   return <form onSubmit={handleSubmit}>
     <VStack align={"start"} w="full">
