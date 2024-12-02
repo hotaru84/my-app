@@ -41,6 +41,7 @@ export type RangeFilterProps = {
 }
 
 export type CardFilter = {
+  title: string;
   resultCode?: number[]; // or
   errorCode?: number[]; // or
   codeCfg?: number[];

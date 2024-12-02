@@ -1,100 +1,130 @@
 import {
   FC,
-  useState,
 } from "react";
 import {
   Button,
   useDisclosure,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Portal,
   ButtonGroup,
-  Input,
-  VStack,
-  FormControl,
-  FormLabel,
-  Heading,
-  PopoverHeader,
-  Tag,
-  HStack,
   Accordion,
   AccordionItem,
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
-  Box,
-  Icon,
-  InputGroup,
-  InputRightElement,
-  Badge,
   IconButton,
-  Progress,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Spacer,
+  Editable,
+  EditablePreview,
+  EditableInput,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  VStack,
+  HStack,
+  Box,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
   TbFilterEdit,
-  TbSearch,
+  TbFilterPlus,
+  TbPlus,
 } from "react-icons/tb";
-import { Select } from "chakra-react-select";
-
-const results = [
-  "success",
-  "error",
-  "warning"
-];
+import { CardFilter, CardValueTypeList, RangeFilterProps } from "./Dashboard/CardConfig";
+import { useList } from "react-use";
 
 export const CustomFilter: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const [filters, { push, updateAt }] = useList<CardFilter>([])
+  const addNew = () => {
+    push({
+      title: `filter-${filters.length + 1}`
+    });
+  };
+  const changeTitle = (index: number, value: string) => {
+    updateAt(index, { ...filters[index], title: value });
+  };
 
-  return (
-    <Popover isOpen={isOpen} onClose={onClose} placement="bottom-end">
-      <PopoverTrigger>
-        <IconButton
-          icon={<TbFilterEdit />}
-          onClick={onOpen}
-          isActive
-          aria-label={""}
-        />
-      </PopoverTrigger>
-      <Portal>
-        <PopoverContent w={"full"} right={6}>
-          <PopoverHeader>Success filter</PopoverHeader>
-          <Progress size='xs' isIndeterminate colorScheme="cyan" />
-          <PopoverBody>
-            <VStack>
-              <FormControl>
-                <FormLabel>Data</FormLabel>
-                <InputGroup size='md'>
-                  <Input placeholder="Search data2..."
-                    focusBorderColor="cyan.400"
-                  />
-                  <InputRightElement>
-                    <Icon as={TbSearch} />
-                  </InputRightElement>
-                </InputGroup>
-              </FormControl>
-              <FormControl w="full">
-                <FormLabel>Success</FormLabel>
-                <Select
-                  options={results.map((r) => ({ value: r, label: r, colorScheme: 'green' }))}
-                  isMulti
-                  useBasicStyles
-                  placeholder={'Select result..'}
-                />
-              </FormControl>
-            </VStack>
-          </PopoverBody>
-          <ButtonGroup alignSelf={"end"} p={2}>
-            <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button colorScheme="cyan" isDisabled>Apply</Button>
-          </ButtonGroup>
-        </PopoverContent>
-      </Portal>
-    </Popover >
+  const changeFilter = (index: number, key: string | string[]) => {
+    const filter = filters[index];
+    const keys = !Array.isArray(key) ? [key] : key;
+    const rangefilter: RangeFilterProps = { min: 0, max: 100, isNot: false };
+    const nums: number[] = [0, 0];
+
+    keys.forEach((k: string) => {
+      if (k === 'codeCfg' || k === 'resultCode' || k === 'errorCode' || k === 'units') {
+        filter[k] = nums;
+      } else if (k === 'title' || k === 'outdata' || k === 'comment') {
+      } else {
+        filter[k] = rangefilter;
+      }
+    });
+    updateAt(index, filter);
+  }
+
+  return (<>
+    <IconButton
+      icon={<TbFilterEdit />}
+      onClick={onOpen}
+      aria-label={""}
+    />
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Customize Filter</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Accordion allowToggle>
+            {filters.map((f, i) => <AccordionItem key={'filter -' + i}>
+              <AccordionButton>
+                <Editable value={f.title} onChange={(v) => changeTitle(i, v)}>
+                  <EditablePreview />
+                  <EditableInput />
+                </Editable>
+                <Spacer />
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel pb={4}>
+                <VStack>
+                  <HStack w="full">
+                    <Spacer />
+                    <Menu closeOnSelect={false}>
+                      <MenuButton as={Button} colorScheme='cyan' leftIcon={<TbFilterPlus />}>
+                        Filter type
+                      </MenuButton>
+                      <MenuList>
+                        <MenuDivider />
+                        <MenuOptionGroup title='Country' type='checkbox' onChange={(v) => changeFilter(i, v)}>
+                          {CardValueTypeList.map(v => (<MenuItemOption value={v}>{v}</MenuItemOption>))}
+                        </MenuOptionGroup>
+                      </MenuList>
+                    </Menu>
+                  </HStack>
+                  {Object.entries(f).map((e, j) => <Box key={"element-" + i + j}>
+                    {e[0]}
+                  </Box>)}
+                </VStack>
+              </AccordionPanel>
+            </AccordionItem>)}
+          </Accordion>
+        </ModalBody>
+        <ButtonGroup colorScheme="cyan" p={4}>
+          <Button onClick={addNew} leftIcon={<TbPlus />}>Add New</Button>
+          <Spacer />
+          <Button variant='ghost' onClick={onClose}>
+            Close
+          </Button>
+          <Button >Add</Button>
+        </ButtonGroup>
+      </ModalContent>
+    </Modal>
+  </ >
   );
 };
