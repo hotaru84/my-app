@@ -1,6 +1,7 @@
 import {
   FC,
   useCallback,
+  useMemo,
 } from "react";
 import {
   Button,
@@ -42,50 +43,60 @@ import { CardFilter, defaultCardFilter, defaultCardFilterRequired } from "./Dash
 import { useList, useLocalStorage } from "react-use";
 
 export interface ObjectAcccessor<T> {
+  list: T[],
   push: (...v: T[]) => void;
   updateAt: (i: number, v: T) => void;
-  get: (i: number) => T;
-  len: number;
+  getAt: (i: number) => T;
+  getKeysAt: (i: number) => string[];
   save: () => void;
-  keys: string[];
+  len: number;
+  requiredkeys: (keyof T)[];
+  nonRequiredkeys: (keyof T)[];
 }
 
-export function useObjectAcccessor<T>(storedName: string, defaultFull: T, defaultRequired: T) {
-  const [storedList, save] = useLocalStorage<T[]>(storedName);
+export function useObjectAcccessor<T extends object>(storedName: string, defaultFull: T, defaultRequired: T): ObjectAcccessor<T> {
+  const [storedList, store] = useLocalStorage<T[]>(storedName);
   const [list, { push, updateAt }] = useList<T>(storedList !== undefined ? storedList : []);
 
+  const getAt = useCallback((i: number) => list[i], [list]);
+  const getKeysAt = useCallback((i: number) => Object.keys(list[i]), [list]);
+  const len = useMemo(() => list.length, [list.length]);
+  const save = useCallback(() => store(list), [list, store]);
+  const requiredkeys = useMemo(() => Object.keys(defaultRequired) as (keyof T)[], [defaultRequired]);
+  const nonRequiredkeys = useMemo(() => (Object.keys(defaultFull) as (keyof T)[]).filter(k => !requiredkeys.includes(k)), [defaultFull, requiredkeys]);
+
   return {
+    list,
     push,
     updateAt,
-    get: (i: number) => list[i],
-    len: list.length,
-    save: () => save(list),
-    keys: Object.keys(defaultFull),
+    getAt,
+    getKeysAt,
+    len,
+    save,
+    requiredkeys,
+    nonRequiredkeys,
   }
 }
 
 export const CustomFilter: FC = () => {
-  const [savedFilters, saveFilters] = useLocalStorage<CardFilter[]>('filter-list');
+  const { push, updateAt, len, getAt, save, nonRequiredkeys, requiredkeys } = useObjectAcccessor('filter-list', defaultCardFilter, defaultCardFilterRequired);
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [filters, { push, updateAt }] = useList<CardFilter>(savedFilters !== undefined ? savedFilters : []);
   const addNew = () => {
     push({
-      title: `filter-${filters.length + 1}`
+      title: `filter-${len + 1}`
     });
   };
   const changeTitle = (index: number, value: string) => {
-    updateAt(index, { ...filters[index], title: value });
+    updateAt(index, { ...getAt(index), title: value });
   };
 
   const changeFilter = (index: number, key: string | string[]) => {
-    const keys = (!Array.isArray(key) ? [key] : key) as (keyof CardFilter)[];
-    const filter: CardFilter = defaultCardFilterRequired;
-
-    keys.forEach((k) => {
+    nonRequiredkeys.forEach((k) => {
+      const filter = { t }
       Object.defineProperty(filter,
         k,
         {
-          value: filters[index][k] === undefined ? defaultCardFilter[k] : filters[index][k],
+          value: getAt(index)[k] === undefined ? defaultCardFilter[k] : getAt(index)[k],
           writable: true,
           enumerable: true,
           configurable: true
@@ -116,7 +127,7 @@ export const CustomFilter: FC = () => {
   }, []);
 
   const onApply = () => {
-    saveFilters(filters);
+    save();
     onClose();
   }
 
@@ -152,7 +163,7 @@ export const CustomFilter: FC = () => {
                       </MenuButton>
                       <MenuList>
                         <MenuDivider />
-                        <MenuOptionGroup defaultValue={Object.keys(f)} type='checkbox' onChange={(v) => changeFilter(i, v)}>
+                        <MenuOptionGroup value={Object.keys(f)} type='checkbox' onChange={(v) => changeFilter(i, v)}>
                           {Object.keys(defaultCardFilter).filter(k => k !== 'title').map(v => (<MenuItemOption key={v} value={v}>{v}</MenuItemOption>))}
                         </MenuOptionGroup>
                       </MenuList>
