@@ -79,7 +79,7 @@ export function useObjectAcccessor<T extends object>(storedName: string, default
 }
 
 export const CustomFilter: FC = () => {
-  const { push, updateAt, len, getAt, save, nonRequiredkeys, requiredkeys } = useObjectAcccessor('filter-list', defaultCardFilter, defaultCardFilterRequired);
+  const { list, push, updateAt, len, getAt, save, nonRequiredkeys, requiredkeys } = useObjectAcccessor('filter-list', defaultCardFilter, defaultCardFilterRequired);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const addNew = () => {
     push({
@@ -144,7 +144,7 @@ export const CustomFilter: FC = () => {
         <ModalCloseButton />
         <ModalBody>
           <Accordion allowToggle>
-            {filters.map((f, i) => <AccordionItem key={'filter -' + i}>
+            {list.map((f, i) => <AccordionItem key={'filter -' + i}>
               <AccordionButton>
                 <Editable value={f.title} onChange={(v) => changeTitle(i, v)}>
                   <EditablePreview />
