@@ -60,6 +60,73 @@ export type CardFilter = {
   outdata?: string;
   comment?: string;
 }
+export const defaultCardFilterRequired: CardFilter = {
+  title: ''
+};
+export const defaultCardFilter: CardFilter = {
+  title: '',
+  resultCode: [],
+  errorCode: [],
+  codeCfg: [],
+  units: [],
+  codeSize: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  capturability: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  decodability: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  reliability: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  w: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  h: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  l: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  len: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  leGap: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  teGap: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  speed: {
+    min: 0,
+    max: 100,
+    isNot: false
+  },
+  outdata: '',
+  comment: ''
+};
 
 export type CardInfo = {
   label: string;

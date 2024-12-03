@@ -1,5 +1,6 @@
 import {
   FC,
+  useCallback,
 } from "react";
 import {
   Button,
@@ -29,7 +30,7 @@ import {
   MenuOptionGroup,
   VStack,
   HStack,
-  Box,
+  Select,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
@@ -37,12 +38,36 @@ import {
   TbFilterPlus,
   TbPlus,
 } from "react-icons/tb";
-import { CardFilter, CardValueTypeList, RangeFilterProps } from "./Dashboard/CardConfig";
-import { useList } from "react-use";
+import { CardFilter, defaultCardFilter, defaultCardFilterRequired } from "./Dashboard/CardConfig";
+import { useList, useLocalStorage } from "react-use";
+
+export interface ObjectAcccessor<T> {
+  push: (...v: T[]) => void;
+  updateAt: (i: number, v: T) => void;
+  get: (i: number) => T;
+  len: number;
+  save: () => void;
+  keys: string[];
+}
+
+export function useObjectAcccessor<T>(storedName: string, defaultFull: T, defaultRequired: T) {
+  const [storedList, save] = useLocalStorage<T[]>(storedName);
+  const [list, { push, updateAt }] = useList<T>(storedList !== undefined ? storedList : []);
+
+  return {
+    push,
+    updateAt,
+    get: (i: number) => list[i],
+    len: list.length,
+    save: () => save(list),
+    keys: Object.keys(defaultFull),
+  }
+}
 
 export const CustomFilter: FC = () => {
+  const [savedFilters, saveFilters] = useLocalStorage<CardFilter[]>('filter-list');
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [filters, { push, updateAt }] = useList<CardFilter>([])
+  const [filters, { push, updateAt }] = useList<CardFilter>(savedFilters !== undefined ? savedFilters : []);
   const addNew = () => {
     push({
       title: `filter-${filters.length + 1}`
@@ -53,20 +78,46 @@ export const CustomFilter: FC = () => {
   };
 
   const changeFilter = (index: number, key: string | string[]) => {
-    const filter = filters[index];
-    const keys = !Array.isArray(key) ? [key] : key;
-    const rangefilter: RangeFilterProps = { min: 0, max: 100, isNot: false };
-    const nums: number[] = [0, 0];
+    const keys = (!Array.isArray(key) ? [key] : key) as (keyof CardFilter)[];
+    const filter: CardFilter = defaultCardFilterRequired;
 
-    keys.forEach((k: string) => {
-      if (k === 'codeCfg' || k === 'resultCode' || k === 'errorCode' || k === 'units') {
-        filter[k] = nums;
-      } else if (k === 'title' || k === 'outdata' || k === 'comment') {
-      } else {
-        filter[k] = rangefilter;
-      }
+    keys.forEach((k) => {
+      Object.defineProperty(filter,
+        k,
+        {
+          value: filters[index][k] === undefined ? defaultCardFilter[k] : filters[index][k],
+          writable: true,
+          enumerable: true,
+          configurable: true
+        });
     });
     updateAt(index, filter);
+  }
+
+  const renderFilterConfigs = useCallback((f: CardFilter) => {
+    return <VStack>
+      {f.resultCode && <Select>
+        <option>r-1</option>
+        <option>r-1</option>
+        <option>r-1</option>
+      </Select>}
+      {f.codeCfg && <Select>
+        <option>c-1</option>
+        <option>c-1</option>
+        <option>c-1</option>
+      </Select>}
+      {f.errorCode && <Select>
+        <option>e-1</option>
+        <option>e-1</option>
+        <option>e-1</option>
+      </Select>}
+
+    </VStack>
+  }, []);
+
+  const onApply = () => {
+    saveFilters(filters);
+    onClose();
   }
 
   return (<>
@@ -101,15 +152,13 @@ export const CustomFilter: FC = () => {
                       </MenuButton>
                       <MenuList>
                         <MenuDivider />
-                        <MenuOptionGroup title='Country' type='checkbox' onChange={(v) => changeFilter(i, v)}>
-                          {CardValueTypeList.map(v => (<MenuItemOption value={v}>{v}</MenuItemOption>))}
+                        <MenuOptionGroup defaultValue={Object.keys(f)} type='checkbox' onChange={(v) => changeFilter(i, v)}>
+                          {Object.keys(defaultCardFilter).filter(k => k !== 'title').map(v => (<MenuItemOption key={v} value={v}>{v}</MenuItemOption>))}
                         </MenuOptionGroup>
                       </MenuList>
                     </Menu>
                   </HStack>
-                  {Object.entries(f).map((e, j) => <Box key={"element-" + i + j}>
-                    {e[0]}
-                  </Box>)}
+                  {renderFilterConfigs(f)}
                 </VStack>
               </AccordionPanel>
             </AccordionItem>)}
@@ -121,7 +170,7 @@ export const CustomFilter: FC = () => {
           <Button variant='ghost' onClick={onClose}>
             Close
           </Button>
-          <Button >Add</Button>
+          <Button onClick={onApply}>Apply</Button>
         </ButtonGroup>
       </ModalContent>
     </Modal>
