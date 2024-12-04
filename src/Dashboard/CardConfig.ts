@@ -60,7 +60,7 @@ export type CardFilter = {
   outdata?: string;
   comment?: string;
 }
-export const defaultCardFilterRequired: CardFilter = {
+export const mandatoryCardFilter: CardFilter = {
   title: ''
 };
 export const defaultCardFilter: CardFilter = {

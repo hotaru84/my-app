@@ -10,7 +10,7 @@ import {
 } from "react-icons/tb";
 import { DetailDrawer } from "./DetailDrawer";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
-import { CustomFilter } from "./CustomFilter";
+import { CustomFilter } from "./Dashboard/CustomFilter";
 import { FC, ReactNode } from "react";
 
 type NavigationProps = {

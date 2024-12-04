@@ -38,31 +38,29 @@ import {
   TbFilterPlus,
   TbPlus,
 } from "react-icons/tb";
-import { CardFilter, defaultCardFilter, defaultCardFilterRequired } from "./Dashboard/CardConfig";
-import { useObjectAcccessor } from "./Dashboard/useObjectAccessor";
-
+import { CardFilter, defaultCardFilter, mandatoryCardFilter } from "./CardConfig";
+import { useObjectList } from "./useObjectList";
+import { useLocalStorage } from "react-use";
 
 export const CustomFilter: FC = () => {
-  const {
-    list, push, updateAt, len, getAt, save, updateKeysAt,
-    getKeysAt, nonRequiredkeys,
-  } = useObjectAcccessor<CardFilter>(
-    'filter-list',
-    defaultCardFilter,
-    defaultCardFilterRequired);
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const [storedList, store] = useLocalStorage<CardFilter[]>('custom-filter');
+  const {
+    objectList: filters, push, updateAt, getAt, updateKeysAt,
+    getKeysAt, optionalKeys,
+  } = useObjectList<CardFilter>(
+    storedList ?? [],
+    defaultCardFilter,
+    mandatoryCardFilter);
+
   const addNew = () => {
     push({
-      title: `filter-${len + 1}`
+      title: `filter-${storedList?.length ?? 0 + 1}`
     });
   };
   const changeTitle = (index: number, value: string) => {
     updateAt(index, { ...getAt(index), title: value });
   };
-
-  const changeFilter = (index: number, key: string | string[]) => {
-    updateKeysAt(index, key);
-  }
 
   const renderFilterConfigs = useCallback((f: CardFilter) => {
     return <VStack>
@@ -86,7 +84,7 @@ export const CustomFilter: FC = () => {
   }, []);
 
   const onApply = () => {
-    save();
+    store(filters);
     onClose();
   }
 
@@ -103,7 +101,7 @@ export const CustomFilter: FC = () => {
         <ModalCloseButton />
         <ModalBody>
           <Accordion allowToggle>
-            {list.map((f, i) => <AccordionItem key={'filter -' + i}>
+            {filters.map((f, i) => <AccordionItem key={'filter -' + i}>
               <AccordionButton>
                 <Editable value={f.title} onChange={(v) => changeTitle(i, v)}>
                   <EditablePreview />
@@ -122,8 +120,8 @@ export const CustomFilter: FC = () => {
                       </MenuButton>
                       <MenuList>
                         <MenuDivider />
-                        <MenuOptionGroup value={getKeysAt(i)} type='checkbox' onChange={(v) => changeFilter(i, v)}>
-                          {nonRequiredkeys.filter(k => k !== 'title').map(v => (<MenuItemOption key={v} value={v}>{v}</MenuItemOption>))}
+                        <MenuOptionGroup value={getKeysAt(i)} type='checkbox' onChange={(v) => updateKeysAt(i, v)}>
+                          {optionalKeys.filter(k => k !== 'title').map(v => (<MenuItemOption key={v} value={v}>{v}</MenuItemOption>))}
                         </MenuOptionGroup>
                       </MenuList>
                     </Menu>
