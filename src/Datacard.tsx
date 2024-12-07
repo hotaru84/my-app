@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { Navigation } from "./Navigation";
 import { TbArrowLeft, TbArrowRight, TbDownload, TbSearch } from "react-icons/tb";
-import { createColumnHelper } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { addHours, format } from "date-fns";
 import { Select } from "chakra-react-select";
 import { useDataTable } from "./useDataTable";
@@ -41,9 +41,10 @@ type DataSample = {
   data4: number;
 };
 
-const Datacard: FC = () => {
+const useColumn = (): ColumnDef<DataSample, any>[] => {
+
   const columnHelper = createColumnHelper<DataSample>();
-  const columns = useMemo(() => [
+  return useMemo(() => [
     columnHelper.accessor("id", {
       cell: (info) => <IconButton icon={<TbArrowRight />} aria-label={""} variant={'ghost'} as={motion.div} whileHover={{ scale: 1.1, borderWidth: 2 }} rounded='full' />,
       header: "id",
@@ -68,7 +69,10 @@ const Datacard: FC = () => {
       header: "id",
     }),
   ], [columnHelper]);
+}
 
+const Datacard: FC = () => {
+  const columns = useColumn();
   const sample: DataSample[] = useMemo(() => [...Array(100)].map((_, i) => ({
     id: i,
     date: addHours(new Date(), i + Math.random() * 10),

@@ -1,9 +1,8 @@
-import { Thead, Tr, Th, chakra, Icon, Tbody, Td, Table as ChakraTable, Box, Divider, IconButton } from "@chakra-ui/react";
+import { Thead, Tr, Th, Tbody, Td, Table as ChakraTable, Box, Text, Icon, HStack, Spacer } from "@chakra-ui/react";
 import { ColumnDef, ColumnFiltersState, SortingState, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ReactElement, useState, useCallback } from "react";
-import { MdOutlineDragIndicator } from "react-icons/md";
-import { TbChevronDown, TbChevronUp, TbDragDrop } from "react-icons/tb";
+import { TbSortAscending, TbSortDescending } from "react-icons/tb";
 
 type DataTable = {
   makeCsvData: () => string;
@@ -71,13 +70,19 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
               width={header.getSize()}
               position={"relative"}
             >
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
-
+              <HStack onClick={header.column.getToggleSortingHandler()} cursor='pointer'>
+                <Text>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                </Text>
+                <Spacer />
+                {header.column.getIsSorted() && <Icon as={header.column.getIsSorted() === 'asc' ?
+                  TbSortAscending : TbSortDescending} />}
+              </HStack>
               <Box
                 position={"absolute"}
                 bottom={0}
@@ -87,7 +92,7 @@ export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowI
                 onTouchStart={header.getResizeHandler()}
                 cursor={'col-resize'}
                 w={4}
-                _hover={{ borderRightWidth: 1 }}
+                _hover={{ borderRightWidth: 4, borderColor: 'blue.400' }}
                 h="full"
               />
             </Th>
