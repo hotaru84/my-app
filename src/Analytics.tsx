@@ -17,8 +17,6 @@ import { Select } from "chakra-react-select";
 import { TbArrowBack, TbMinus, TbPlus } from "react-icons/tb";
 import { useCounter } from "react-use";
 
-import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
-
 type Bin = {
   a: number;
   b: number;
@@ -114,60 +112,6 @@ const Analytics: FC = () => {
   const corr = useCorrelation(data, rowKey.value, step, colKey.value, step);
   const hist = useHistgram(data, rowKey.value, step);
 
-  const cards: EditableCardInfo[] = [
-    {
-      body: <Box
-        w="full"
-        h="full">
-        <Image
-          src="sample.svg"
-          fit="contain"
-          h="full"
-        /></Box>,
-      layout: {
-        i: "image",
-        x: 0,
-        y: 0,
-        w: 3,
-        h: 3
-      }
-    },
-    {
-      body: <VStack w="full" h="full">
-        <HistgramChart data={hist} />
-        <ButtonGroup bgColor={'bg'} position={"sticky"} bottom={0}>
-          {rowKeySelect}
-          {stepSlider}
-        </ButtonGroup>
-      </VStack>,
-      layout: {
-        i: "histgram",
-        x: 0,
-        y: 0,
-        w: 3,
-        h: 3
-      }
-    }, {
-      body: <VStack w="full" h="full">
-        <HeatmapChart data={corr} />
-        <HStack position={"sticky"} bottom={0}>
-          <ButtonGroup bgColor={'bg'}>
-            {rowKeySelect}
-            {colKeySelect}
-            {stepSlider}
-          </ButtonGroup>
-        </HStack>
-      </VStack>,
-      layout: {
-        i: "heatmap",
-        x: 0,
-        y: 0,
-        w: 3,
-        h: 3
-      }
-    }
-  ];
-
   return <VStack w="full" h="full"
     gap={0}
     backgroundSize={"cover"}
@@ -178,7 +122,6 @@ const Analytics: FC = () => {
       <Input size='md' type='file' />
     </Navigation>
     <Box w="full">
-      <EditableCardList lsId={"editable-layout"} cards={cards} />
     </Box>
   </VStack >
 };

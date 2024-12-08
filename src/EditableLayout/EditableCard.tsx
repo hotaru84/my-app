@@ -1,6 +1,7 @@
-import { Card } from "@chakra-ui/react";
+import { Box, Card, Collapse, IconButton } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { FC, ReactNode, useMemo } from "react";
+import { MdOutlineDragIndicator } from "react-icons/md";
 
 interface EditableCardProps {
 	isEditable: boolean;
@@ -12,7 +13,6 @@ const EditableCard: FC<EditableCardProps> = ({ isEditable, children }) => {
 		if (isEditable) return {
 			boxShadow: 'lg',
 			rounded: 4,
-			cursor: 'grab'
 		}
 		return {}
 	}, [isEditable]);
@@ -26,6 +26,19 @@ const EditableCard: FC<EditableCardProps> = ({ isEditable, children }) => {
 		as={motion.div}
 	>
 		{children}
+
+		{isEditable && <IconButton
+			icon={<MdOutlineDragIndicator />}
+			variant="ghost"
+			position="absolute"
+			top={2}
+			left={2}
+			className="dg-handle"
+			zIndex="popover"
+			cursor='grab' aria-label={""} />}
+		<Collapse in={isEditable}>
+			<Box position={"absolute"} top={0} right={0} bgColor='gray' opacity={0.5} w="full" h="full" />
+		</Collapse>
 	</Card>;
 };
 

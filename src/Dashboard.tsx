@@ -1,116 +1,32 @@
 import { FC } from "react";
 import {
-  Card,
   HStack,
   IconButton,
-  SimpleGrid,
-  Skeleton,
   VStack,
   Tag,
   TagLabel,
   Spacer,
   CircularProgress,
-  ButtonGroup,
   useDisclosure,
   ScaleFade,
 } from "@chakra-ui/react";
-import { TbArrowRight, TbCheck, TbEdit, TbExclamationCircle, TbPackage } from "react-icons/tb";
-import StatCard, { StatData } from "./StatCard";
-import BarLineTimeChart from "./BarLineTimeChart";
-import { NavLink } from "react-router-dom";
+import { TbEdit } from "react-icons/tb";
 import { Navigation } from "./Navigation";
-import { addDays, startOfToday } from "date-fns";
-import { useTimelineStats } from "./useTimelineStats";
-import Datacard from "./Datacard";
-import EditableCardList, { EditableCardInfo } from "./EditableLayout/EditableCardList";
-import { TimeRangeTag } from "./TimeRangeTag";
+import { endOfMonth, startOfMonth, startOfToday } from "date-fns";
+import EditableCardList from "./EditableLayout/EditableCardList";
 import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
+import { generateSampleData } from "./Dashboard/generateSampleData";
+import { Timeframe } from "./Dashboard/SampleData";
 
-const stats: StatData[] = [
-  {
-    label: "Throughput",
-    score: 12345,
-    icon: TbPackage,
-    color: "blue.300",
-    unit: "num",
-  },
-  {
-    label: "Success",
-    score: 92.4,
-    icon: TbCheck,
-    color: "green.300",
-    unit: "%",
-  },
-  {
-    label: "Error",
-    score: 0,
-    icon: TbExclamationCircle,
-    color: "yellow.300",
-    unit: "min",
-  },
-];
 
 const Dashboad: FC = () => {
+  const timeframe: Timeframe = {
+    start: startOfMonth(startOfToday()),
+    end: endOfMonth(startOfToday()),
+    slot: 30,
+  };
+  const sampleData = generateSampleData(timeframe, 100);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const timeline = useTimelineStats({ start: startOfToday(), end: addDays(startOfToday(), 7), slot: 7 });
-
-  const cards: EditableCardInfo[] = [
-    ...stats.map((s, i): EditableCardInfo => ({
-      body: <StatCard {...s} />,
-      layout: {
-        i: 'stats' + i.toString(),
-        x: i * 4,
-        y: 0,
-        w: 4,
-        h: 2
-      }
-    })),
-    {
-      body: <VStack w="full" h="full" p={4} gap={0} align={"start"}>
-        <ButtonGroup colorScheme="orange" variant={'ghost'}>
-          <TimeRangeTag
-            min={timeline.scale.start}
-            max={timeline.scale.end}
-            isZoom={timeline.isZoomed}
-            onClick={timeline.resetScale}
-          />
-        </ButtonGroup>
-        <BarLineTimeChart timeline={timeline} />
-      </VStack>,
-      layout: {
-        i: "timeline",
-        x: 0,
-        y: 2,
-        w: 12,
-        h: 7
-      }
-    },
-    {
-      body: <SimpleGrid w="full" p={4} columns={3} gap={2}>{[1, 2, 3].map((i) => (
-        <Card variant={"outline"} key={'dqel' + i} boxShadow={0} w="full">
-          <Skeleton aspectRatio={2} speed={3} w="full" />
-          <IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../gallery" />
-        </Card>))}</SimpleGrid>,
-      layout: {
-        i: "gallery",
-        x: 0,
-        y: 9,
-        w: 6,
-        h: 4
-      }
-    },
-    {
-      body: <Datacard />,
-      layout: {
-        i: "datatable",
-        x: 6,
-        y: 9,
-        w: 6,
-        h: 4
-      }
-    }
-  ];
 
   return (
     <VStack w="full" h="full" gap={0}>
@@ -135,7 +51,7 @@ const Dashboad: FC = () => {
           isActive={isEditable}
           icon={<TbEdit />} aria-label={""} />
       </Navigation>
-      <EditableCardList lsId={"dashboard"} cards={cards} isEditable={isEditable} />
+      <EditableCardList data={sampleData} isEditable={isEditable} />
     </VStack>
   );
 };

@@ -38,6 +38,7 @@ const EditableLayout: FC<EditableLayoutProps> = ({
 			rowHeight={38}
 			compactType={isFree ? null : 'vertical'}
 			allowOverlap={isFree}
+			draggableHandle=".dg-handle"
 		>
 			{children}
 		</ReactGridLayout>
