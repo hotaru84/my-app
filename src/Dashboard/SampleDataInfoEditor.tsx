@@ -143,7 +143,7 @@ export const SampleDataInfoEditor: FC<Props> = ({ info, onInfoChange }) => {
           <Menu closeOnSelect={false} size={"sm"}>
             <MenuButton as={IconButton} colorScheme='cyan' variant='ghost' icon={<TbFilterPlus />} />
             <MenuList overflowY={"auto"} maxH="50vh">
-              <MenuOptionGroup type='checkbox' onChange={onFilter}>
+              <MenuOptionGroup value={Object.keys(draft.filter)} type='checkbox' onChange={onFilter}>
                 {Object.keys(defaultSampleDataFilter)
                   .map(v => (<MenuItemOption key={v} value={v}>{v}</MenuItemOption>))}
               </MenuOptionGroup>
@@ -151,7 +151,7 @@ export const SampleDataInfoEditor: FC<Props> = ({ info, onInfoChange }) => {
           </Menu>
         </FormControl>
         {Object.entries(draft.filter).map(([k, v], i) =>
-          <FormControl as={Flex} key={'filter -' + i}>
+          <FormControl as={Flex} key={'filter -' + i} ml={4}>
             <FormLabel flex="1" htmlFor={k}>{k}</FormLabel>
             {FilterBody(k, v)}
           </FormControl>
