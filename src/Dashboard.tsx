@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import {
   HStack,
   IconButton,
@@ -20,12 +20,12 @@ import { Timeframe } from "./Dashboard/SampleData";
 
 
 const Dashboad: FC = () => {
-  const timeframe: Timeframe = {
+  const timeframe: Timeframe = useMemo(() => ({
     start: startOfMonth(startOfToday()),
     end: endOfMonth(startOfToday()),
     slot: 30,
-  };
-  const sampleData = generateSampleData(timeframe, 100);
+  }), []);
+  const sampleData = useMemo(() => generateSampleData(timeframe, 100), [timeframe]);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 
   return (

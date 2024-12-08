@@ -27,7 +27,8 @@ function invalidNumString(value: string[], filter?: string[]): boolean {
 }
 
 
-export function validSampleData(f: SampleDataFilter, d: SampleData): boolean {
+export function validSampleData(d: SampleData, f?: SampleDataFilter): boolean {
+  if (f === undefined) return true;
   if (invalidRange(d.a, f.aMin, f.aMax)) return false;
   if (invalidRange(d.h, f.hMin, f.hMax)) return false;
   if (invalidRange(d.l, f.lMin, f.lMax)) return false;

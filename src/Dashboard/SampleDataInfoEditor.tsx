@@ -99,9 +99,7 @@ export const SampleDataInfoEditor: FC<Props> = ({ info, onInfoChange }) => {
   const FilterBody = (k: string, v: string | number | string[] | number[]) => {
     if (typeof v === 'number') return <Input type="number" defaultValue={v} name={k} onChange={onChangeFilterNum} />;
     if (typeof v === 'string') return <Input value={v} />;
-    if (Array.isArray(v)) return <Select value={draft.type} focusBorderColor="cyan.400" onChange={onChangeFilterString} name={k}>
-      {Object.keys(SampleDataTypes).map(v => (<option key={v} value={v}>{v}</option>))}
-    </Select>;
+    if (Array.isArray(v)) return <></>;
 
     return <></>;
   }

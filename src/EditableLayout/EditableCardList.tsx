@@ -11,6 +11,7 @@ import CounterCard from "../Dashboard/CounterCard";
 import { useList } from "react-use";
 import { TbDragDrop } from "react-icons/tb";
 import { MdOutlineDragIndicator } from "react-icons/md";
+import RateCard from "../Dashboard/RateCard";
 
 
 interface EditableCardListProps {
@@ -152,6 +153,7 @@ case 'table':
 			{isEditable && <Box position={"absolute"} top={2} right={2} zIndex="popover"><SampleDataInfoEditor info={info} onInfoChange={onInfoChange} /></Box>}
 			<EditableCard isEditable={isEditable}>
 				{info.type === SampleDataTypes.counter && <CounterCard info={info} data={data} />}
+				{info.type === SampleDataTypes.rate && <RateCard info={info} data={data} />}
 			</EditableCard>
 		</Box>
 		)}

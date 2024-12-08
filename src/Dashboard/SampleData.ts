@@ -37,6 +37,8 @@ export type SampleData = {
   outdata: string;
   comment: string;
 }
+export const ResultCodeList = ['success', 'error', 'warning'];
+export const ErrorCodeList = ['system', 'operation', 'unknown']
 
 export type SampleDataFilter = {
   resultCode?: number[]; // or
