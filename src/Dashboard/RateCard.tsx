@@ -8,7 +8,7 @@ import {
   chakra,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { TbCheck, TbPackage } from "react-icons/tb";
+import { TbCheck } from "react-icons/tb";
 import { validSampleData } from "./filterSampleData";
 import { SampleData, SampleDataInfo } from "./SampleData";
 
@@ -23,7 +23,7 @@ const RateCard: FC<Props> = ({
 }) => {
   const emphasize = false;
   const filtered = data.filter(d => validSampleData(d, info.filter)).length;
-  const total = data.filter(d => validSampleData(d, info.rateFilter)).length;
+  const total = data.filter(d => validSampleData(d, info.filter1)).length;
 
   return (
     <HStack align="center" spacing={4} w="full" h="full" p={4}>

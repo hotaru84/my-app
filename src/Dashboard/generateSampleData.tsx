@@ -21,25 +21,25 @@ function generateRandomStrArray(max = 10): string[] {
 }
 
 export const generateSampleData = (tf: Timeframe, count: number): SampleData[] => {
-  const diffSec = Math.max(
+  const timeRange = Math.max(
     Math.floor(
-      differenceInSeconds(tf.end, tf.start) / tf.slot
+      differenceInSeconds(tf.end, tf.start)
     ), 1);
 
   return [...Array(count)].map((_, i): SampleData => ({
-    time: addSeconds(tf.start, diffSec * i),
+    time: addSeconds(tf.start, Math.random() * timeRange),
     resultCode: generateRandomNumArray(),
     errorCode: generateRandomNumArray(),
     cfgs: generateRandomNumArray(),
     units: generateRandomStrArray(),
-    size: Math.round(generateGaussianNumber(100)),
-    a: Math.round(generateGaussianNumber(100)),
-    w: Math.round(generateGaussianNumber(400)),
-    h: Math.round(generateGaussianNumber(400)),
-    l: Math.round(generateGaussianNumber(400)),
-    len: Math.round(generateGaussianNumber(400)),
-    leGap: Math.round(generateGaussianNumber(800)),
-    teGap: Math.round(generateGaussianNumber(800)),
+    size: Math.round(generateGaussianNumber(100, 50)),
+    a: Math.round(generateGaussianNumber(100, 50)),
+    w: Math.round(generateGaussianNumber(400, 200)),
+    h: Math.round(generateGaussianNumber(400, 200)),
+    l: Math.round(generateGaussianNumber(400, 200)),
+    len: Math.round(generateGaussianNumber(400, 200)),
+    leGap: Math.round(generateGaussianNumber(800, 400)),
+    teGap: Math.round(generateGaussianNumber(800, 400)),
     speed: Math.random() * 400 + 800,
     outdata: generateRandomString(),
     comment: generateRandomString()

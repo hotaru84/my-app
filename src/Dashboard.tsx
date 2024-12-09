@@ -25,7 +25,7 @@ const Dashboad: FC = () => {
     end: endOfMonth(startOfToday()),
     slot: 30,
   }), []);
-  const sampleData = useMemo(() => generateSampleData(timeframe, 100), [timeframe]);
+  const sampleData = useMemo(() => generateSampleData(timeframe, 10000), [timeframe]);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 
   return (
@@ -51,7 +51,7 @@ const Dashboad: FC = () => {
           isActive={isEditable}
           icon={<TbEdit />} aria-label={""} />
       </Navigation>
-      <EditableCardList data={sampleData} isEditable={isEditable} />
+      <EditableCardList data={sampleData} isEditable={isEditable} tf={timeframe} />
     </VStack>
   );
 };

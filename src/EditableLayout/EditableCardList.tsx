@@ -1,22 +1,22 @@
 import { FC, useCallback, useMemo } from "react";
 
 import './react-grid-layout.css'
-import { Box, Icon, IconButton, useDisclosure } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import EditableLayout from "./EditableLayout";
 import EditableCard from "./EditableCard";
 import { Layout } from "react-grid-layout";
 import { SampleDataInfoEditor } from "../Dashboard/SampleDataInfoEditor";
-import { SampleData, SampleDataInfo, SampleDataFilter, SampleDataTypes } from "../Dashboard/SampleData";
+import { SampleData, SampleDataInfo, SampleDataFilter, SampleDataTypes, Timeframe } from "../Dashboard/SampleData";
 import CounterCard from "../Dashboard/CounterCard";
 import { useList } from "react-use";
-import { TbDragDrop } from "react-icons/tb";
-import { MdOutlineDragIndicator } from "react-icons/md";
 import RateCard from "../Dashboard/RateCard";
+import TimelineCard from "../Dashboard/TimelineCard";
 
 
 interface EditableCardListProps {
 	data: SampleData[];
 	isEditable?: boolean;
+	tf: Timeframe;
 }
 const defalutCardInfo: SampleDataInfo[] = [
 	{
@@ -34,7 +34,7 @@ const defalutCardInfo: SampleDataInfo[] = [
 	},
 	{
 		layout: {
-			i: 'rate',
+			i: 'ratio',
 			x: 4,
 			y: 0,
 			w: 4,
@@ -42,7 +42,7 @@ const defalutCardInfo: SampleDataInfo[] = [
 		},
 		title: "Success",
 		unit: "%",
-		type: "rate",
+		type: "ratio",
 		filter: {}
 	},
 
@@ -100,7 +100,7 @@ const defalutCardInfo: SampleDataInfo[] = [
 	}
 ];
 
-const EditableCardList: FC<EditableCardListProps> = ({ data, isEditable = false }) => {
+const EditableCardList: FC<EditableCardListProps> = ({ data, isEditable = false, tf }) => {
 	//const timeline = useTimelineStats({ start: startOfToday(), end: addDays(startOfToday(), 7), slot: 7 });
 	const [cardinfo, { set: setInfo, updateAt: updateInfoAt, }] = useList<SampleDataInfo>(defalutCardInfo);
 	const layout = useMemo(() => cardinfo.map(c => c.layout), [cardinfo]);
@@ -153,7 +153,8 @@ case 'table':
 			{isEditable && <Box position={"absolute"} top={2} right={2} zIndex="popover"><SampleDataInfoEditor info={info} onInfoChange={onInfoChange} /></Box>}
 			<EditableCard isEditable={isEditable}>
 				{info.type === SampleDataTypes.counter && <CounterCard info={info} data={data} />}
-				{info.type === SampleDataTypes.rate && <RateCard info={info} data={data} />}
+				{info.type === SampleDataTypes.ratio && <RateCard info={info} data={data} />}
+				{info.type === SampleDataTypes.timeline && <TimelineCard info={info} data={data} timeframe={tf} />}
 			</EditableCard>
 		</Box>
 		)}

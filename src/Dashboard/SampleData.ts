@@ -2,7 +2,7 @@ import { Layout } from "react-grid-layout";
 
 export const SampleDataTypes = {
   counter: 'counter',
-  rate: 'rate',
+  ratio: 'ratio',
   elapsed: 'elapsed',
   timeline: 'timeline',
   gallery: 'gallery',
@@ -13,6 +13,7 @@ export const SampleDataTypes = {
 } as const;
 export type SampleDataType = typeof SampleDataTypes[keyof typeof SampleDataTypes];
 export const SampleDataTypesList = Object.values(SampleDataTypes);
+
 export type Timeframe = {
   start: Date;
   end: Date;
@@ -71,7 +72,8 @@ export type SampleDataInfo = {
   unit: string;
   type: SampleDataType;
   filter: SampleDataFilter;
-  rateFilter?: SampleDataFilter;
+  filter1?: SampleDataFilter;
+  filter2?: SampleDataFilter;
   layout: Layout;
 }
 
