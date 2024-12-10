@@ -1,16 +1,15 @@
 import { FC, useCallback, useMemo } from "react";
 
-import './react-grid-layout.css'
 import { Box } from "@chakra-ui/react";
-import EditableLayout from "./EditableLayout";
-import EditableCard from "./EditableCard";
+import EditableLayout from "../EditableLayout/EditableLayout";
+import EditableCard from "../EditableLayout/EditableCard";
 import { Layout } from "react-grid-layout";
-import { SampleDataInfoEditor } from "../Dashboard/SampleDataInfoEditor";
-import { SampleData, SampleDataInfo, SampleDataFilter, SampleDataTypes, Timeframe } from "../Dashboard/SampleData";
-import CounterCard from "../Dashboard/CounterCard";
+import { SampleDataInfoEditor } from "./SampleDataInfoEditor";
+import { SampleData, SampleDataInfo, SampleDataTypes, Timeframe } from "./SampleData";
+import CounterCard from "./CounterCard";
 import { useList } from "react-use";
-import RateCard from "../Dashboard/RateCard";
-import TimelineCard from "../Dashboard/TimelineCard";
+import RateCard from "./RateCard";
+import TimelineCard from "./TimelineCard";
 
 
 interface EditableCardListProps {

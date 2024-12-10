@@ -13,18 +13,15 @@ import {
 import { TbEdit } from "react-icons/tb";
 import { Navigation } from "./Navigation";
 import { endOfMonth, startOfMonth, startOfToday } from "date-fns";
-import EditableCardList from "./EditableLayout/EditableCardList";
+import EditableCardList from "./Dashboard/EditableCardList";
 import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
 import { generateSampleData } from "./Dashboard/generateSampleData";
 import { Timeframe } from "./Dashboard/SampleData";
+import { makeTimescale } from "./Dashboard/timelineUtil";
 
 
 const Dashboad: FC = () => {
-  const timeframe: Timeframe = useMemo(() => ({
-    start: startOfMonth(startOfToday()),
-    end: endOfMonth(startOfToday()),
-    slot: 30,
-  }), []);
+  const timeframe: Timeframe = makeTimescale(startOfMonth(startOfToday()).getTime(), endOfMonth(startOfToday()).getTime());
   const sampleData = useMemo(() => generateSampleData(timeframe, 10000), [timeframe]);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 

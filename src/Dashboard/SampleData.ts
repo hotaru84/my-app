@@ -72,8 +72,7 @@ export type SampleDataInfo = {
   unit: string;
   type: SampleDataType;
   filter: SampleDataFilter;
-  filter1?: SampleDataFilter;
-  filter2?: SampleDataFilter;
+  filters?: SampleDataFilter[];
   layout: Layout;
 }
 

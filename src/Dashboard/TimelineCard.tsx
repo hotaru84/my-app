@@ -1,4 +1,4 @@
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,8 +23,8 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { Box } from "@chakra-ui/react";
-import { useTimeline } from "./useTimeline";
+import { Box, Button, VStack } from "@chakra-ui/react";
+import { makeTimescale, timesToTimelinePoint } from "./timelineUtil";
 import { ja } from "date-fns/locale";
 import { format } from "date-fns";
 import { SampleData, SampleDataInfo, Timeframe } from "./SampleData";
@@ -51,25 +51,39 @@ interface Props {
 }
 
 const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
-  const timeline = useTimeline(
+  const [tf, setTf] = useState(timeframe);
+  const line = timesToTimelinePoint(
     data.filter(d => validSampleData(d, info.filter))
-      .map(d => d.time), timeframe);
-  const timeline1 = useTimeline(
-    info.filter1 ? data.filter(d => validSampleData(d, info.filter1))
-      .map(d => d.time) : [], timeframe);
-  const timeline2 = useTimeline(
-    info.filter2 ? data.filter(d => validSampleData(d, info.filter2))
-      .map(d => d.time) : [], timeframe);
+      .map(d => d.time), tf);
+  const lines = info.filters?.map(f => timesToTimelinePoint(
+    data.filter(d => validSampleData(d, f))
+      .map(d => d.time), tf));
 
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
+
+  const onChangeTimeframe = useCallback(({ chart }: { chart: ChartJS }) => {
+    const { min, max } = chart.scales.x;
+    chart.stop();
+    setTf({ start: new Date(min), end: new Date(max), slot: 30 });
+    chart.update('none');
+  }, []);
+
+  const onResetTimeframe = useCallback(() => {
+    chartRef.current?.stop();
+    setTf(timeframe);
+    chartRef.current?.zoomScale('x', {
+      min: timeframe.start.getTime(),
+      max: timeframe.end.getTime()
+    });
+  }, [timeframe]);
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
       {
         type: "bar",
-        label: "Total count",
-        data: timeline,
+        label: info.title,
+        data: line,
         backgroundColor: "#63B3ED", //'#FF9F40'
         borderRadius: 8,
         yAxisID: "y",
@@ -86,39 +100,22 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
         hidden: hidden[1],
       },
       {
-        type: "line",
-        label: "Rate(%)",
-        borderColor: "#68D391",
-        backgroundColor: "#68D391",
-        data: timeline1,
-        yAxisID: "y1",
-        datalabels: {
-          display: false,
-        },
-        order: 1,
-        hidden: hidden[0],
-      },
-      {
-        type: "line",
-        label: "Error count",
-        backgroundColor: "#ff6384",
-        data: timeline2,
-        yAxisID: "y",
-        datalabels: {
-          display: false,
-          align: "end",
-          anchor: "end",
-          formatter: (value: Point) => {
-            return Math.round(value.y);
+        ...lines?.map(l => ({
+          type: "line",
+          label: "Rate(%)",
+          borderColor: "#68D391",
+          backgroundColor: "#68D391",
+          data: l,
+          yAxisID: "y1",
+          datalabels: {
+            display: false,
           },
-          color: "#ff6384",
-          font: { size: 12, weight: "bold" },
-        },
-        order: 0,
-        hidden: hidden[2],
-      },
+          order: 1,
+          hidden: hidden[0],
+        }))
+      }
     ] as ChartDataset<"bar" | "line">[],
-  }), [timeline, hidden, timeline1, timeline2]);
+  }), [info.title, line, hidden, lines]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
@@ -155,6 +152,7 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
             enabled: true,
             modifierKey: 'ctrl',
             mode: 'x',
+            onPanComplete: onChangeTimeframe
           },
           zoom: {
             drag: {
@@ -162,13 +160,14 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
               backgroundColor: '#FF9F405f',
             },
             mode: 'x',
+            onZoomComplete: onChangeTimeframe
           },
         }
       },
 
       scales: {
         x: {
-          type: "timeseries",
+          type: "time",
           time: {
             displayFormats: {
               second: "pp",
@@ -207,11 +206,14 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           //resetTimescale();
         }
       },
-    }), [hidden]);
+    }), [hidden, onChangeTimeframe]);
 
-  return <Box w="full" h="full">
-    <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
-  </Box>;
+  return <VStack w="full" h="full" p={4} gap={0} align={"start"}>
+    <Box w="full" h="full">
+      <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
+    </Box>
+    <Button onClick={onResetTimeframe}>Reset</Button>
+  </VStack>;
 };
 
 export default TimelineCard;

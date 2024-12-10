@@ -1,5 +1,5 @@
 import { Point } from "chart.js";
-import { differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, endOfDay, endOfHour, endOfMinute, startOfDay, startOfHour, startOfMinute } from "date-fns";
+import { addSeconds, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, endOfDay, endOfHour, endOfMinute, startOfDay, startOfHour, startOfMinute } from "date-fns";
 import { Timeframe } from "./SampleData";
 
 
@@ -37,7 +37,7 @@ export function makeTimescale(start: number, end: number): Timeframe {
   }
 }
 
-export const useTimeline = (
+export const timesToTimelinePoint = (
   times: Date[],
   timeframe: Timeframe
 ): Point[] => {
@@ -45,14 +45,17 @@ export const useTimeline = (
     Math.floor(
       differenceInSeconds(timeframe.end, timeframe.start) / timeframe.slot
     ), 1);
-
-  const point = [...Array(timeframe.slot)].map((_, i) => ({ x: i * diffSec, y: 0 }));
+  const point = [...Array(timeframe.slot)].map((_, i) => ({
+    x: addSeconds(timeframe.start, diffSec * i).getTime(),
+    y: 0
+  }));
 
   const getSlotIndex = (time: Date) => {
     return Math.max(Math.floor(differenceInSeconds(time, timeframe.start) / diffSec), 0);
   }
   times.forEach(t => {
-    point[getSlotIndex(t)].y += 1;
+    const idx = getSlotIndex(t);
+    if (point.length > idx) point[idx].y += 1;
   });
 
   return point;
