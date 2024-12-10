@@ -22,8 +22,9 @@ const RateCard: FC<Props> = ({
   data
 }) => {
   const emphasize = false;
+  const deno = info.filters && info.filters.length > 0 ? info.filters[0] : undefined;
   const filtered = data.filter(d => validSampleData(d, info.filter)).length;
-  const total = data.filter(d => validSampleData(d, info.filter1)).length;
+  const total = data.filter(d => validSampleData(d, deno)).length;
 
   return (
     <HStack align="center" spacing={4} w="full" h="full" p={4}>

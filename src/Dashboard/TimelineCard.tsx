@@ -29,6 +29,7 @@ import { ja } from "date-fns/locale";
 import { format } from "date-fns";
 import { SampleData, SampleDataInfo, Timeframe } from "./SampleData";
 import { validSampleData } from "./filterSampleData";
+import { TimeRangeTag } from "../TimeRangeTag";
 
 ChartJS.register(
   CategoryScale,
@@ -78,6 +79,9 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
     });
   }, [timeframe]);
 
+  const isZoomed = useMemo(() => timeframe.start !== tf.start && timeframe.end !== tf.end,
+    [tf.end, tf.start, timeframe.end, timeframe.start]);
+
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
       {
@@ -97,7 +101,6 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           font: { size: 12, weight: "bold" },
         },
         order: 2,
-        hidden: hidden[1],
       },
       {
         ...lines?.map(l => ({
@@ -209,10 +212,11 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
     }), [hidden, onChangeTimeframe]);
 
   return <VStack w="full" h="full" p={4} gap={0} align={"start"}>
+    <TimeRangeTag min={tf.start} max={tf.end} isZoom={isZoomed} onClick={onResetTimeframe} />
+
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
     </Box>
-    <Button onClick={onResetTimeframe}>Reset</Button>
   </VStack>;
 };
 
