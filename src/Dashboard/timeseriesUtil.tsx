@@ -19,31 +19,22 @@ export function generateTimeseriesCfg(tf: Timeframe): TimeseriesCfg {
   console.log(tf)
 
   if (d >= 5) return {
-    binSize: d + 1,
+    binSize: d,
     getDate: (i: number) => addDays(startOfDay(start), i),
     getIndex: (d: Date) => differenceInDays(d, start)
   };
-  if (h >= 6 && d < 5) return {
-    binSize: h + 1,
+  if (m >= 120) return {
+    binSize: h,
     getDate: (i: number) => addHours(startOfHour(start), i),
     getIndex: (d: Date) => differenceInHours(d, start)
   };
-  if (m >= 90 && h < 6) return {
-    binSize: h * 6 + 1,
-    getDate: (i: number) => addMinutes(startOfHour(start), i * 10),
-    getIndex: (d: Date) => Math.floor(differenceInMinutes(d, start) / 10)
-  };
-  if (s >= 90 && m < 90) return {
-    binSize: m + 1,
-    getDate: (i: number) => addMinutes(startOfMinute(start), i),
+
+  return {
+    binSize: m,
+    getDate: (i: number) => addMinutes(startOfMinute(start), i + 1),
     getIndex: (d: Date) => differenceInMinutes(d, start)
   };
 
-  return {
-    binSize: s + 1,
-    getDate: (i: number) => addSeconds(startOfSecond(start), i),
-    getIndex: (d: Date) => differenceInSeconds(d, start)
-  };
 }
 
 export const generateTimeseries = (

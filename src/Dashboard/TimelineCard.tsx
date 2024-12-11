@@ -150,11 +150,18 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           }
         },
         zoom: {
+          limits: {
+            x: { minRange: 60 * 1000 * 60 },//seconds, min: -200, max: 200,
+          },
           pan: {
             enabled: true,
             modifierKey: 'ctrl',
             mode: 'x',
             onPanComplete: onChangeTimeframe
+          },
+          pinch: {
+            enabled: true,
+
           },
           zoom: {
             drag: {
