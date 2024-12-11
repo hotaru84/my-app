@@ -17,7 +17,6 @@ export const SampleDataTypesList = Object.values(SampleDataTypes);
 export type Timeframe = {
   start: Date;
   end: Date;
-  slot: number;
 }
 
 export type SampleData = {

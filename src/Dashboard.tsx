@@ -17,11 +17,13 @@ import EditableCardList from "./Dashboard/EditableCardList";
 import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
 import { generateSampleData } from "./Dashboard/generateSampleData";
 import { Timeframe } from "./Dashboard/SampleData";
-import { makeTimescale } from "./Dashboard/timelineUtil";
-
 
 const Dashboad: FC = () => {
-  const timeframe: Timeframe = makeTimescale(startOfMonth(startOfToday()).getTime(), endOfMonth(startOfToday()).getTime());
+  const timeframe: Timeframe = useMemo(() => ({
+    start: startOfMonth(startOfToday()),
+    end: endOfMonth(startOfToday())
+  }), []);
+
   const sampleData = useMemo(() => generateSampleData(timeframe, 10000), [timeframe]);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 

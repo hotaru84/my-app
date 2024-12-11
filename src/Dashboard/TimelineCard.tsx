@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,8 +23,8 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { Box, Button, VStack } from "@chakra-ui/react";
-import { makeTimescale, timesToTimelinePoint } from "./timelineUtil";
+import { Box, VStack } from "@chakra-ui/react";
+import { generateTimeseriesCfg, generateTimeseries } from "./timeseriesUtil";
 import { ja } from "date-fns/locale";
 import { format } from "date-fns";
 import { SampleData, SampleDataInfo, Timeframe } from "./SampleData";
@@ -52,13 +52,11 @@ interface Props {
 }
 
 const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
-  const [tf, setTf] = useState(timeframe);
-  const line = timesToTimelinePoint(
+  const [cfg, setCfg] = useState(generateTimeseriesCfg(timeframe));
+  const line = generateTimeseries(
     data.filter(d => validSampleData(d, info.filter))
-      .map(d => d.time), tf);
-  const lines = info.filters?.map(f => timesToTimelinePoint(
-    data.filter(d => validSampleData(d, f))
-      .map(d => d.time), tf));
+      .map(d => d.time), cfg);
+  const lines: Point[] = [];
 
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
@@ -66,21 +64,25 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
   const onChangeTimeframe = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
     chart.stop();
-    setTf({ start: new Date(min), end: new Date(max), slot: 30 });
+    setCfg(generateTimeseriesCfg({ start: new Date(min), end: new Date(max) }));
+    chartRef.current?.zoomScale('x', {
+      min: cfg.getDate(0).getTime(),
+      max: cfg.getDate(cfg.binSize - 1).getTime()
+    });
     chart.update('none');
-  }, []);
+  }, [cfg]);
 
   const onResetTimeframe = useCallback(() => {
     chartRef.current?.stop();
-    setTf(timeframe);
+    setCfg(generateTimeseriesCfg(timeframe));
     chartRef.current?.zoomScale('x', {
-      min: timeframe.start.getTime(),
-      max: timeframe.end.getTime()
+      min: cfg.getDate(0).getTime(),
+      max: cfg.getDate(cfg.binSize - 1).getTime()
     });
-  }, [timeframe]);
+  }, [cfg, timeframe]);
 
-  const isZoomed = useMemo(() => timeframe.start !== tf.start && timeframe.end !== tf.end,
-    [tf.end, tf.start, timeframe.end, timeframe.start]);
+  const isZoomed = useMemo(() => timeframe.start !== cfg.getDate(0) && timeframe.end !== cfg.getDate(cfg.binSize - 1),
+    [cfg, timeframe.end, timeframe.start]);
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -148,9 +150,6 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           }
         },
         zoom: {
-          limits: {
-            x: { minRange: 1000 * 30 },//seconds, min: -200, max: 200,
-          },
           pan: {
             enabled: true,
             modifierKey: 'ctrl',
@@ -170,7 +169,7 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
 
       scales: {
         x: {
-          type: "time",
+          type: "timeseries",
           time: {
             displayFormats: {
               second: "pp",
@@ -212,7 +211,7 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
     }), [hidden, onChangeTimeframe]);
 
   return <VStack w="full" h="full" p={4} gap={0} align={"start"}>
-    <TimeRangeTag min={tf.start} max={tf.end} isZoom={isZoomed} onClick={onResetTimeframe} />
+    <TimeRangeTag min={cfg.getDate(0)} max={cfg.getDate(cfg.binSize - 1)} isZoom={isZoomed} onClick={onResetTimeframe} />
 
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
