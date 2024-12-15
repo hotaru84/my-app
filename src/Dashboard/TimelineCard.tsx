@@ -17,19 +17,19 @@ import {
   ChartDataset,
   ChartEvent,
   ActiveElement,
-  _adapters,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { Box, VStack } from "@chakra-ui/react";
-import { generateTimeseriesCfg, generateTimeseries } from "./timeseriesUtil";
+import { Box, ButtonGroup, IconButton, VStack } from "@chakra-ui/react";
 import { ja } from "date-fns/locale";
-import { format } from "date-fns";
-import { SampleData, SampleDataInfo, Timeframe } from "./SampleData";
+import { addDays, differenceInDays, format, startOfDay } from "date-fns";
+import { SampleData, SampleDataInfo } from "./SampleData";
 import { validSampleData } from "./filterSampleData";
 import { TimeRangeTag } from "../TimeRangeTag";
+import { useTimeframe } from "../useTimeframe";
+import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomOut } from "react-icons/tb";
 
 ChartJS.register(
   CategoryScale,
@@ -48,41 +48,24 @@ ChartJS.register(
 interface Props {
   info: SampleDataInfo;
   data: SampleData[];
-  timeframe: Timeframe;
 }
 
-const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
-  const [cfg, setCfg] = useState(generateTimeseriesCfg(timeframe));
-  const line = generateTimeseries(
-    data.filter(d => validSampleData(d, info.filter))
-      .map(d => d.time), cfg);
+const TimelineCard: FC<Props> = ({ info, data }) => {
+  const { timeframe, timeToPoint, onChangeTimeframe, zoomIn, zoomOut, prev, next } = useTimeframe();
+  const line = useMemo(() => timeToPoint(
+    data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
+
   const lines: Point[] = [];
 
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
 
-  const onChangeTimeframe = useCallback(({ chart }: { chart: ChartJS }) => {
+  const onChange = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
     chart.stop();
-    setCfg(generateTimeseriesCfg({ start: new Date(min), end: new Date(max) }));
-    chartRef.current?.zoomScale('x', {
-      min: cfg.getDate(0).getTime(),
-      max: cfg.getDate(cfg.binSize - 1).getTime()
-    });
+    onChangeTimeframe({ ...timeframe, start: new Date(min), end: new Date(max) });
     chart.update('none');
-  }, [cfg]);
-
-  const onResetTimeframe = useCallback(() => {
-    chartRef.current?.stop();
-    setCfg(generateTimeseriesCfg(timeframe));
-    chartRef.current?.zoomScale('x', {
-      min: cfg.getDate(0).getTime(),
-      max: cfg.getDate(cfg.binSize - 1).getTime()
-    });
-  }, [cfg, timeframe]);
-
-  const isZoomed = useMemo(() => timeframe.start !== cfg.getDate(0) && timeframe.end !== cfg.getDate(cfg.binSize - 1),
-    [cfg, timeframe.end, timeframe.start]);
+  }, [onChangeTimeframe, timeframe]);
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -103,22 +86,19 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           font: { size: 12, weight: "bold" },
         },
         order: 2,
-      },
-      {
-        ...lines?.map(l => ({
-          type: "line",
-          label: "Rate(%)",
-          borderColor: "#68D391",
-          backgroundColor: "#68D391",
-          data: l,
-          yAxisID: "y1",
-          datalabels: {
-            display: false,
-          },
-          order: 1,
-          hidden: hidden[0],
-        }))
-      }
+      }, ...lines?.map(l => ({
+        type: "line",
+        label: "Rate(%)",
+        borderColor: "#68D391",
+        backgroundColor: "#68D391",
+        data: l,
+        yAxisID: "y1",
+        datalabels: {
+          display: false,
+        },
+        order: 1,
+        hidden: hidden[0],
+      }))
     ] as ChartDataset<"bar" | "line">[],
   }), [info.title, line, hidden, lines]);
 
@@ -128,7 +108,7 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
       responsive: true,
       plugins: {
         legend: {
-          position: "top",
+          position: "bottom",
           align: "end",
           labels: {
             usePointStyle: true
@@ -144,40 +124,25 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           callbacks: {
             title: context => {
               const p = context[0].raw as Point;
-              console.log(p.x);
               return format(new Date(p.x), 'PP p', { locale: ja })
             }
           }
         },
         zoom: {
-          limits: {
-            x: { minRange: 60 * 1000 * 60 },//seconds, min: -200, max: 200,
-          },
           pan: {
             enabled: true,
-            modifierKey: 'ctrl',
             mode: 'x',
-            onPanComplete: onChangeTimeframe
-          },
-          pinch: {
-            enabled: true,
-
-          },
-          zoom: {
-            drag: {
-              enabled: true,
-              backgroundColor: '#FF9F405f',
-            },
-            mode: 'x',
-            onZoomComplete: onChangeTimeframe
+            scaleMode: 'x',
+            onPanComplete: onChange
           },
         }
       },
 
       scales: {
         x: {
-          type: "timeseries",
+          type: "time",
           time: {
+            minUnit: timeframe.unit,
             displayFormats: {
               second: "pp",
               minute: "p",
@@ -193,7 +158,9 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
             date: {
               locale: ja,
             }
-          }
+          },
+          min: timeframe.start.getTime(),
+          max: timeframe.end.getTime()
         },
         y: {
           type: "linear",
@@ -215,11 +182,13 @@ const TimelineCard: FC<Props> = ({ info, data, timeframe }) => {
           //resetTimescale();
         }
       },
-    }), [hidden, onChangeTimeframe]);
 
-  return <VStack w="full" h="full" p={4} gap={0} align={"start"}>
-    <TimeRangeTag min={cfg.getDate(0)} max={cfg.getDate(cfg.binSize - 1)} isZoom={isZoomed} onClick={onResetTimeframe} />
+    }), [hidden, onChange, timeframe.end, timeframe.unit, timeframe.start]);
 
+
+
+  return <VStack w="full" h="full" p={4} gap={1} align={"start"}>
+    <TimeRangeTag />
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
     </Box>

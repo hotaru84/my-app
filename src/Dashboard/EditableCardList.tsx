@@ -5,17 +5,17 @@ import EditableLayout from "../EditableLayout/EditableLayout";
 import EditableCard from "../EditableLayout/EditableCard";
 import { Layout } from "react-grid-layout";
 import { SampleDataInfoEditor } from "./SampleDataInfoEditor";
-import { SampleData, SampleDataInfo, SampleDataTypes, Timeframe } from "./SampleData";
+import { SampleDataInfo, SampleDataTypes } from "./SampleData";
 import CounterCard from "./CounterCard";
 import { useList } from "react-use";
 import RateCard from "./RateCard";
 import TimelineCard from "./TimelineCard";
+import { useTimeframe } from "../useTimeframe";
+import { generateSampleData } from "./generateSampleData";
 
 
 interface EditableCardListProps {
-	data: SampleData[];
 	isEditable?: boolean;
-	tf: Timeframe;
 }
 const defalutCardInfo: SampleDataInfo[] = [
 	{
@@ -99,7 +99,9 @@ const defalutCardInfo: SampleDataInfo[] = [
 	}
 ];
 
-const EditableCardList: FC<EditableCardListProps> = ({ data, isEditable = false, tf }) => {
+const EditableCardList: FC<EditableCardListProps> = ({ isEditable = false }) => {
+	const { timeframe } = useTimeframe();
+	const data = useMemo(() => generateSampleData(timeframe, 10000), [timeframe]);
 	//const timeline = useTimelineStats({ start: startOfToday(), end: addDays(startOfToday(), 7), slot: 7 });
 	const [cardinfo, { set: setInfo, updateAt: updateInfoAt, }] = useList<SampleDataInfo>(defalutCardInfo);
 	const layout = useMemo(() => cardinfo.map(c => c.layout), [cardinfo]);
@@ -153,7 +155,7 @@ case 'table':
 			<EditableCard isEditable={isEditable}>
 				{info.type === SampleDataTypes.counter && <CounterCard info={info} data={data} />}
 				{info.type === SampleDataTypes.ratio && <RateCard info={info} data={data} />}
-				{info.type === SampleDataTypes.timeline && <TimelineCard info={info} data={data} timeframe={tf} />}
+				{info.type === SampleDataTypes.timeline && <TimelineCard info={info} data={data} />}
 			</EditableCard>
 		</Box>
 		)}

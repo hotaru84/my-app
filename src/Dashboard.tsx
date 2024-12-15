@@ -15,16 +15,8 @@ import { Navigation } from "./Navigation";
 import { endOfMonth, startOfMonth, startOfToday } from "date-fns";
 import EditableCardList from "./Dashboard/EditableCardList";
 import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
-import { generateSampleData } from "./Dashboard/generateSampleData";
-import { Timeframe } from "./Dashboard/SampleData";
 
 const Dashboad: FC = () => {
-  const timeframe: Timeframe = useMemo(() => ({
-    start: startOfMonth(startOfToday()),
-    end: endOfMonth(startOfToday())
-  }), []);
-
-  const sampleData = useMemo(() => generateSampleData(timeframe, 10000), [timeframe]);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 
   return (
@@ -50,7 +42,7 @@ const Dashboad: FC = () => {
           isActive={isEditable}
           icon={<TbEdit />} aria-label={""} />
       </Navigation>
-      <EditableCardList data={sampleData} isEditable={isEditable} tf={timeframe} />
+      <EditableCardList isEditable={isEditable} />
     </VStack>
   );
 };

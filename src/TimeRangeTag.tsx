@@ -1,28 +1,51 @@
-import { Tag, TagCloseButton, TagLeftIcon, Tooltip, useDisclosure } from "@chakra-ui/react";
-import { Duration, format, formatDistanceStrict, formatDuration, intervalToDuration, isSameDay } from "date-fns";
-import { motion } from "framer-motion";
+import { Button, ButtonGroup, HStack, IconButton, Menu, MenuButton, MenuItemOption, MenuList, MenuOptionGroup, Spacer, Tag, TagLabel } from "@chakra-ui/react";
+import { format, formatDistanceStrict } from "date-fns";
 import { FC } from "react";
-import { TbCalendarSearch, TbRefresh } from "react-icons/tb";
-import { ja, enUS, de } from 'date-fns/locale';
+import { ja } from 'date-fns/locale';
+import { TimeUnit, TimeUnits, useTimeframe } from "./useTimeframe";
+import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomOut } from "react-icons/tb";
+import { MdAccessTime } from "react-icons/md";
 
-interface TimeRangeTagProps {
-  min: Date | undefined;
-  max: Date | undefined;
-  isZoom: boolean;
-  onClick: () => void;
-}
 
-export const TimeRangeTag: FC<TimeRangeTagProps> = (
-  {
-    min, max, isZoom, onClick
-  }) => {
-  if (min === undefined || max === undefined) return <></>;
+export const TimeRangeTag: FC = () => {
+  const { timeframe, onChangeTimeframe, zoomIn, zoomOut, prev, next } = useTimeframe();
 
-  return <Tag colorScheme={isZoom ? 'orange' : 'gray'} w="fit-content" onClick={onClick} cursor={'pointer'} as={motion.div} whileHover={{ filter: 'brightness(0.9)' }}>
-    {!isZoom && <TagLeftIcon as={TbCalendarSearch} />}
-    {
-      format(min, "PP p", { locale: ja }) + ',  ' + formatDistanceStrict(min, max, { locale: ja })
-    }
-    {isZoom && <TagCloseButton />}
-  </Tag>;
+  return <HStack w="full">
+    <ButtonGroup variant='ghost' colorScheme="cyan" isAttached>
+      <Menu>
+        <MenuButton as={Button} leftIcon={<MdAccessTime />}>
+          {timeframe.unit}
+        </MenuButton>
+        <MenuList>
+          <MenuOptionGroup value={timeframe.unit} type="radio" onChange={(e) => onChangeTimeframe({ ...timeframe, unit: e as TimeUnit })}>
+            {TimeUnits.map(v =>
+              <MenuItemOption key={v} value={v}>
+                {v}
+              </MenuItemOption>)}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+      <IconButton aria-label={"prev"} icon={<TbArrowLeft />} onClick={prev} />
+      <IconButton aria-label={"next"} icon={<TbArrowRight />} onClick={next} />
+    </ButtonGroup>
+
+    <ButtonGroup variant='ghost' colorScheme="cyan" isAttached>
+      <IconButton aria-label={"zoom-in"} icon={<TbZoomIn />} onClick={zoomIn} />
+      <IconButton aria-label={"zoom-out"} icon={<TbZoomOut />} onClick={zoomOut} />
+    </ButtonGroup>
+    <Spacer />
+    <Tag colorScheme={'orange'} >
+      <TagLabel>
+        {format(timeframe.start, "PP p", { locale: ja })
+          + ' - ' + format(timeframe.end, "PP p", { locale: ja })
+        }
+      </TagLabel>
+    </Tag>
+    <Tag colorScheme={'orange'} >
+      <TagLabel>
+        {formatDistanceStrict(timeframe.start, timeframe.end, { locale: ja })
+        }
+      </TagLabel>
+    </Tag>
+  </HStack>
 }

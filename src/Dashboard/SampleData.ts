@@ -14,11 +14,6 @@ export const SampleDataTypes = {
 export type SampleDataType = typeof SampleDataTypes[keyof typeof SampleDataTypes];
 export const SampleDataTypesList = Object.values(SampleDataTypes);
 
-export type Timeframe = {
-  start: Date;
-  end: Date;
-}
-
 export type SampleData = {
   time: Date,
   resultCode: number[]; // or

@@ -1,5 +1,6 @@
 import { addSeconds, differenceInSeconds } from "date-fns";
-import { SampleData, Timeframe } from "./SampleData";
+import { SampleData } from "./SampleData";
+import { Timeframe } from "../useTimeframe";
 
 function generateGaussianNumber(mean = 0, stdev = 1): number {
   const u = 1 - Math.random(); // Converting [0,1) to (0,1]
