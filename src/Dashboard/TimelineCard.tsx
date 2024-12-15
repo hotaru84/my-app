@@ -51,6 +51,7 @@ interface Props {
 }
 
 const TimelineCard: FC<Props> = ({ info, data }) => {
+  const simplified = false;
   const { isOpen: isZoom, onToggle: onToggleZoom } = useDisclosure();
   const { timeframe, timeToPoint, onChangeTimeframe, zoomIn, zoomOut, prev, next } = useTimeframe();
   const line = useMemo(() => timeToPoint(
@@ -76,6 +77,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         data: line,
         backgroundColor: "#63B3ED", //'#FF9F40'
         borderRadius: 8,
+        hoverBackgroundColor: '#FF9F405f',
         yAxisID: "y",
         datalabels: {
           align: "start",
@@ -109,6 +111,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
       responsive: true,
       plugins: {
         legend: {
+          display: !simplified,
           position: "bottom",
           align: "end",
           labels: {
@@ -122,6 +125,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           },
         },
         tooltip: {
+          enabled: !simplified,
           callbacks: {
             title: context => {
               const p = context[0].raw as Point;
@@ -153,6 +157,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
       scales: {
         x: {
           type: "time",
+          display: !simplified,
           time: {
             minUnit: timeframe.unit,
             displayFormats: {
@@ -188,16 +193,21 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         y1: {
           type: "linear",
           max: 100,
+          display: !simplified,
           position: "left",
+          grid: {
+            display: !simplified,
+          },
         },
       },
       onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
         if (el.length === 0) {
           //resetTimescale();
+
         }
       },
 
-    }), [isZoom, onChange, timeframe.unit, timeframe.start, timeframe.end, hidden]);
+    }), [simplified, isZoom, onChange, timeframe.unit, timeframe.start, timeframe.end, hidden]);
 
 
 

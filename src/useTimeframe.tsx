@@ -106,56 +106,55 @@ export const useTimeframe = (): IdsSearchParamAction => {
     };
   }, [param]);
 
-  const action = useMemo(() => getTimeUnitAction(timeframe.unit), [timeframe.unit])
-
   const timeToPoint = useCallback((t: Date[]) => {
-    const point: Point[] = [];
-    t.forEach(t => {
-      const idx = action.getIndex(t, action.getDate(timeframe.start));
+    const action = getTimeUnitAction(timeframe.unit);
+    const point: Point[] = [...Array(action.getIndex(timeframe.end, timeframe.start))].map((_, i) => ({
+      x: action.add(timeframe.start, i).getTime(),
+      y: 0
+    }));
+
+    t.sort().forEach(t => {
+      const idx = action.getIndex(action.getDate(t), timeframe.start);
       if (idx >= 0 && point.length > idx) {
         point[idx].y += 1;
-      } else {
-        point.push({
-          x: action.getDate(t).getTime(),
-          y: 1
-        });
       }
     });
     return point;
-  }, [action, timeframe.start]);
+  }, [timeframe]);
 
   const onChangeTimeframe = useCallback((tf: Timeframe) => {
     if (tf.start >= tf.end) return;
     if (!isTimeframeAvailable(tf)) return; // to avoid too much slots
-
-    param.set("start", String(tf.start.getTime()));
-    param.set("end", String(tf.end.getTime()));
+    const act = getTimeUnitAction(tf.unit);
+    param.set("start", String(act.getDate(tf.start).getTime()));
+    param.set("end", String(act.getDate(tf.end).getTime()));
     param.set("unit", tf.unit);
     setParam(param);
   }, [param, setParam]);
 
   const zoomOut = useCallback(() => {
+    const action = getTimeUnitAction(timeframe.unit);
     onChangeTimeframe({
       ...timeframe,
       start: action.add(timeframe.start, -0.5),
       end: action.add(timeframe.end, 0.5)
     })
-  }, [action, onChangeTimeframe, timeframe]);
+  }, [onChangeTimeframe, timeframe]);
 
   const zoomIn = useCallback(() => {
+    const action = getTimeUnitAction(timeframe.unit);
     onChangeTimeframe({
       ...timeframe,
       start: action.add(timeframe.start, 0.5),
       end: action.add(timeframe.end, -0.5)
     })
-  }, [action, onChangeTimeframe, timeframe]);
+  }, [onChangeTimeframe, timeframe]);
 
   const zoom = useCallback((unit: TimeUnit) => {
-    const action = getTimeUnitAction(unit);
-    const start = action.getDate(timeframe.start);
-    const end = action.add(start, 1);
+    const act = getTimeUnitAction(unit);
+    const start = act.getDate(timeframe.start);
+    const end = act.add(start, 1);
     const nextUnit = TimeUnits.find((u) => isTimeframeAvailable({ unit: u, end, start })) ?? 'day';
-    console.log(start, end, nextUnit)
 
     onChangeTimeframe({
       start,
@@ -166,20 +165,22 @@ export const useTimeframe = (): IdsSearchParamAction => {
 
 
   const prev = useCallback(() => {
+    const action = getTimeUnitAction(timeframe.unit);
     onChangeTimeframe({
       ...timeframe,
       start: action.add(timeframe.start, -1),
       end: action.add(timeframe.end, -1)
     })
-  }, [action, onChangeTimeframe, timeframe]);
+  }, [onChangeTimeframe, timeframe]);
 
   const next = useCallback(() => {
+    const action = getTimeUnitAction(timeframe.unit);
     onChangeTimeframe({
       ...timeframe,
       start: action.add(timeframe.start, 1),
       end: action.add(timeframe.end, 1)
     })
-  }, [action, onChangeTimeframe, timeframe]);
+  }, [onChangeTimeframe, timeframe]);
 
   return {
     timeframe,

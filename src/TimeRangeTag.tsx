@@ -15,28 +15,6 @@ export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
   const { timeframe, onChangeTimeframe, zoomIn, zoomOut, prev, next, zoom } = useTimeframe();
 
   return <HStack w="full">
-    <ButtonGroup variant='ghost' colorScheme="orange" isAttached size={"sm"}>
-      <Menu>
-        <MenuButton as={Button} leftIcon={<MdAccessTime />}>
-          {timeframe.unit}
-        </MenuButton>
-        <MenuList>
-          <MenuOptionGroup value={timeframe.unit} type="radio" onChange={(e) => onChangeTimeframe({ ...timeframe, unit: e as TimeUnit })}>
-            {TimeUnits.map(v =>
-              <MenuItemOption key={v} value={v} isDisabled={!isTimeframeAvailable({ ...timeframe, unit: v })}>
-                {v}
-              </MenuItemOption>)}
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
-
-      <IconButton aria-label={"prev"} icon={<TbChevronLeftPipe />} onClick={prev} />
-      <IconButton aria-label={"next"} icon={<TbChevronRightPipe />} onClick={next} />
-      <IconButton aria-label={"area-zoom"} onClick={onToggleZoom} isActive={isZoom} icon={<TbZoomInArea />} />
-      <IconButton aria-label={"zoom-in"} icon={<TbZoomIn />} onClick={zoomIn} />
-      <IconButton aria-label={"zoom-out"} icon={<TbZoomOut />} onClick={zoomOut} />
-    </ButtonGroup>
-    <Spacer />
     <Tag colorScheme={'orange'} >
       <TagLabel>
         {format(timeframe.start, "PP p", { locale: ja })
@@ -57,5 +35,25 @@ export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
         <MenuItem onClick={() => zoom('month')}>Month</MenuItem>
       </MenuList>
     </Menu>
+    <ButtonGroup variant='ghost' colorScheme="orange" isAttached size={"sm"}>
+      <Menu>
+        <MenuButton as={Button} leftIcon={<MdAccessTime />}>
+          {timeframe.unit}
+        </MenuButton>
+        <MenuList>
+          <MenuOptionGroup value={timeframe.unit} type="radio" onChange={(e) => onChangeTimeframe({ ...timeframe, unit: e as TimeUnit })}>
+            {TimeUnits.map(v =>
+              <MenuItemOption key={v} value={v} isDisabled={!isTimeframeAvailable({ ...timeframe, unit: v })}>
+                {v}
+              </MenuItemOption>)}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+      <IconButton aria-label={"prev"} icon={<TbChevronLeftPipe />} onClick={prev} />
+      <IconButton aria-label={"next"} icon={<TbChevronRightPipe />} onClick={next} />
+      <IconButton aria-label={"area-zoom"} onClick={onToggleZoom} isActive={isZoom} icon={<TbZoomInArea />} />
+      <IconButton aria-label={"zoom-in"} icon={<TbZoomIn />} onClick={zoomIn} />
+      <IconButton aria-label={"zoom-out"} icon={<TbZoomOut />} onClick={zoomOut} />
+    </ButtonGroup>
   </HStack>
 }
