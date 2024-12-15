@@ -1,30 +1,26 @@
-import { addDays, addHours, addMinutes, differenceInDays, differenceInHours, differenceInMinutes, startOfDay, startOfHour, startOfMinute, startOfMonth } from "date-fns";
+import { addDays, addHours, addMinutes, addMonths, addSeconds, addWeeks, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInSeconds, differenceInWeeks, startOfDay, startOfHour, startOfMinute, startOfMonth, startOfSecond, startOfWeek } from "date-fns";
 import { endOfMonth, startOfToday } from "date-fns";
 import { Point } from "framer-motion";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
+const maxSlotSize = 7 * 24;
+
 export type TimeUnit =
-  | "millisecond"
   | "second"
   | "minute"
   | "hour"
   | "day"
   | "week"
   | "month"
-  | "quarter"
-  | "year";
 
 export const TimeUnits: TimeUnit[] = [
-  "millisecond",
   "second",
   "minute",
   "hour",
   "day",
   "week",
   "month",
-  "quarter",
-  "year"
 ];
 
 export type Timeframe = {
@@ -37,11 +33,62 @@ interface IdsSearchParamAction {
   timeframe: Timeframe;
   onChangeTimeframe: (tf: Timeframe) => void;
   timeToPoint: (t: Date[]) => Point[];
+  zoom: (unit: TimeUnit) => void;
   zoomIn: () => void;
   zoomOut: () => void;
   prev: () => void;
   next: () => void;
 }
+
+const getTimeUnitAction = (unit: TimeUnit) => {
+  switch (unit) {
+    case 'month':
+      return {
+        getIndex: differenceInMonths,
+        getDate: startOfMonth,
+        add: addMonths,
+      }
+    case 'week':
+      return {
+        getIndex: differenceInWeeks,
+        getDate: startOfWeek,
+        add: addWeeks,
+      }
+    case 'day':
+      return {
+        getIndex: differenceInDays,
+        getDate: startOfDay,
+        add: addDays,
+      }
+    case 'hour':
+      return {
+        getIndex: differenceInHours,
+        getDate: startOfHour,
+        add: addHours,
+      }
+    case 'second':
+      return {
+        getIndex: differenceInSeconds,
+        getDate: startOfSecond,
+        add: addSeconds,
+      }
+    case 'minute':
+      return {
+        getIndex: differenceInMinutes,
+        getDate: startOfMinute,
+        add: addMinutes,
+      }
+    default:
+      return {
+        getIndex: differenceInDays,
+        getDate: startOfDay,
+        add: addDays
+      }
+  }
+};
+export const isTimeframeAvailable = (tf: Timeframe) => {
+  return getTimeUnitAction(tf.unit).getIndex(tf.end, tf.start) < maxSlotSize;
+};
 
 export const useTimeframe = (): IdsSearchParamAction => {
   const [param, setParam] = useSearchParams();
@@ -59,34 +106,7 @@ export const useTimeframe = (): IdsSearchParamAction => {
     };
   }, [param]);
 
-  const action = useMemo(() => {
-    switch (timeframe.unit) {
-      case 'hour':
-        return {
-          getIndex: differenceInHours,
-          getDate: startOfHour,
-          add: addHours,
-        }
-      case 'day':
-        return {
-          getIndex: differenceInDays,
-          getDate: startOfDay,
-          add: addDays,
-        }
-      case 'minute':
-        return {
-          getIndex: differenceInMinutes,
-          getDate: startOfMinute,
-          add: addMinutes,
-        }
-      default:
-        return {
-          getIndex: differenceInDays,
-          getDate: startOfDay,
-          add: addDays
-        }
-    }
-  }, [timeframe.unit]);
+  const action = useMemo(() => getTimeUnitAction(timeframe.unit), [timeframe.unit])
 
   const timeToPoint = useCallback((t: Date[]) => {
     const point: Point[] = [];
@@ -106,6 +126,7 @@ export const useTimeframe = (): IdsSearchParamAction => {
 
   const onChangeTimeframe = useCallback((tf: Timeframe) => {
     if (tf.start >= tf.end) return;
+    if (!isTimeframeAvailable(tf)) return; // to avoid too much slots
 
     param.set("start", String(tf.start.getTime()));
     param.set("end", String(tf.end.getTime()));
@@ -129,6 +150,21 @@ export const useTimeframe = (): IdsSearchParamAction => {
     })
   }, [action, onChangeTimeframe, timeframe]);
 
+  const zoom = useCallback((unit: TimeUnit) => {
+    const action = getTimeUnitAction(unit);
+    const start = action.getDate(timeframe.start);
+    const end = action.add(start, 1);
+    const nextUnit = TimeUnits.find((u) => isTimeframeAvailable({ unit: u, end, start })) ?? 'day';
+    console.log(start, end, nextUnit)
+
+    onChangeTimeframe({
+      start,
+      end,
+      unit: nextUnit
+    })
+  }, [onChangeTimeframe, timeframe]);
+
+
   const prev = useCallback(() => {
     onChangeTimeframe({
       ...timeframe,
@@ -149,6 +185,7 @@ export const useTimeframe = (): IdsSearchParamAction => {
     timeframe,
     onChangeTimeframe,
     timeToPoint,
+    zoom,
     zoomIn,
     zoomOut,
     prev,

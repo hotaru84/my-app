@@ -22,14 +22,14 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { Box, ButtonGroup, IconButton, VStack } from "@chakra-ui/react";
+import { Box, ButtonGroup, IconButton, useDisclosure, VStack } from "@chakra-ui/react";
 import { ja } from "date-fns/locale";
 import { addDays, differenceInDays, format, startOfDay } from "date-fns";
 import { SampleData, SampleDataInfo } from "./SampleData";
 import { validSampleData } from "./filterSampleData";
 import { TimeRangeTag } from "../TimeRangeTag";
 import { useTimeframe } from "../useTimeframe";
-import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomOut } from "react-icons/tb";
+import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomInArea, TbZoomOut } from "react-icons/tb";
 
 ChartJS.register(
   CategoryScale,
@@ -51,6 +51,7 @@ interface Props {
 }
 
 const TimelineCard: FC<Props> = ({ info, data }) => {
+  const { isOpen: isZoom, onToggle: onToggleZoom } = useDisclosure();
   const { timeframe, timeToPoint, onChangeTimeframe, zoomIn, zoomOut, prev, next } = useTimeframe();
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
@@ -130,11 +131,22 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: !isZoom,
             mode: 'x',
             scaleMode: 'x',
             onPanComplete: onChange
           },
+          zoom: {
+            pinch: {
+              enabled: isZoom
+            },
+            drag: {
+              enabled: isZoom,
+              backgroundColor: '#FF9F405f',
+            },
+            mode: 'x',
+            onZoomComplete: onChange
+          }
         }
       },
 
@@ -147,7 +159,9 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
               second: "pp",
               minute: "p",
               hour: 'Mo do p',
-              day: 'PP'
+              day: 'PP',
+              week: 'PP',
+              month: 'y MMM',
             },
           },
           grid: {
@@ -183,12 +197,12 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         }
       },
 
-    }), [hidden, onChange, timeframe.end, timeframe.unit, timeframe.start]);
+    }), [isZoom, onChange, timeframe.unit, timeframe.start, timeframe.end, hidden]);
 
 
 
   return <VStack w="full" h="full" p={4} gap={1} align={"start"}>
-    <TimeRangeTag />
+    <TimeRangeTag isZoom={isZoom} onToggleZoom={onToggleZoom} />
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
     </Box>
