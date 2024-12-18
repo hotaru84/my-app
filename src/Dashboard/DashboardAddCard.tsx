@@ -13,6 +13,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Spacer,
+  Input,
 } from "@chakra-ui/react";
 import "rc-time-picker/assets/index.css";
 import {
@@ -60,6 +61,7 @@ export const DashboardAddCard: FC = () => {
             ]}
               onSelect={(e) => console.log(e)}
             />
+            <Input type="color" value="#68D391ee" onChange={(e) => console.log(e.currentTarget.value)} />
           </ModalBody>
           <ButtonGroup colorScheme="cyan" p={4}>
             <Spacer />
