@@ -1,9 +1,9 @@
-import { Button, ButtonGroup, HStack, IconButton, Menu, MenuButton, MenuItem, MenuItemOption, MenuList, MenuOptionGroup, Spacer, Tag, TagLabel } from "@chakra-ui/react";
-import { format, formatDistanceStrict } from "date-fns";
+import { Button, ButtonGroup, HStack, IconButton, Menu, MenuButton, MenuItem, MenuItemOption, MenuList, MenuOptionGroup, RangeSlider, RangeSliderFilledTrack, RangeSliderThumb, RangeSliderTrack, SliderThumb, Spacer, Tag, TagLabel, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { format, formatDistanceStrict, intervalToDuration } from "date-fns";
 import { FC } from "react";
 import { ja } from 'date-fns/locale';
 import { isTimeframeAvailable, TimeUnit, TimeUnits, useTimeframe } from "./useTimeframe";
-import { TbChevronLeftPipe, TbChevronRightPipe, TbZoomIn, TbZoomInArea, TbZoomOut } from "react-icons/tb";
+import { TbChevronLeftPipe, TbChevronRightPipe, TbMinus, TbPlus, TbZoomIn, TbZoomInArea, TbZoomOut } from "react-icons/tb";
 import { MdAccessTime } from "react-icons/md";
 
 interface Props {
@@ -12,7 +12,11 @@ interface Props {
 }
 
 export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
-  const { timeframe, onChangeTimeframe, zoomIn, zoomOut, prev, next, zoom } = useTimeframe();
+  const { timeframe, onChangeTimeframe, zoomIn, zoomOut, prev, next, zoom, slotNum } = useTimeframe();
+  const duration = intervalToDuration({ start: timeframe.start, end: timeframe.end });
+  const label = Object.keys(duration).flatMap((k) => {
+    return [duration[k as keyof Duration]?.toString(), k];
+  });
 
   return <HStack w="full">
     <Tag colorScheme={'orange'} >
@@ -25,7 +29,7 @@ export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
     <Menu>
       <Tag colorScheme={'orange'} as={MenuButton}>
         <TagLabel>
-          {formatDistanceStrict(timeframe.start, timeframe.end, { locale: ja })}
+          {label}
         </TagLabel>
       </Tag>
       <MenuList>
@@ -35,9 +39,15 @@ export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
         <MenuItem onClick={() => zoom('month')}>Month</MenuItem>
       </MenuList>
     </Menu>
-    <ButtonGroup variant='ghost' colorScheme="orange" isAttached size={"sm"}>
+    <ButtonGroup colorScheme="cyan" isAttached size={"sm"}>
+
+      <IconButton aria-label={"zoom-out"} icon={<TbMinus />} onClick={zoomOut} />
+      <Button>{slotNum + ' ' + timeframe.unit}</Button>
+      <IconButton aria-label={"zoom-out"} icon={<TbPlus />} onClick={zoomOut} />
+    </ButtonGroup>
+    <ButtonGroup colorScheme="cyan" isAttached size={"sm"}>
       <Menu>
-        <MenuButton as={Button} leftIcon={<MdAccessTime />}>
+        <MenuButton as={Button}>
           {timeframe.unit}
         </MenuButton>
         <MenuList>
@@ -49,6 +59,8 @@ export const TimeRangeTag: FC<Props> = ({ isZoom, onToggleZoom }) => {
           </MenuOptionGroup>
         </MenuList>
       </Menu>
+    </ButtonGroup>
+    <ButtonGroup colorScheme="orange" isAttached size={"sm"}>
       <IconButton aria-label={"prev"} icon={<TbChevronLeftPipe />} onClick={prev} />
       <IconButton aria-label={"next"} icon={<TbChevronRightPipe />} onClick={next} />
       <IconButton aria-label={"area-zoom"} onClick={onToggleZoom} isActive={isZoom} icon={<TbZoomInArea />} />

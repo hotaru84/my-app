@@ -18,6 +18,7 @@ import "rc-time-picker/assets/index.css";
 import {
   TbPlus,
 } from "react-icons/tb";
+import { MultipleSelect, SingleSelect } from "../multipleSelect";
 
 export const DashboardAddCard: FC = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -35,6 +36,30 @@ export const DashboardAddCard: FC = () => {
           <ModalHeader>Add New Card</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <MultipleSelect selectableItems={[
+              {
+                value: "a",
+                label: "a"
+              },
+              {
+                value: "b",
+                label: "b"
+              }
+            ]}
+              onSelect={(e) => console.log(e)}
+            />
+            <SingleSelect selectableItems={[
+              {
+                value: "a",
+                label: "a"
+              },
+              {
+                value: "b",
+                label: "b"
+              }
+            ]}
+              onSelect={(e) => console.log(e)}
+            />
           </ModalBody>
           <ButtonGroup colorScheme="cyan" p={4}>
             <Spacer />

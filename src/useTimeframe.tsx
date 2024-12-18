@@ -31,6 +31,7 @@ export type Timeframe = {
 
 interface IdsSearchParamAction {
   timeframe: Timeframe;
+  slotNum: number;
   onChangeTimeframe: (tf: Timeframe) => void;
   timeToPoint: (t: Date[]) => Point[];
   zoom: (unit: TimeUnit) => void;
@@ -105,6 +106,11 @@ export const useTimeframe = (): IdsSearchParamAction => {
       unit: TimeUnits.find(u => u === unit) ?? 'day',
     };
   }, [param]);
+  const slotNum = useMemo(() => {
+    const action = getTimeUnitAction(timeframe.unit);
+
+    return action.getIndex(timeframe.end, timeframe.start);
+  }, [timeframe.end, timeframe.start, timeframe.unit]);
 
   const timeToPoint = useCallback((t: Date[]) => {
     const action = getTimeUnitAction(timeframe.unit);
@@ -184,6 +190,7 @@ export const useTimeframe = (): IdsSearchParamAction => {
 
   return {
     timeframe,
+    slotNum,
     onChangeTimeframe,
     timeToPoint,
     zoom,

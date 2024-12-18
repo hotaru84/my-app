@@ -12,6 +12,7 @@ import RateCard from "./RateCard";
 import TimelineCard from "./TimelineCard";
 import { useTimeframe } from "../useTimeframe";
 import { generateSampleData } from "./generateSampleData";
+import Gallery from "./Gallery";
 
 
 interface EditableCardListProps {
@@ -156,6 +157,7 @@ case 'table':
 				{info.type === SampleDataTypes.counter && <CounterCard info={info} data={data} />}
 				{info.type === SampleDataTypes.ratio && <RateCard info={info} data={data} />}
 				{info.type === SampleDataTypes.timeline && <TimelineCard info={info} data={data} />}
+				{info.type === SampleDataTypes.gallery && <Gallery info={info} data={data} />}
 			</EditableCard>
 		</Box>
 		)}

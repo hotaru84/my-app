@@ -1,24 +1,16 @@
 import {
   HStack,
-  Flex,
   Icon,
   VStack,
   Text,
   StatUpArrow,
   StatDownArrow,
-  Card,
   Avatar,
   Heading,
   chakra,
-  Spacer,
-  IconButton,
 } from "@chakra-ui/react";
-import { useDraggable } from "@dnd-kit/core";
-import { motion } from "framer-motion";
 import { FC } from "react";
 import { IconType } from "react-icons";
-import { TbEdit } from "react-icons/tb";
-import { NavLink } from "react-router-dom";
 
 export interface StatData {
   label: string;

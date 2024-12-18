@@ -77,7 +77,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         data: line,
         backgroundColor: "#63B3ED", //'#FF9F40'
         borderRadius: 8,
-        hoverBackgroundColor: '#FF9F405f',
+        hoverBackgroundColor: '#FF9F40',
         yAxisID: "y",
         datalabels: {
           align: "start",
