@@ -124,28 +124,6 @@ const EditableCardList: FC<EditableCardListProps> = ({ isEditable = false }) => 
 		if (idx >= 0) updateInfoAt(idx, info);
 	}, [cardinfo, updateInfoAt]);
 
-	/*
-case 'timeline':
-	return <VStack w="full" h="full" p={4} gap={0} align={"start"}>
-		<ButtonGroup colorScheme="orange" variant={'ghost'}>
-			<TimeRangeTag
-				min={timeline.scale.start}
-				max={timeline.scale.end}
-				isZoom={timeline.isZoomed}
-				onClick={timeline.resetScale}
-			/>
-		</ButtonGroup>
-		<BarLineTimeChart timeline={timeline} />
-	</VStack>;
-case 'gallery':
-	return <SimpleGrid w="full" p={4} columns={3} gap={2}>{[1, 2, 3].map((i) => (
-		<Card variant={"outline"} key={'dqel' + i} boxShadow={0} w="full">
-			<Skeleton aspectRatio={2} speed={3} w="full" />
-			<IconButton aria-label="link" variant={"ghost"} icon={<TbArrowRight />} as={NavLink} to="../gallery" />
-		</Card>))}</SimpleGrid>;
-case 'table':
-	return <Datacard />;*/
-
 	return <EditableLayout
 		isEditable={isEditable}
 		layout={layout}

@@ -30,6 +30,7 @@ import { validSampleData } from "./filterSampleData";
 import { TimeRangeTag } from "../TimeRangeTag";
 import { useTimeframe } from "../useTimeframe";
 import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomInArea, TbZoomOut } from "react-icons/tb";
+import { MdZoomInMap } from "react-icons/md";
 
 ChartJS.register(
   CategoryScale,
@@ -53,7 +54,7 @@ interface Props {
 const TimelineCard: FC<Props> = ({ info, data }) => {
   const simplified = false;
   const { isOpen: isZoom, onToggle: onToggleZoom } = useDisclosure();
-  const { timeframe, timeToPoint, onChangeTimeframe, zoomIn, zoomOut, prev, next } = useTimeframe();
+  const { timeframe, timeToPoint, onChangeTimeframe } = useTimeframe();
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
 
@@ -65,9 +66,9 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
   const onChange = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
     chart.stop();
-    onChangeTimeframe({ ...timeframe, start: new Date(min), end: new Date(max) });
+    onChangeTimeframe(new Date(min), new Date(max));
     chart.update('none');
-  }, [onChangeTimeframe, timeframe]);
+  }, [onChangeTimeframe]);
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -200,7 +201,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           },
         },
       },
-      onClick: (_event: ChartEvent, el: ActiveElement[], chart: ChartJS) => {
+      onClick: (_event: ChartEvent, el: ActiveElement[]) => {
         if (el.length === 0) {
           //resetTimescale();
 
@@ -212,7 +213,8 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
 
 
   return <VStack w="full" h="full" p={4} gap={1} align={"start"}>
-    <TimeRangeTag isZoom={isZoom} onToggleZoom={onToggleZoom} />
+    <TimeRangeTag />
+    <IconButton aria-label={""} icon={<MdZoomInMap />} onClick={onToggleZoom} isActive={isZoom} position={"absolute"} bottom={2} left={2} />
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />
     </Box>
