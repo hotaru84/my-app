@@ -10,6 +10,7 @@ import {
 import { DetailDrawer } from "./DetailDrawer";
 import { DateTimeRangePicker } from "./DateTimeRangePicker";
 import { FC, ReactNode } from "react";
+import { TimeRangeTag } from "./TimeRangeTag";
 
 type NavigationProps = {
   children?: ReactNode;
@@ -32,7 +33,7 @@ export const Navigation: FC<NavigationProps> = ({ children }) => {
 
       {children}
       <ButtonGroup isAttached colorScheme="cyan" variant={'ghost'}>
-        <DateTimeRangePicker />
+        <TimeRangeTag />
       </ButtonGroup>
       {DetailDrawer(isOpen, onClose)}
     </Flex>

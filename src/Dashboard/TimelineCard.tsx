@@ -54,7 +54,7 @@ interface Props {
 const TimelineCard: FC<Props> = ({ info, data }) => {
   const simplified = false;
   const { isOpen: isZoom, onToggle: onToggleZoom } = useDisclosure();
-  const { timeframe, timeToPoint, onChangeTimeframe } = useTimeframe();
+  const { timeframe, timescale, timeToPoint, onScaleChange } = useTimeframe();
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
 
@@ -65,10 +65,8 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
 
   const onChange = useCallback(({ chart }: { chart: ChartJS }) => {
     const { min, max } = chart.scales.x;
-    chart.stop();
-    onChangeTimeframe(new Date(min), new Date(max));
-    chart.update('none');
-  }, [onChangeTimeframe]);
+    onScaleChange(new Date(min), new Date(max));
+  }, [onScaleChange]);
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -179,8 +177,8 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
               locale: ja,
             }
           },
-          min: timeframe.start.getTime(),
-          max: timeframe.end.getTime()
+          min: timescale.min,
+          max: timescale.max,
         },
         y: {
           type: "linear",
@@ -208,12 +206,11 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         }
       },
 
-    }), [simplified, isZoom, onChange, timeframe.unit, timeframe.start, timeframe.end, hidden]);
+    }), [simplified, isZoom, onChange, timeframe.unit, timescale.min, timescale.max, hidden]);
 
 
 
   return <VStack w="full" h="full" p={4} gap={1} align={"start"}>
-    <TimeRangeTag />
     <IconButton aria-label={""} icon={<MdZoomInMap />} onClick={onToggleZoom} isActive={isZoom} position={"absolute"} bottom={2} left={2} />
     <Box w="full" h="full">
       <Chart type={"bar"} options={options} data={chartdata} ref={chartRef} />

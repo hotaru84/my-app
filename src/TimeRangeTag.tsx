@@ -1,9 +1,10 @@
-import { HStack, Menu, MenuButton, MenuItem, MenuList, Tag, TagLabel, TagLeftIcon, TagRightIcon } from "@chakra-ui/react";
+import { Button, HStack, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverContent, PopoverTrigger, Tag, TagLabel, TagLeftIcon, TagRightIcon, useDisclosure } from "@chakra-ui/react";
 import { format, intervalToDuration } from "date-fns";
 import { FC } from "react";
 import { ja } from 'date-fns/locale';
 import { useTimeframe } from "./useTimeframe";
 import { TbArrowLeft, TbArrowRight, TbMinus, TbPlus } from "react-icons/tb";
+import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
 
 export const TimeRangeTag: FC = () => {
@@ -14,16 +15,21 @@ export const TimeRangeTag: FC = () => {
   });
 
   return <HStack w="full">
-    <Tag colorScheme={'orange'} >
-      <TagLeftIcon as={TbArrowLeft} onClick={prev} />
-      <TagLabel>
-        {format(timeframe.start, "PP p", { locale: ja })
-          + ' - ' + format(timeframe.end, "PP p", { locale: ja })
-        }
-      </TagLabel>
-      <TagRightIcon as={TbArrowRight} onClick={next} />
+    <Tag colorScheme={'cyan'}>
+      <TagLeftIcon as={TbArrowLeft} onClick={prev} cursor={'pointer'} />
+      <Menu>
+        <TagLabel as={MenuButton} fontWeight='bold'>
+          {format(timeframe.start, "PP p", { locale: ja })
+            + ' - ' + format(timeframe.end, "PP p", { locale: ja })
+          }
+        </TagLabel>
+        <MenuList>
+          <DateTimeRangePicker />
+        </MenuList>
+      </Menu>
+      <TagRightIcon as={TbArrowRight} onClick={next} cursor={'pointer'} />
     </Tag>
-    <Tag colorScheme={'orange'} >
+    <Tag colorScheme={'cyan'} >
       <TagLeftIcon as={TbMinus} onClick={zoomIn} />
       <Menu>
         <TagLabel as={MenuButton}>

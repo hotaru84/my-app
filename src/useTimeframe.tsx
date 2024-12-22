@@ -1,6 +1,5 @@
-import { addDays, addHours, addMilliseconds, addMinutes, addMonths, addSeconds, addWeeks, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInSeconds, differenceInWeeks, endOfDay, endOfHour, endOfMinute, endOfSecond, intervalToDuration, startOfDay, startOfHour, startOfMinute, startOfMonth, startOfSecond, startOfWeek } from "date-fns";
+import { addDays, addHours, addMinutes, addSeconds, addWeeks, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, differenceInWeeks, endOfDay, endOfHour, endOfMinute, endOfSecond, startOfDay, startOfHour, startOfMinute, startOfMonth, startOfSecond, startOfWeek } from "date-fns";
 import { endOfMonth, startOfToday } from "date-fns";
-import { es } from "date-fns/locale";
 import { Point } from "framer-motion";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -32,8 +31,9 @@ export type Timeframe = {
 
 interface IdsSearchParamAction {
   timeframe: Timeframe;
-  slotNum: number;
+  timescale: { min: number, max: number },
   onChangeTimeframe: (start: Date, end: Date) => void;
+  onScaleChange: (start: Date, end: Date) => void;
   timeToPoint: (t: Date[]) => Point[];
   zoom: (unit: TimeUnit) => void;
   zoomIn: () => void;
@@ -65,7 +65,7 @@ const getTimeUnitAction = (unit: TimeUnit): TimeUnitAction => {
         start: startOfDay,
         end: endOfDay,
         add: addDays,
-        isVaildNumOfSlot: (slot: number): boolean => slot >= 1 && slot <= 30,
+        isVaildNumOfSlot: (slot: number): boolean => slot > 1 && slot <= 30,
       }
     case 'hour':
       return {
@@ -73,7 +73,7 @@ const getTimeUnitAction = (unit: TimeUnit): TimeUnitAction => {
         start: startOfHour,
         end: endOfHour,
         add: addHours,
-        isVaildNumOfSlot: (slot: number): boolean => slot >= 1 && slot <= 24,
+        isVaildNumOfSlot: (slot: number): boolean => slot > 1 && slot <= 24,
       }
     case 'minute':
       return {
@@ -120,10 +120,13 @@ export const useTimeframe = (): IdsSearchParamAction => {
       unit: TimeUnits.find(u => u === unit) ?? 'day',
     };
   }, [param]);
-  const slotNum = useMemo(() => {
-    const action = getTimeUnitAction(timeframe.unit);
 
-    return action.getIndex(timeframe.end, timeframe.start);
+  const timescale = useMemo(() => {
+    // timescale for timeline-graph, offset end slot because of no data
+    return {
+      min: timeframe.start.getTime(),
+      max: getTimeUnitAction(timeframe.unit).add(timeframe.end, -1).getTime(),
+    }
   }, [timeframe.end, timeframe.start, timeframe.unit]);
 
   const timeToPoint = useCallback((t: Date[]) => {
@@ -154,34 +157,34 @@ export const useTimeframe = (): IdsSearchParamAction => {
     if (unit === undefined) return;
 
     const act = getTimeUnitAction(unit);
+    // based on start of date
     param.set("start", String(act.start(s).getTime()));
     param.set("end", String(act.start(e).getTime()));
     param.set("unit", unit);
     setParam(param);
   }, [param, setParam]);
 
+  const onScaleChange = useCallback((s: Date, e: Date) => {
+    //scale is based on start of date then shift to end
+    const end = getTimeUnitAction(timeframe.unit).add(e, 1);
+    onChangeTimeframe(s, end);
+  }, [onChangeTimeframe, timeframe.unit]);
+
+
   const zoomOut = useCallback(() => {
     const action = getTimeUnitAction(timeframe.unit);
-    onChangeTimeframe(
-      action.add(timeframe.start, -0.5),
-      action.add(timeframe.end, 0.5));
+    onChangeTimeframe(action.add(timeframe.start, -1), timeframe.end)
   }, [onChangeTimeframe, timeframe]);
 
   const zoomIn = useCallback(() => {
     const action = getTimeUnitAction(timeframe.unit);
-    onChangeTimeframe(
-      action.add(timeframe.start, 0.5),
-      action.add(timeframe.end, -0.5)
-    );
+    onChangeTimeframe(action.add(timeframe.start, 1), timeframe.end);
   }, [onChangeTimeframe, timeframe]);
 
   const zoom = useCallback((scale: TimeUnit) => {
-    const act = getTimeUnitAction(scale);
-    const end = act.start(timeframe.end);
-    const start = act.add(end, -1);
-    onChangeTimeframe(start, end);
+    const action = getTimeUnitAction(scale);
+    onChangeTimeframe(action.add(timeframe.end, -1), timeframe.end);
   }, [onChangeTimeframe, timeframe]);
-
 
   const prev = useCallback(() => {
     const action = getTimeUnitAction(timeframe.unit);
@@ -201,8 +204,9 @@ export const useTimeframe = (): IdsSearchParamAction => {
 
   return {
     timeframe,
-    slotNum,
+    timescale,
     onChangeTimeframe,
+    onScaleChange,
     timeToPoint,
     zoom,
     zoomIn,
