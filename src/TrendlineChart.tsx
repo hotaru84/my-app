@@ -108,24 +108,14 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
             borderWidth: isZoom ? 1 : 0,
             borderColor: '#FF9F40',
             backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
-          },
-          label1: {
-            type: 'line',
-            borderColor: '#FF9F4033',
-            borderWidth: 1,
             label: {
               display: min > 0,
-              backgroundColor: '#FF9F4033',
-              borderRadius: 0,
-              color: '#FF9F4033',
-              content: label
-            },
-            xMin: min > 0 ? min : max,
-            xMax: max,
-            xScaleID: 'x',
-            yMin: 0,
-            yMax: 0,
-          }
+              content: label,
+              textAlign: "start",
+              color: "gray",
+              font: { size: 18, weight: "bold" },
+            }
+          },
         }
       },
     },

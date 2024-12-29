@@ -171,7 +171,6 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
                 content: label,
                 textAlign: "start",
                 color: "gray",
-
                 font: { size: 18, weight: "bold" },
               }
             },
