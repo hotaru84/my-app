@@ -13,6 +13,7 @@ import TimelineCard from "./TimelineCard";
 import { useTimeframe } from "../useTimeframe";
 import { generateSampleData } from "./generateSampleData";
 import Gallery from "./Gallery";
+import TreemapChart from "../TreemapChart";
 
 
 interface EditableCardListProps {
@@ -136,6 +137,8 @@ const EditableCardList: FC<EditableCardListProps> = ({ isEditable = false }) => 
 				{info.type === SampleDataTypes.ratio && <RateCard info={info} data={data} />}
 				{info.type === SampleDataTypes.timeline && <TimelineCard info={info} data={data} />}
 				{info.type === SampleDataTypes.gallery && <Gallery info={info} data={data} />}
+				{info.type === SampleDataTypes.table &&
+					<TreemapChart />}
 			</EditableCard>
 		</Box>
 		)}

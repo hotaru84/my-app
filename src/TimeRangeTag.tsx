@@ -1,5 +1,5 @@
-import { Button, HStack, IconButton, Menu, MenuButton, MenuItem, MenuList, Popover, PopoverArrow, PopoverContent, PopoverTrigger, Tag, TagLabel, TagLeftIcon, TagRightIcon, useDisclosure } from "@chakra-ui/react";
-import { format, intervalToDuration } from "date-fns";
+import { HStack, Menu, MenuButton, MenuItem, MenuList, Tag, TagLabel, TagLeftIcon, TagRightIcon } from "@chakra-ui/react";
+import { format, formatDistanceStrict } from "date-fns";
 import { FC } from "react";
 import { ja } from 'date-fns/locale';
 import { useTimeframe } from "./useTimeframe";
@@ -9,10 +9,7 @@ import { DateTimeRangePicker } from "./DateTimeRangePicker";
 
 export const TimeRangeTag: FC = () => {
   const { timeframe, zoomIn, zoomOut, prev, next, zoom } = useTimeframe();
-  const duration = intervalToDuration({ start: timeframe.start, end: timeframe.end });
-  const label = Object.keys(duration).flatMap((k) => {
-    return [duration[k as keyof Duration]?.toString(), k];
-  });
+  const label = formatDistanceStrict(timeframe.start, timeframe.end);
 
   return <HStack w="full">
     <Tag colorScheme={'cyan'}>

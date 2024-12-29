@@ -21,6 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
 } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { TbPackage } from "react-icons/tb";
@@ -187,8 +188,9 @@ const Gallery: FC = () => {
   return <VStack w="full" gap={0}>
     <Navigation>
       <Box w="50%" h="30px">
-        <TrendlineChart moving={false} />
+        <TrendlineChart />
       </Box>
+      <Spacer />
     </Navigation>
     <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
       {cardlist.map((list, j) => (

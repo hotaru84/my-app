@@ -20,17 +20,18 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
-import ZoomPlugin from 'chartjs-plugin-zoom';
+import ZoomPlugin, { resetZoom } from 'chartjs-plugin-zoom';
 
-import { Box, ButtonGroup, IconButton, useDisclosure, VStack } from "@chakra-ui/react";
+import { Box, IconButton, useDisclosure, VStack } from "@chakra-ui/react";
 import { ja } from "date-fns/locale";
-import { addDays, differenceInDays, format, startOfDay } from "date-fns";
+import { format, formatDistanceStrict } from "date-fns";
 import { SampleData, SampleDataInfo } from "./SampleData";
 import { validSampleData } from "./filterSampleData";
-import { TimeRangeTag } from "../TimeRangeTag";
 import { useTimeframe } from "../useTimeframe";
-import { TbArrowLeft, TbArrowRight, TbZoomIn, TbZoomInArea, TbZoomOut } from "react-icons/tb";
 import { MdZoomInMap } from "react-icons/md";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import annotationPlugin from 'chartjs-plugin-annotation';
+
 
 ChartJS.register(
   CategoryScale,
@@ -43,7 +44,9 @@ ChartJS.register(
   Legend,
   TimeScale,
   TimeSeriesScale,
-  ZoomPlugin
+  ZoomPlugin,
+  ChartDataLabels,
+  annotationPlugin
 );
 
 interface Props {
@@ -51,22 +54,75 @@ interface Props {
   data: SampleData[];
 }
 
+function useZoom() {
+  const [zoomStart, setZoomStart] = useState<number>(0);
+  const [zoomEnd, setZoomEnd] = useState<number>(0);
+  const { isOpen, onToggle } = useDisclosure();
+
+  const min = useMemo(() => {
+    return Math.min(zoomStart, zoomEnd);
+  }, [zoomEnd, zoomStart]);
+
+  const max = useMemo(() => {
+    return Math.max(zoomStart, zoomEnd);
+  }, [zoomEnd, zoomStart]);
+
+
+  const isNotEnd = useMemo(() => {
+    return zoomEnd === 0;
+  }, [zoomEnd]);
+
+  const isInZoomRange = useCallback((x: number) => {
+    return min > 0 && max > 0 && x >= min && x <= max;
+  }, [max, min]);
+
+
+  const resetZoom = useCallback(() => {
+    setZoomStart(0);
+    setZoomEnd(0);
+  }, []);
+
+  const onToggleZoom = useCallback(() => {
+    resetZoom();
+    onToggle();
+  }, [onToggle, resetZoom]);
+
+  return {
+    isZoom: isOpen,
+    isNotEnd,
+    min,
+    max,
+    isInZoomRange,
+    onToggleZoom,
+    setZoomStart,
+    setZoomEnd,
+    resetZoom,
+  }
+}
+
 const TimelineCard: FC<Props> = ({ info, data }) => {
   const simplified = false;
-  const { isOpen: isZoom, onToggle: onToggleZoom } = useDisclosure();
+  const { isZoom, onToggleZoom, min, max, isInZoomRange, setZoomStart, setZoomEnd, resetZoom } = useZoom();
+
   const { timeframe, timescale, timeToPoint, onScaleChange } = useTimeframe();
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
+
+  const label = useMemo(() => {
+    return formatDistanceStrict(min, max);
+  }, [max, min]);
 
   const lines: Point[] = [];
 
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
   const chartRef = useRef<ChartJS<"bar">>(null);
 
-  const onChange = useCallback(({ chart }: { chart: ChartJS }) => {
-    const { min, max } = chart.scales.x;
+  const onChange = useCallback(() => {
+
     onScaleChange(new Date(min), new Date(max));
-  }, [onScaleChange]);
+    resetZoom();
+  }, [max, min, onScaleChange, resetZoom]);
+
 
   const chartdata: ChartData<"bar" | "line"> = useMemo(() => ({
     datasets: [
@@ -74,9 +130,11 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         type: "bar",
         label: info.title,
         data: line,
-        backgroundColor: "#63B3ED", //'#FF9F40'
+        backgroundColor: ({ dataIndex }) => {
+
+          return dataIndex < line.length && isInZoomRange(line[dataIndex].x) ? '#FF9F40' : '#63B3ED';
+        },
         borderRadius: 8,
-        hoverBackgroundColor: '#FF9F40',
         yAxisID: "y",
         datalabels: {
           align: "start",
@@ -102,12 +160,16 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         hidden: hidden[0],
       }))
     ] as ChartDataset<"bar" | "line">[],
-  }), [info.title, line, hidden, lines]);
+  }), [info.title, line, lines, isInZoomRange, hidden]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
       maintainAspectRatio: false,
       responsive: true,
+      interaction: {
+        intersect: false,
+        mode: 'x',
+      },
       plugins: {
         legend: {
           display: !simplified,
@@ -125,6 +187,8 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         },
         tooltip: {
           enabled: !simplified,
+          xAlign: "center",
+          yAlign: "center",
           callbacks: {
             title: context => {
               const p = context[0].raw as Point;
@@ -132,25 +196,25 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
             }
           }
         },
-        zoom: {
-          pan: {
-            enabled: !isZoom,
-            mode: 'x',
-            scaleMode: 'x',
-            onPanComplete: onChange
+        annotation: {
+          animations: {
+            numbers: {
+              duration: 200
+            }
           },
-          zoom: {
-            pinch: {
-              enabled: isZoom
-            },
-            drag: {
-              enabled: isZoom,
-              backgroundColor: '#FF9F405f',
-            },
-            mode: 'x',
-            onZoomComplete: onChange
+          annotations: {
+            indicator: {
+              init: () => ({ centerX: 0 }),
+              type: min > 0 ? "box" : "line",
+              xMin: min > 0 ? min : max,
+              xMax: max,
+              borderDash: [2, 2],
+              borderWidth: isZoom ? 1 : 0,
+              borderColor: '#FF9F40',
+              backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
+            }
           }
-        }
+        },
       },
 
       scales: {
@@ -187,7 +251,6 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           grid: {
             display: false,
           },
-          stacked: true,
         },
         y1: {
           type: "linear",
@@ -199,14 +262,24 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           },
         },
       },
-      onClick: (_event: ChartEvent, el: ActiveElement[]) => {
-        if (el.length === 0) {
-          //resetTimescale();
+      onClick: (evt, el, chart) => {
+        if (evt.native == null || !isZoom) return;
+        const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
+        if (points.length > 0) {
 
+          if (min === 0) setZoomEnd(line[points[0].index].x);
+          else onChange();
         }
       },
-
-    }), [simplified, isZoom, onChange, timeframe.unit, timescale.min, timescale.max, hidden]);
+      onHover: (evt, el, chart) => {
+        if (evt.native == null || !isZoom) return;
+        const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
+        if (points.length > 0) {
+          if (min === 0) setZoomStart(line[points[0].index].x);
+          else setZoomEnd(line[points[0].index].x);
+        }
+      }
+    }), [simplified, min, max, isZoom, timeframe.unit, timescale.min, timescale.max, hidden, setZoomEnd, line, onChange, setZoomStart]);
 
 
 

@@ -15,6 +15,7 @@ import { SampleData, SampleDataInfo } from "./SampleData";
 import { NavLink } from "react-router-dom";
 import { TbArrowRight } from "react-icons/tb";
 import { format } from "date-fns";
+import TreemapChart from "../TreemapChart";
 
 interface Props {
   info: SampleDataInfo;
@@ -39,6 +40,7 @@ const CounterCard: FC<Props> = ({
           <Tag size={"sm"} colorScheme="bg" textColor={"GrayText"} >{format(new Date(), "PP pp")}</Tag>
         </Card>
       ))}
+      <TreemapChart />
     </Wrap>
   );
 };
