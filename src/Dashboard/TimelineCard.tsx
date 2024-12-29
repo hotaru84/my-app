@@ -31,6 +31,7 @@ import { useTimeframe } from "../useTimeframe";
 import { MdZoomInMap } from "react-icons/md";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { useChartZoom } from "./useChartZoom";
 
 
 ChartJS.register(
@@ -54,55 +55,9 @@ interface Props {
   data: SampleData[];
 }
 
-function useZoom() {
-  const [zoomStart, setZoomStart] = useState<number>(0);
-  const [zoomEnd, setZoomEnd] = useState<number>(0);
-  const { isOpen, onToggle } = useDisclosure();
-
-  const min = useMemo(() => {
-    return Math.min(zoomStart, zoomEnd);
-  }, [zoomEnd, zoomStart]);
-
-  const max = useMemo(() => {
-    return Math.max(zoomStart, zoomEnd);
-  }, [zoomEnd, zoomStart]);
-
-
-  const isNotEnd = useMemo(() => {
-    return zoomEnd === 0;
-  }, [zoomEnd]);
-
-  const isInZoomRange = useCallback((x: number) => {
-    return min > 0 && max > 0 && x >= min && x <= max;
-  }, [max, min]);
-
-
-  const resetZoom = useCallback(() => {
-    setZoomStart(0);
-    setZoomEnd(0);
-  }, []);
-
-  const onToggleZoom = useCallback(() => {
-    resetZoom();
-    onToggle();
-  }, [onToggle, resetZoom]);
-
-  return {
-    isZoom: isOpen,
-    isNotEnd,
-    min,
-    max,
-    isInZoomRange,
-    onToggleZoom,
-    setZoomStart,
-    setZoomEnd,
-    resetZoom,
-  }
-}
-
 const TimelineCard: FC<Props> = ({ info, data }) => {
   const simplified = false;
-  const { isZoom, onToggleZoom, min, max, isInZoomRange, setZoomStart, setZoomEnd, resetZoom } = useZoom();
+  const { isZoom, onToggleZoom, min, max, isInZoomRange, setZoomStart, setZoomEnd, resetZoom } = useChartZoom();
 
   const { timeframe, timescale, timeToPoint, onScaleChange } = useTimeframe();
   const line = useMemo(() => timeToPoint(
@@ -131,8 +86,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         label: info.title,
         data: line,
         backgroundColor: ({ dataIndex }) => {
-
-          return dataIndex < line.length && isInZoomRange(line[dataIndex].x) ? '#FF9F40' : '#63B3ED';
+          return dataIndex < line.length && isInZoomRange(line[dataIndex].x) ? '#FF9F40ee' : '#63B3ED';
         },
         borderRadius: 8,
         yAxisID: "y",
@@ -212,7 +166,15 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
               borderWidth: isZoom ? 1 : 0,
               borderColor: '#FF9F40',
               backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
-            }
+              label: {
+                display: min > 0,
+                content: label,
+                textAlign: "start",
+                color: "gray",
+
+                font: { size: 18, weight: "bold" },
+              }
+            },
           }
         },
       },

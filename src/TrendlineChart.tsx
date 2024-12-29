@@ -20,13 +20,14 @@ import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Box, Text, VStack } from "@chakra-ui/react";
-import { endOfToday, format, startOfToday } from "date-fns";
+import { endOfToday, format, formatDistanceStrict, startOfToday } from "date-fns";
 import { useTimeframe } from "./useTimeframe";
 import { generateSampleData } from "./Dashboard/generateSampleData";
 import { validSampleData } from "./Dashboard/filterSampleData";
 import ZoomPlugin from 'chartjs-plugin-zoom';
 import { useSet } from "react-use";
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { useChartZoom } from "./Dashboard/useChartZoom";
 
 
 ChartJS.register(
@@ -51,17 +52,22 @@ interface Props {
 
 const TrendlineChart: FC<Props> = ({ moving }) => {
   const chartRef = useRef<ChartJS<any>>(null);
-  const [zoomStart, setZoomStart] = useState<number>(0);
-  const [zoomEnd, setZoomEnd] = useState<number>(0);
+  const { isZoom, min, max, isInZoomRange, setZoomStart, setZoomEnd, resetZoom } = useChartZoom(true);
   const { timeframe, timescale, timeToPoint, onScaleChange } = useTimeframe();
   const data = useMemo(() => generateSampleData(timeframe, 100), [timeframe]);
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d)).map(d => d.time)), [data, timeToPoint]);
 
-  const onChange = useCallback(({ chart }: { chart: ChartJS }) => {
-    const { min, max } = chart.scales.x;
+  const label = useMemo(() => {
+    return formatDistanceStrict(min, max);
+  }, [max, min]);
+
+  const onChange = useCallback(() => {
+
     onScaleChange(new Date(min), new Date(max));
-  }, [onScaleChange]);
+    resetZoom();
+  }, [max, min, onScaleChange, resetZoom]);
+
   useEffect(() => {
     onScaleChange(startOfToday(), endOfToday());
   }, [onScaleChange]);
@@ -69,6 +75,10 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
   const options: ChartOptions<"bar"> = {
     maintainAspectRatio: false,
     responsive: true,
+    interaction: {
+      intersect: false,
+      mode: 'x',
+    },
     plugins: {
       title: {
         display: false,
@@ -84,19 +94,40 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
       },
       annotation: {
         animations: {
-          init: false,
+          numbers: {
+            duration: 200
+          }
         },
         annotations: {
           indicator: {
-            type: zoomEnd > 0 ? "box" : "line",
-            xMin: zoomStart,
-            xMax: zoomEnd > 0 ? zoomEnd : zoomStart,
-            borderWidth: 1,
+            init: () => ({ centerX: 0 }),
+            type: min > 0 ? "box" : "line",
+            xMin: min > 0 ? min : max,
+            xMax: max,
+            borderDash: [2, 2],
+            borderWidth: isZoom ? 1 : 0,
             borderColor: '#FF9F40',
-            backgroundColor: '#FF9F4033',
+            backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
+          },
+          label1: {
+            type: 'line',
+            borderColor: '#FF9F4033',
+            borderWidth: 1,
+            label: {
+              display: min > 0,
+              backgroundColor: '#FF9F4033',
+              borderRadius: 0,
+              color: '#FF9F4033',
+              content: label
+            },
+            xMin: min > 0 ? min : max,
+            xMax: max,
+            xScaleID: 'x',
+            yMin: 0,
+            yMax: 0,
           }
         }
-      }
+      },
     },
     scales: {
       x: {
@@ -116,19 +147,20 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
           display: false,
         },
       },
-    },
-    onClick: (evt, el, chart) => {
-      if (evt.native == null) return;
+    }, onClick: (evt, el, chart) => {
+      if (evt.native == null || !isZoom) return;
       const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
       if (points.length > 0) {
-        setZoomEnd(line[points[0].index].x);
+
+        if (min === 0) setZoomEnd(line[points[0].index].x);
+        else onChange();
       }
     },
     onHover: (evt, el, chart) => {
-      if (evt.native == null) return;
+      if (evt.native == null || !isZoom) return;
       const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
       if (points.length > 0) {
-        if (zoomEnd === 0) setZoomStart(line[points[0].index].x);
+        if (min === 0) setZoomStart(line[points[0].index].x);
         else setZoomEnd(line[points[0].index].x);
       }
     }
@@ -140,14 +172,9 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
       type: "bar",
       label: "test",
       data: line,
-      backgroundColor: ({ dataIndex }) => {
-        if (zoomStart > 0 && zoomEnd > 0) {
-          const min = Math.min(zoomStart, zoomEnd);
-          const max = Math.max(zoomStart, zoomEnd);
 
-          if (min <= line[dataIndex].x && line[dataIndex].x <= max) return '#FF9F40';
-        }
-        return "#63B3ED";
+      backgroundColor: ({ dataIndex }) => {
+        return dataIndex < line.length && isInZoomRange(line[dataIndex].x) ? '#FF9F40' : '#63B3ED';
       },
       yAxisID: "y",
       borderRadius: 8,
@@ -157,7 +184,7 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
         font: { size: 12, weight: "bold" },
       },
     }],
-  }), [zoomEnd, line, zoomStart]);
+  }), [line, isInZoomRange]);
 
 
   return <Box w="full" h="full">
