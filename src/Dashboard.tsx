@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   HStack,
   IconButton,
@@ -9,13 +9,20 @@ import {
   CircularProgress,
   useDisclosure,
   ScaleFade,
+  NumberInputField,
+  NumberInput,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInputStepper,
 } from "@chakra-ui/react";
 import { TbEdit } from "react-icons/tb";
 import { Navigation } from "./Navigation";
 import EditableCardList from "./Dashboard/EditableCardList";
 import { DashboardAddCard } from "./Dashboard/DashboardAddCard";
+import { NavLink } from "react-router-dom";
 
 const Dashboad: FC = () => {
+  const [id, setId] = useState(0);
   const { isOpen: isEditable, onToggle: onToggleEditable } = useDisclosure();
 
   return (
@@ -30,6 +37,14 @@ const Dashboad: FC = () => {
             </Tag>
           ))}
         </HStack>
+        <NavLink to={`/gallery?id=${id}`}>link</NavLink>
+        <NumberInput value={id} onChange={(v) => setId(Number(v))}>
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
         <Spacer />
         <ScaleFade in={isEditable} unmountOnExit>
           <DashboardAddCard />

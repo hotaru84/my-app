@@ -59,8 +59,7 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
 
 
   const label = useMemo(() => {
-    if (min > 0) return formatDistance(min, max, timeframe.unit);
-    return format(max, "PP p");
+    return formatDistance(min, max, timeframe.unit);
   }, [max, min, timeframe.unit]);
 
   const onChange = useCallback(() => {
@@ -91,7 +90,8 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
         formatter: () => "",
       },
       tooltip: {
-        enabled: false,
+        enabled: min === 0,
+        yAlign: "center",
       },
       annotation: {
         animations: {
@@ -110,12 +110,12 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
             borderColor: '#FF9F40',
             backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
             label: {
-              display: true,
+              display: min > 0,
               content: label,
               textAlign: "start",
               color: "gray",
-              font: { size: 12, weight: "bold" },
-            },
+              font: { size: 18, weight: "bold" },
+            }
           },
         }
       },
@@ -140,10 +140,6 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
       },
     },
     onClick: (evt, el, chart) => {
-      if (evt.type === "dblclick") {
-        resetZoom();
-        return;
-      }
       if (evt.native == null || !isZoom) return;
       const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
       if (points.length > 0) {
