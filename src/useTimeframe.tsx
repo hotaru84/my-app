@@ -1,4 +1,4 @@
-import { addDays, addHours, addMinutes, addSeconds, addWeeks, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, differenceInWeeks, endOfDay, endOfHour, endOfMinute, endOfSecond, startOfDay, startOfHour, startOfMinute, startOfMonth, startOfSecond, startOfWeek } from "date-fns";
+import { addDays, addHours, addMinutes, addSeconds, addWeeks, differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds, differenceInWeeks, endOfDay, endOfHour, endOfMinute, endOfSecond, formatDistanceStrict, startOfDay, startOfHour, startOfMinute, startOfMonth, startOfSecond, startOfWeek } from "date-fns";
 import { endOfMonth, startOfToday } from "date-fns";
 import { Point } from "framer-motion";
 import { useCallback, useMemo } from "react";
@@ -29,7 +29,7 @@ export type Timeframe = {
   unit: TimeUnit;
 }
 
-interface IdsSearchParamAction {
+interface TimeframeAction {
   timeframe: Timeframe;
   timescale: { min: number, max: number },
   onChangeTimeframe: (start: Date, end: Date) => void;
@@ -104,8 +104,12 @@ const getTimeUnitAction = (unit: TimeUnit): TimeUnitAction => {
 export const isTimeframeAvailable = (tf: Timeframe) => {
   return getTimeUnitAction(tf.unit).getIndex(tf.end, tf.start) < maxSlotSize;
 };
+export const formatDistance = (s: number, e: number, unit: TimeUnit) => {
+  const action = getTimeUnitAction(unit);
+  return formatDistanceStrict(action.start(s), action.end(e));
+}
 
-export const useTimeframe = (): IdsSearchParamAction => {
+export const useTimeframe = (): TimeframeAction => {
   const [param, setParam] = useSearchParams();
 
   const timeframe = useMemo((): Timeframe => {

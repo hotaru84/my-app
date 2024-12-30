@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,18 +14,17 @@ import {
   TimeSeriesScale,
   ChartOptions,
   ChartData,
-  ChartEvent,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { Box, Text, VStack } from "@chakra-ui/react";
-import { endOfToday, format, formatDistanceStrict, startOfToday } from "date-fns";
-import { useTimeframe } from "./useTimeframe";
+import { Box } from "@chakra-ui/react";
+import { endOfToday, format, startOfToday } from "date-fns";
+import { formatDistance, useTimeframe } from "./useTimeframe";
 import { generateSampleData } from "./Dashboard/generateSampleData";
 import { validSampleData } from "./Dashboard/filterSampleData";
 import ZoomPlugin from 'chartjs-plugin-zoom';
-import { useSet } from "react-use";
+
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { useChartZoom } from "./Dashboard/useChartZoom";
 
@@ -58,9 +57,11 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
   const line = useMemo(() => timeToPoint(
     data.filter(d => validSampleData(d)).map(d => d.time)), [data, timeToPoint]);
 
+
   const label = useMemo(() => {
-    return formatDistanceStrict(min, max);
-  }, [max, min]);
+    if (min > 0) return formatDistance(min, max, timeframe.unit);
+    return format(max, "PP p");
+  }, [max, min, timeframe.unit]);
 
   const onChange = useCallback(() => {
 
@@ -109,12 +110,12 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
             borderColor: '#FF9F40',
             backgroundColor: isZoom ? '#FF9F4033' : 'transparent',
             label: {
-              display: min > 0,
+              display: true,
               content: label,
               textAlign: "start",
               color: "gray",
-              font: { size: 18, weight: "bold" },
-            }
+              font: { size: 12, weight: "bold" },
+            },
           },
         }
       },
@@ -137,7 +138,12 @@ const TrendlineChart: FC<Props> = ({ moving }) => {
           display: false,
         },
       },
-    }, onClick: (evt, el, chart) => {
+    },
+    onClick: (evt, el, chart) => {
+      if (evt.type === "dblclick") {
+        resetZoom();
+        return;
+      }
       if (evt.native == null || !isZoom) return;
       const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
       if (points.length > 0) {

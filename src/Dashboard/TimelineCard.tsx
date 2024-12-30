@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useRef, useState } from "react";
+import { FC, RefObject, useCallback, useMemo, useRef, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,23 +15,22 @@ import {
   ChartOptions,
   ChartData,
   ChartDataset,
-  ChartEvent,
-  ActiveElement,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
-import ZoomPlugin, { resetZoom } from 'chartjs-plugin-zoom';
+import ZoomPlugin from 'chartjs-plugin-zoom';
 
-import { Box, IconButton, useDisclosure, VStack } from "@chakra-ui/react";
+import { Box, IconButton, VStack } from "@chakra-ui/react";
 import { ja } from "date-fns/locale";
-import { format, formatDistanceStrict } from "date-fns";
+import { format } from "date-fns";
 import { SampleData, SampleDataInfo } from "./SampleData";
 import { validSampleData } from "./filterSampleData";
-import { useTimeframe } from "../useTimeframe";
+import { formatDistance, Timeframe, useTimeframe } from "../useTimeframe";
 import { MdZoomInMap } from "react-icons/md";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { useChartZoom } from "./useChartZoom";
+import { useList, useSet } from "react-use";
 
 
 ChartJS.register(
@@ -64,13 +63,11 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
     data.filter(d => validSampleData(d, info.filter)).map(d => d.time)), [data, info.filter, timeToPoint]);
 
   const label = useMemo(() => {
-    return formatDistanceStrict(min, max);
-  }, [max, min]);
-
-  const lines: Point[] = [];
+    return formatDistance(min, max, timeframe.unit);
+  }, [max, min, timeframe.unit]);
 
   const [hidden, setHidden] = useState<boolean[]>([false, false, true]);
-  const chartRef = useRef<ChartJS<"bar">>(null);
+  const chartRef = useRef<ChartJS<"bar" | "line", Point[]>>(null);
 
   const onChange = useCallback(() => {
 
@@ -100,21 +97,9 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           font: { size: 12, weight: "bold" },
         },
         order: 2,
-      }, ...lines?.map(l => ({
-        type: "line",
-        label: "Rate(%)",
-        borderColor: "#68D391",
-        backgroundColor: "#68D391",
-        data: l,
-        yAxisID: "y1",
-        datalabels: {
-          display: false,
-        },
-        order: 1,
-        hidden: hidden[0],
-      }))
+      }
     ] as ChartDataset<"bar" | "line">[],
-  }), [info.title, line, lines, isInZoomRange, hidden]);
+  }), [info.title, line, isInZoomRange]);
 
   const options: ChartOptions<"bar" | "line"> = useMemo(() => (
     {
@@ -227,7 +212,6 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
         if (evt.native == null || !isZoom) return;
         const points = chart.getElementsAtEventForMode(evt.native, 'x', { intersect: false }, true);
         if (points.length > 0) {
-
           if (min === 0) setZoomEnd(line[points[0].index].x);
           else onChange();
         }
@@ -240,7 +224,7 @@ const TimelineCard: FC<Props> = ({ info, data }) => {
           else setZoomEnd(line[points[0].index].x);
         }
       }
-    }), [simplified, min, max, isZoom, timeframe.unit, timescale.min, timescale.max, hidden, setZoomEnd, line, onChange, setZoomStart]);
+    }), [simplified, min, max, isZoom, label, timeframe.unit, timescale.min, timescale.max, hidden, setZoomEnd, line, onChange, setZoomStart]);
 
 
 
