@@ -4,10 +4,8 @@ import {
   HStack,
   IconButton,
   Image,
-  SimpleGrid,
   Spacer,
   Tag,
-  VStack,
   Wrap,
 } from "@chakra-ui/react";
 import { FC } from "react";
@@ -30,7 +28,7 @@ const CounterCard: FC<Props> = ({
   return (
     <Wrap gap={2} p={4} shouldWrapChildren justify={"center"}>
       {[1, 2, 3, 4, 5, 6].map(i => (
-        <Card variant={'outline'} boxShadow={'none'} p={2} gap={2} justify={"center"} rounded={8} >
+        <Card variant={'outline'} boxShadow={'none'} p={2} gap={2} justify={"center"} rounded={8} key={"gc-c-" + i} >
           <HStack>
             <Heading color='red.400' isTruncated>{i}</Heading>
             <Spacer />

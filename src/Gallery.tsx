@@ -1,4 +1,4 @@
-import { createRef, FC, useCallback, useEffect, useMemo, useRef } from "react";
+import { createRef, FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Box,
   Card,
@@ -20,10 +20,6 @@ type CardInfo = {
   time: Date,
   value: number;
 }
-type CardLists = {
-  label: Date;
-  infos: CardInfo[];
-}
 
 type ImageCardProps = {
   info: CardInfo;
@@ -42,8 +38,10 @@ const ImageCard: FC<ImageCardProps> = ({ info }) => {
     layout
     whileHover={{ filter: "brightness(0.9)" }}
     borderWidth={isSelected ? 2 : 0}
+    h={selectedId !== null ? '70vh' : 'full'}
     borderColor={"blue.300"}
   >
+
     <CardHeader>{info.id}:{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
     <CardBody>
       <Image objectFit={'contain'} mx="auto" src="sample.svg" />
@@ -70,7 +68,8 @@ const Gallery: FC = () => {
     pageRef.current[id]?.current?.scrollIntoView({ behavior: "auto", block: "center" });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // useLayoutEffect for correct scrolling
     if (id !== null) scrollToView(Number(id));
   }, [id, scrollToView]);
 
