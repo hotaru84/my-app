@@ -21,6 +21,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { addHours, format } from "date-fns";
 import { Select } from "chakra-react-select";
 import { useDataTable } from "./useDataTable";
+import { useDataTableCol } from "./useDataTableCol";
 
 const results = [
   "success",
@@ -45,6 +46,7 @@ const Datatable: FC = () => {
     columnHelper.accessor("id", {
       cell: (info) => info.getValue(),
       header: "id",
+      filterFn: (row, id, values) => values.length === 0 || String(row.getValue(id)).includes(values),
     }),
     columnHelper.accessor("date", {
       cell: (info) => format(info.getValue(), "PP p"),
@@ -120,6 +122,18 @@ const Datatable: FC = () => {
   return <VStack w="full" gap={0}>
     <Navigation>
       <Flex mx="auto" gap={2}>
+        <InputGroup size='md' flex="1">
+          <Input placeholder="Search id..."
+            focusBorderColor="cyan.400"
+            onChange={(v) => {
+              addFilter('id', v.target.value);
+            }}
+          />
+          <InputRightElement>
+            <Icon as={TbSearch} />
+          </InputRightElement>
+        </InputGroup>
+
         <InputGroup size='md' flex="1">
           <Input placeholder="Search data2..."
             focusBorderColor="cyan.400"
