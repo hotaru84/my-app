@@ -19,9 +19,10 @@ import { Navigation } from "./Navigation";
 import TrendlineChart from "./TrendlineChart";
 import useIdParam from "./useIdParam";
 import SimpleTable from "./SimpleTable";
-import { TbCheck } from "react-icons/tb";
+import { TbCheck, TbDownload } from "react-icons/tb";
 import { MdClose, MdExpand, MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import CheckAvatar from "./CheckAvatar";
+import useCsvDownload from "./useCsvDownload";
 
 export type CardInfo = {
   id: number;
@@ -37,7 +38,6 @@ const ImageCard: FC<ImageCardProps> = ({ info }) => {
   const { id: selectedId, setId } = useIdParam();
   const isSelected = useMemo(() => String(info.id) === selectedId, [info.id, selectedId]);
   const { isOpen: isHover, onOpen: onHoverStart, onClose: onHoverEnd } = useDisclosure();
-
 
   return <Card
     rounded={"lg"}
@@ -69,6 +69,7 @@ const ImageCard: FC<ImageCardProps> = ({ info }) => {
 }
 
 const Gallery: FC = () => {
+  const { download } = useCsvDownload();
   const cardlist: CardInfo[] = [...Array(100)].map((_, i) => {
     const v = Math.round(Math.random() * 20);
 
@@ -97,6 +98,7 @@ const Gallery: FC = () => {
         <TrendlineChart />
       </Box>
       <Spacer />
+      <IconButton aria-label={""} icon={<TbDownload />} onClick={() => download("test.csv", cardlist)} />
     </Navigation>
     <VStack w="full" sx={{ scrollSnapType: 'y mandatory', }} overflowY={"auto"}>
       <SimpleGrid columns={id === null ? { sm: 2, md: 3, lg: 4, xl: 5 } : 1} gap={4} w="full" h="full" px={4} justifyContent={"space-around"}>

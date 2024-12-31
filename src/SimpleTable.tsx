@@ -8,16 +8,17 @@ import {
 
 type Props<T extends Object> = {
   info: T;
+  converter?: (k: string, value: any) => ReactElement;
 }
 
-const SimpleTable = <T extends Object,>({ info }: Props<T>): ReactElement => {
+const SimpleTable = <T extends Object,>({ info, converter }: Props<T>): ReactElement => {
 
   return <Table>
     <Tbody>
-      {Object.keys(info).map((k, i) => (
+      {Object.entries(info).map(([k, v], i) => (
         <Tr key={`r-${k}+${i}`}>
           <Td>{k}</Td>
-          <Td>{String(info[k as keyof T])}</Td>
+          <Td>{converter !== undefined ? converter(k, v) : String(v)}</Td>
         </Tr>
       ))}
     </Tbody>
