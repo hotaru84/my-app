@@ -80,10 +80,10 @@ const Gallery: FC = () => {
       </Box>
       <Spacer />
     </Navigation>
-    <VStack w="full" sx={{ scrollSnapType: 'y mandatory' }} overflowY={"auto"}>
+    <VStack w="full" sx={{ scrollSnapType: 'y mandatory', }} overflowY={"auto"}>
       <SimpleGrid columns={id === null ? { sm: 2, md: 3, lg: 4, xl: 5 } : 1} gap={4} w="full" h="full" px={4} justifyContent={"space-around"}>
         {cardlist.map((info, i) =>
-          <Box key={`card-${i}`} ref={pageRef.current[i]}>
+          <Box key={`card-${i}`} ref={pageRef.current[i]} sx={{ scrollSnapAlign: "center" }}>
             <ImageCard info={info} />
           </Box>
         )}
