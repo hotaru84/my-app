@@ -1,4 +1,4 @@
-import { Thead, Tr, Th, Tbody, Td, Table as ChakraTable, Box, Text, Icon, HStack, Spacer, VStack, SimpleGrid } from "@chakra-ui/react";
+import { Thead, Tr, Th, Tbody, Td, Table as ChakraTable, Box, Text, Icon, HStack, Spacer } from "@chakra-ui/react";
 import { ColumnDef, ColumnFiltersState, SortingState, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ReactElement, useState, useCallback } from "react";
@@ -19,12 +19,7 @@ type DataTable = {
   nextPage: () => void;
 }
 
-export function useDataTableCol<T>(
-  columns: ColumnDef<T, any>[],
-  data: T[],
-  maxRowInPage?: number,
-  renderRow?: (v: T, i: number) => ReactElement,
-): DataTable {
+export function useDataTable<T>(columns: ColumnDef<T, any>[], data: T[], maxRowInPage?: number): DataTable {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]) // can set initial column filter state here
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -64,11 +59,33 @@ export function useDataTableCol<T>(
     return csvheader + csv;
   }, [table]);
 
-  const renderTable = useCallback(() => <>{table.getRowModel().rows.map((row, rid) => (
-    <Box key={`key-${rid}`}>
-      {renderRow !== undefined ? renderRow(row.original, rid) : <></>}
-    </Box>
-  ))}</>, [renderRow, table]);
+  const renderTable = useCallback(() => <ChakraTable variant='simple' width={table.getCenterTotalSize()}>
+    <Tbody>
+      {table.getHeaderGroups().map((headerGroup, hgid) => {
+        return headerGroup.headers.map((header, hid) => (
+          <Tr key={`h-${hid}`}>
+            <Td>
+              <Text>
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+              </Text>
+            </Td>
+            {table.getRowModel().rows.map((row, rid) => {
+              const cell = row.getVisibleCells().at(hid);
+              return cell !== undefined ? <Td key={`c-${hid}-{rid}`}>
+                {flexRender(cell?.column.columnDef.cell, cell.getContext())}
+              </Td> : <Td></Td>
+            })}
+          </Tr>
+        ));
+      }
+      )}
+    </Tbody>
+  </ChakraTable>, [table]);
 
   const addFilter = useCallback((id: string, value: unknown) => {
     setColumnFilters([{ id, value }, ...columnFilters.filter((c) => c.id !== id)]);
