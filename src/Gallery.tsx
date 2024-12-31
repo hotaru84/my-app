@@ -1,21 +1,29 @@
-import { createRef, FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { createRef, FC, useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Box,
   Card,
-  CardBody,
   CardHeader,
   VStack,
   SimpleGrid,
   Image,
   Spacer,
+  HStack,
+  Avatar,
+  useDisclosure,
+  IconButton,
+  CardFooter,
 } from "@chakra-ui/react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { addHours, format } from "date-fns";
 import { Navigation } from "./Navigation";
 import TrendlineChart from "./TrendlineChart";
 import useIdParam from "./useIdParam";
+import SimpleTable from "./SimpleTable";
+import { TbCheck } from "react-icons/tb";
+import { MdClose, MdExpand, MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import CheckAvatar from "./CheckAvatar";
 
-type CardInfo = {
+export type CardInfo = {
   id: number;
   time: Date,
   value: number;
@@ -28,24 +36,35 @@ type ImageCardProps = {
 const ImageCard: FC<ImageCardProps> = ({ info }) => {
   const { id: selectedId, setId } = useIdParam();
   const isSelected = useMemo(() => String(info.id) === selectedId, [info.id, selectedId]);
+  const { isOpen: isHover, onOpen: onHoverStart, onClose: onHoverEnd } = useDisclosure();
+
 
   return <Card
     rounded={"lg"}
+    as={motion.div}
+    layout
+    borderWidth={isSelected ? 2 : 0}
+    borderColor={"blue.300"}
+    onMouseEnter={onHoverStart}
+    onMouseLeave={onHoverEnd}
     onClick={() => {
       setId(isSelected ? null : String(info.id));
     }}
-    as={motion.div}
-    layout
-    whileHover={{ filter: "brightness(0.9)" }}
-    borderWidth={isSelected ? 2 : 0}
-    h={selectedId !== null ? '70vh' : 'full'}
-    borderColor={"blue.300"}
+    cursor='pointer'
   >
+    <CheckAvatar isVisible={isHover || isSelected} isChecked={isSelected} />
+    <CardHeader>
+      {info.id}:{format(info.time, "yyyy/MM/dd HH")}
+    </CardHeader>
 
-    <CardHeader>{info.id}:{format(info.time, "yyyy/MM/dd HH")}</CardHeader>
-    <CardBody>
-      <Image objectFit={'contain'} mx="auto" src="sample.svg" />
-    </CardBody>
+    <HStack>
+      <Image objectFit={'contain'} mx="auto" src="sample.svg" w={isSelected ? '100%' : 'unset'} />
+      {selectedId !== null && <SimpleTable info={info} />}
+    </HStack>
+    <HStack p={2}>
+      <Spacer />
+      <IconButton aria-label={""} icon={isSelected ? <MdFullscreenExit /> : <MdFullscreen />} />
+    </HStack>
   </Card>
 }
 
@@ -64,7 +83,6 @@ const Gallery: FC = () => {
   const { id } = useIdParam();
   const pageRef = useRef(cardlist.map(() => createRef<HTMLDivElement>()));
   const scrollToView = useCallback((id: number) => {
-    console.log(id);
     pageRef.current[id]?.current?.scrollIntoView({ behavior: "auto", block: "center" });
   }, []);
 
